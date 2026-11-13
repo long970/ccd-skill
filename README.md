@@ -19,6 +19,22 @@ requirements.txt
 
 The skill separates three capability levels: local deterministic pixel processing for CCD effects (L2), an explicitly available and authorized generative image-edit backend for semantic/medium changes such as ink painting (L1), and prompt-only fallback (L3). It does not claim that pixel filters reproduce a particular sensor or reconstruct real flash shadows.
 
+## Samples
+
+Real photographs, processed by the shipped CLI with `--seed 7`. Left is the unmodified photo, right is the result. Sources and licensing: [docs/samples/README.md](docs/samples/README.md).
+
+![Indoor portrait, indoor-flash strength 75](docs/samples/indoor-portrait.jpg)
+
+![Daylight landscape, daylight-aged strength 60](docs/samples/daylight-landscape.jpg)
+
+![Night city, night-flash strength 70](docs/samples/night-city.jpg)
+
+Strength semantics on the same portrait (50 / 75 / 100). The default 50 is deliberately subtle:
+
+![Strength ladder 50 75 100](docs/samples/strength-ladder.jpg)
+
+These show the pipeline working on real photos. They do not prove the look matches a specific CCD model, and the portrait exposes a known limitation: warm highlight gains still shift light skin slightly warmer at strength 100, with no skin detection in L2.
+
 ## Run the local CCD processor
 
 The CLI requires Python, Pillow, and NumPy in the chosen interpreter. It never installs dependencies or accesses the network.

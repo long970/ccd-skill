@@ -74,8 +74,8 @@ PRESETS: dict[str, Preset] = {
     ),
     "indoor-flash": Preset(
         name="indoor-flash", environment="indoor", flash_axis="direct-tonal", degradation="clean",
-        exposure_ev=0.045, contrast_delta=0.20, saturation_delta=0.12,
-        shadow_gain=(0.990, 1.000, 1.022), highlight_gain=(1.018, 1.004, 0.982),
+        exposure_ev=0.045, contrast_delta=0.20, saturation_delta=0.06,
+        shadow_gain=(0.990, 1.000, 1.022), highlight_gain=(1.018, 1.004, 0.992),
         shadow_lift=0.045, highlight_compression=0.00, highlight_boost=0.30,
         grain_sigma=0.014, vignette_amount=0.70, sharpness_amount=0.34,
     ),

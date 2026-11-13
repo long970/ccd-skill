@@ -2,3 +2,7 @@ __pycache__/
 *.py[cod]
 tests/.test-work/
 .coverage
+
+# scratch download/processing areas
+_probe/
+_samples-work/

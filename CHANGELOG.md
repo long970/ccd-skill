@@ -2,6 +2,11 @@
 
 This project follows Semantic Versioning.
 
+## 1.3.1 — 2026-11-13
+
+- Reduce `indoor-flash` saturation (0.12 → 0.06) and lift its blue highlight gain (0.982 → 0.992). On a real portrait the strength-100 skin shift improves from `+11R/+4G/−13B` to `+9R/+4G/−8B`, and preset separation at strength 80 rises from 2.48 to 2.76/255 on the calibration fixture.
+- Add `docs/samples/` with three real-photo before/after pairs (indoor portrait, daylight landscape, night city) and a 50/75/100 strength ladder, plus source and Pexels License notes. The photos are resized for layout only; the "after" halves are CLI output.
+
 ## 1.3.0 — 2026-11-13
 
 - Replace linear contrast with an endpoint-pinned S-curve and replace the saturating exponential shoulder with a "lift toward white" gain. Longest flat highlight shelf drops from 27 to 8 output levels at strength 100 (5 at strength 50) and the top of the range still reaches 255.
