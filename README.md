@@ -61,7 +61,7 @@ python -m unittest discover -s tests -v
 
 The tests use `os.makedirs`-created unique child directories. They prefer `tests/.test-work` or `CCD_TEST_TMP`; if neither is writable, they fall back to `LOCALAPPDATA`, `TEMP`, or `TMP` and print the chosen path. They do not rely on `tempfile`'s private temporary-directory ACLs.
 
-GitHub Actions runs the same suite on Windows and Ubuntu with the pinned dependencies in `requirements.txt`. The preset separation, dark vignette, and highlight assertions use generated calibration and photo-like fixtures. Measured with grain disabled: closest preset pair is ~1.6–1.8/255 at strength 50 and ≥2.4/255 at strength 80, so the documented "obvious preset character" applies from about strength 70 upward. **No real-photo before/after proof is included yet**: it must be added using an authorized sample photo and visually reviewed; synthetic charts are not a substitute.
+GitHub Actions runs the same suite on Windows and Ubuntu with the pinned dependencies in `requirements.txt`. The preset separation, dark vignette, and highlight assertions use generated calibration and photo-like fixtures. Measured with grain disabled: closest preset pair is about 2.2–2.3/255 at strength 50 and ≥3.4/255 at strength 80, so the documented "obvious preset character" applies from about strength 75 upward. Real-photo before/after examples are included above; the synthetic calibration fixtures below complement rather than replace visual review of those photographs.
 
 ## Install in DeepSeek Harness
 

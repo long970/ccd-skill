@@ -1,6 +1,6 @@
 # Sample before/after images
 
-These four images are the visual evidence for the CCD presets. They are **real photographs**, not synthetic charts, and were produced with the shipped CLI:
+These five images are the visual evidence for the CCD presets. They are **real photographs**, not synthetic charts, and were produced with the shipped 1.4.1 CLI:
 
 ```text
 python skills/ccd-photo-enhancer/scripts/apply_ccd.py <source> --preset <preset> --strength <n> --seed 7
@@ -24,7 +24,7 @@ If you republish these files, keep the Pexels License terms in mind. If you need
 
 ## What these images do and do not show
 
-- They show that the pipeline runs on real camera/smartphone photographs at 1600 px long edge, keeps subject geometry and identity untouched, and produces a clearly warmer, higher-contrast, strongly vignetted compact-camera look with visible grain, a deeper black point and warm bloom around highlights. Measured mean absolute pixel change is about 15/255 for the portrait and landscape and 19/255 for the night frame.
-- `detail-100-percent.jpg` is the only place where per-pixel grain is visible; downscaled pairs average it away.
-- They do **not** prove that the result "looks like" a specific CCD camera model, and they are not a substitute for a blind human comparison against real CCD files. The treatment is deliberately conservative: at the default strength 50 the change is subtle, which is why the strength ladder is included.
+- They show that the pipeline runs on real camera/smartphone photographs at 1600 px long edge, keeps subject geometry and identity untouched, and produces a clearly warmer, higher-contrast, strongly vignetted compact-camera look with visible grain, a deeper black point and warm bloom around highlights. Measured mean absolute pixel change is 15.5/255 (portrait), 14.6/255 (landscape) and 18.9/255 (night).
+- `detail-100-percent.jpg` makes per-pixel grain easier to inspect; downscaled pairs average much of it away.
+- They do **not** prove that the result "looks like" a specific CCD camera model, and they are not a substitute for a blind human comparison against real CCD files. At the default strength 50 the change is visible but restrained; the strength ladder shows how the effect develops.
 - The portrait shows the known limitation that warm highlight gains still shift light skin slightly warmer at strength 100. There is no face or skin detection in L2, so this must be reviewed by eye.

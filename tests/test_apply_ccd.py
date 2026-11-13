@@ -11,12 +11,37 @@ from io import StringIO
 from pathlib import Path
 
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageFilter
 
 ROOT = Path(__file__).resolve().parents[1]
 BUNDLE = ROOT / "skills" / "ccd-photo-enhancer"
 sys.path.insert(0, str(BUNDLE / "scripts"))
 import apply_ccd  # noqa: E402
+
+
+def _neutral_preset(**overrides) -> apply_ccd.Preset:
+    values = dict(
+        name="test-neutral",
+        environment="daylight",
+        flash_axis="none",
+        degradation="clean",
+        exposure_ev=0.0,
+        contrast_delta=0.0,
+        saturation_delta=0.0,
+        shadow_gain=(1.0, 1.0, 1.0),
+        highlight_gain=(1.0, 1.0, 1.0),
+        shadow_lift=0.0,
+        highlight_compression=0.0,
+        highlight_boost=0.0,
+        grain_sigma=0.0,
+        vignette_amount=0.0,
+        sharpness_amount=0.0,
+        halation=0.0,
+        black_point=0.0,
+        flash_falloff=0.0,
+    )
+    values.update(overrides)
+    return apply_ccd.Preset(**values)
 
 
 class ApplyCcdTests(unittest.TestCase):
@@ -292,6 +317,64 @@ class ApplyCcdTests(unittest.TestCase):
         self.assertEqual(report["format"], "png")
         self.assertIsNone(report["quality"])
 
+    def test_halation_is_warm_and_localized(self) -> None:
+        source = np.zeros((96, 96, 3), dtype=np.uint8)
+        source[32:48, 32:48] = 255
+        result = apply_ccd._apply_pixel_recipe(
+            source, _neutral_preset(halation=0.20), 100, 0, None, None, None
+        )
+        near_highlight = result[40, 28].astype(np.int16) - source[40, 28].astype(np.int16)
+        self.assertGreater(int(near_highlight[0]), 0)
+        self.assertGreaterEqual(int(near_highlight[0]), int(near_highlight[1]))
+        self.assertGreater(int(near_highlight[1]), int(near_highlight[2]))
+        np.testing.assert_array_equal(result[0, 0], source[0, 0])
+
+    def test_halation_is_continuous_across_tile_boundaries(self) -> None:
+        # The glow map is built once for the whole frame. A mid-tone band straddling the 256-row
+        # tile boundary must not jump where tile 0 ends and tile 1 begins. The glow is isolated by
+        # subtracting a render with halation disabled so the band edges cannot mask a real seam.
+        height, width = 600, 32
+        source = np.zeros((height, width, 3), dtype=np.uint8)
+        source[236:276, :] = 215
+        with_glow = apply_ccd._apply_pixel_recipe(
+            source, _neutral_preset(halation=0.30), 100, 0, None, None, None
+        ).astype(np.int16)
+        without_glow = apply_ccd._apply_pixel_recipe(
+            source, _neutral_preset(halation=0.0), 100, 0, None, None, None
+        ).astype(np.int16)
+        glow = (with_glow - without_glow)[:, 16, 0]
+        boundary = apply_ccd.TILE_ROWS - 1  # step from the last row of tile 0 into tile 1
+        self.assertGreater(int(glow[boundary]), 0, msg="glow must reach the tile boundary")
+        self.assertLessEqual(
+            abs(int(glow[boundary + 1]) - int(glow[boundary])),
+            1,
+            msg=f"tile seam at row {boundary}: {int(glow[boundary])} -> {int(glow[boundary + 1])}",
+        )
+        window = np.abs(np.diff(glow))[boundary - 10: boundary + 11]
+        self.assertLessEqual(int(window.max()), 2, msg=f"glow not smooth near boundary: {int(window.max())}")
+
+    def test_black_point_toe_deepens_midtones_without_crushing_whites(self) -> None:
+        source = np.repeat(np.arange(256, dtype=np.uint8).reshape(16, 16, 1), 3, axis=2)
+        result = apply_ccd._apply_pixel_recipe(
+            source, _neutral_preset(black_point=0.10), 100, 0, None, None, None
+        )
+        self.assertEqual(int(result[0, 0, 0]), 0)
+        self.assertLess(int(result[4, 0, 0]), int(source[4, 0, 0]))
+        self.assertEqual(int(result[-1, -1, 0]), 255)
+        self.assertTrue(np.all(np.diff(result[..., 0].reshape(-1).astype(np.int16)) >= 0))
+
+    def test_flash_falloff_brightens_without_new_channel_clipping(self) -> None:
+        source = np.zeros((32, 32, 3), dtype=np.uint8)
+        source[:] = (240, 40, 40)
+        result = apply_ccd._apply_pixel_recipe(
+            source, _neutral_preset(flash_falloff=0.16), 100, 0, None, None, None
+        )
+        centre = result[16, 16]
+        self.assertGreater(int(centre[0]), 240)
+        self.assertLess(int(centre[0]), 255)
+        self.assertGreater(int(centre[1]), 40)
+        self.assertLess(int(result[0, 0, 0]), int(centre[0]))
+
     def test_vignette_at_full_strength_is_measurable(self) -> None:
         source = self.root / "flat.png"
         Image.new("RGB", (256, 256), (128, 128, 128)).save(source)
@@ -390,8 +473,8 @@ class ApplyCcdTests(unittest.TestCase):
         highlight = np.linspace(180, 253, 40, dtype=np.uint8)[None, :, None]
         pixels[:, 88:] = np.repeat(np.repeat(highlight, 128, axis=0), 3, axis=2)
         Image.fromarray(pixels).save(source)
-        # At the default strength 50 the presets differ only subtly (measured ~1.6/255 on this
-        # fixture); the documented distinct-character claim is asserted at strength 80.
+        # At the default strength 50 the presets remain restrained (about 2.2–2.3/255 on the
+        # current fixtures); the documented distinct-character claim is asserted at strength 80.
         minimum_pair = self._closest_pair(source, "80")
         self.assertGreaterEqual(minimum_pair[2], 3.4, msg=f"Closest presets: {minimum_pair}")
 

@@ -6,3 +6,6 @@ tests/.test-work/
 # scratch download/processing areas
 _probe/
 _samples-work/
+
+# agent scratch state
+.workbuddy/

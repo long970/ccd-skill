@@ -2,6 +2,16 @@
 
 This project follows Semantic Versioning.
 
+## 1.4.1 — 2026-11-13
+
+- Build halation from a quarter-resolution source and upsample one shared 8-bit glow map. This removes full-frame float32 RGB/luma/mask intermediates and keeps interpolation continuous across tile boundaries.
+- Replace direct-multiplication flash lift with a bounded quadratic lift, preventing new saturated-channel clipping. Raise indoor/night flash coefficients to 0.18/0.22 so the existing strength-80 preset-separation targets remain meaningful without weakening the tests.
+- Add dedicated regressions for warm localized halation, tile-seam continuity, black-point behaviour and saturated-colour flash lift. The suite now contains 33 tests.
+- Correct stale sample counts, strength descriptions and real-photo documentation.
+- Remove a dead branch in the flash-falloff stage (`np.clip(falloff, -1, 0)` was always zero, so the "edge darkening" multiply never ran and its comment was misleading).
+- Correct the README separation figures, which still said ~1.6–1.8/255 at strength 50 and ≥2.4/255 at strength 80 while the code, tests and preset reference all say 2.2–2.3 and ≥3.4.
+- Regenerate all five sample composites with 1.4.1 and replace the self-referential halation test (it re-implemented the algorithm) with an independent tile-seam assertion.
+
 ## 1.4.0 — 2026-11-13
 
 The previous release was criticised for producing before/after pairs that were hard to tell apart. Root cause: grain was effectively invisible (sigma 0.014), the vignette was capped at 20%, and nothing else carried a recognisable "small sensor" signature.
