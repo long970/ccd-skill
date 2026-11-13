@@ -23,17 +23,21 @@ The skill separates three capability levels: local deterministic pixel processin
 
 Real photographs, processed by the shipped CLI with `--seed 7`. Left is the unmodified photo, right is the result. Sources and licensing: [docs/samples/README.md](docs/samples/README.md).
 
-![Indoor portrait, indoor-flash strength 75](docs/samples/indoor-portrait.jpg)
+![Indoor portrait, indoor-flash strength 80](docs/samples/indoor-portrait.jpg)
 
-![Daylight landscape, daylight-aged strength 60](docs/samples/daylight-landscape.jpg)
+![Daylight landscape, daylight-aged strength 75](docs/samples/daylight-landscape.jpg)
 
-![Night city, night-flash strength 70](docs/samples/night-city.jpg)
+![Night city, night-flash strength 80](docs/samples/night-city.jpg)
 
-Strength semantics on the same portrait (50 / 75 / 100). The default 50 is deliberately subtle:
+Strength semantics on the same portrait (50 / 75 / 100). The default 50 is visible but restrained; 75-85 is where the preset character is obvious:
 
 ![Strength ladder 50 75 100](docs/samples/strength-ladder.jpg)
 
-These show the pipeline working on real photos. They do not prove the look matches a specific CCD model, and the portrait exposes a known limitation: warm highlight gains still shift light skin slightly warmer at strength 100, with no skin detection in L2.
+Grain and highlight bloom are per-pixel effects, so they disappear when a 1600 px photo is scaled down for a web page. This is the same indoor portrait at 100% crop:
+
+![100% crop before and after](docs/samples/detail-100-percent.jpg)
+
+These show the pipeline working on real photos. They do not prove the look matches a specific CCD model. Known limitation: warm highlight gains still shift light skin warmer at high strength, and L2 has no face or skin detection, so portrait output needs a visual check.
 
 ## Run the local CCD processor
 

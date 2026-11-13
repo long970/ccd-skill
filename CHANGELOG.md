@@ -2,6 +2,18 @@
 
 This project follows Semantic Versioning.
 
+## 1.4.0 — 2026-11-13
+
+The previous release was criticised for producing before/after pairs that were hard to tell apart. Root cause: grain was effectively invisible (sigma 0.014), the vignette was capped at 20%, and nothing else carried a recognisable "small sensor" signature.
+
+- Add **halation** (warm bloom around blown highlights) and **flash falloff** (centre-weighted lift of shadows and midtones with darker edges). Both are asymptotic, so neither can push pixels past 1.0 or create a white plateau.
+- Add a **black-point toe** so shadows deepen instead of staying milky.
+- Raise grain roughly 4x (indoor 0.014 → 0.055, night 0.045 → 0.075), raise the vignette cap from 20% to 45%, and strengthen the warm-highlight / cool-shadow split.
+- Retune all four presets for a clearly visible result at strength 75-85. Measured mean absolute pixel change on real photos: 15.4/255 (portrait), 14.6/255 (landscape), 19.0/255 (night).
+- Re-verify the earlier safety bounds after strengthening: 205 grey stays at 217-229 instead of clipping, longest flat highlight shelf is 5-9 levels (not 26-42), skin patch at strength 50 moves `+11R/+5G/+1B`, preset separation at strength 80 rises to ≥3.4/255.
+- Add `docs/samples/detail-100-percent.jpg` because per-pixel grain is invisible once a 1600 px photo is scaled down for a web page.
+- Update the vignette (5-45%), clipping (205 grey), separation (≥3.4) and shelf (≤10) test bounds to the new calibration.
+
 ## 1.3.1 — 2026-11-13
 
 - Reduce `indoor-flash` saturation (0.12 → 0.06) and lift its blue highlight gain (0.982 → 0.992). On a real portrait the strength-100 skin shift improves from `+11R/+4G/−13B` to `+9R/+4G/−8B`, and preset separation at strength 80 rises from 2.48 to 2.76/255 on the calibration fixture.

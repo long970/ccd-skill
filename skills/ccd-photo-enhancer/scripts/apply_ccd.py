@@ -55,36 +55,43 @@ class Preset:
     grain_sigma: float
     vignette_amount: float
     sharpness_amount: float
+    halation: float = 0.0
+    black_point: float = 0.0
+    flash_falloff: float = 0.0
 
 
 PRESETS: dict[str, Preset] = {
     "daylight-clean": Preset(
         name="daylight-clean", environment="daylight", flash_axis="none", degradation="clean",
-        exposure_ev=0.00, contrast_delta=0.12, saturation_delta=0.14,
-        shadow_gain=(1.005, 1.000, 1.012), highlight_gain=(1.020, 1.005, 0.985),
+        exposure_ev=0.00, contrast_delta=0.16, saturation_delta=0.14,
+        shadow_gain=(0.990, 1.000, 1.020), highlight_gain=(1.030, 1.008, 0.978),
         shadow_lift=0.00, highlight_compression=0.02, highlight_boost=0.00,
-        grain_sigma=0.005, vignette_amount=0.12, sharpness_amount=0.22,
+        grain_sigma=0.020, vignette_amount=0.16, sharpness_amount=0.30,
+        halation=0.08, black_point=0.012, flash_falloff=0.00,
     ),
     "daylight-aged": Preset(
         name="daylight-aged", environment="daylight", flash_axis="none", degradation="light-aged",
-        exposure_ev=-0.005, contrast_delta=0.12, saturation_delta=0.18,
-        shadow_gain=(0.995, 1.000, 1.020), highlight_gain=(1.025, 1.008, 0.975),
+        exposure_ev=-0.005, contrast_delta=0.20, saturation_delta=0.18,
+        shadow_gain=(0.980, 1.000, 1.040), highlight_gain=(1.040, 1.008, 0.960),
         shadow_lift=0.035, highlight_compression=0.18, highlight_boost=0.00,
-        grain_sigma=0.030, vignette_amount=0.36, sharpness_amount=0.20,
+        grain_sigma=0.060, vignette_amount=0.55, sharpness_amount=0.30,
+        halation=0.16, black_point=0.035, flash_falloff=0.00,
     ),
     "indoor-flash": Preset(
         name="indoor-flash", environment="indoor", flash_axis="direct-tonal", degradation="clean",
-        exposure_ev=0.045, contrast_delta=0.20, saturation_delta=0.06,
-        shadow_gain=(0.990, 1.000, 1.022), highlight_gain=(1.018, 1.004, 0.992),
-        shadow_lift=0.045, highlight_compression=0.00, highlight_boost=0.30,
-        grain_sigma=0.014, vignette_amount=0.70, sharpness_amount=0.34,
+        exposure_ev=0.045, contrast_delta=0.26, saturation_delta=0.06,
+        shadow_gain=(0.955, 1.000, 1.055), highlight_gain=(1.035, 1.006, 0.965),
+        shadow_lift=0.045, highlight_compression=0.00, highlight_boost=0.14,
+        grain_sigma=0.055, vignette_amount=0.85, sharpness_amount=0.46,
+        halation=0.20, black_point=0.030, flash_falloff=0.12,
     ),
     "night-flash": Preset(
         name="night-flash", environment="night", flash_axis="direct-tonal", degradation="light-aged",
-        exposure_ev=-0.020, contrast_delta=0.22, saturation_delta=0.14,
-        shadow_gain=(0.820, 1.000, 1.250), highlight_gain=(1.020, 1.005, 0.985),
-        shadow_lift=0.070, highlight_compression=0.00, highlight_boost=0.26,
-        grain_sigma=0.045, vignette_amount=0.70, sharpness_amount=0.30,
+        exposure_ev=-0.020, contrast_delta=0.30, saturation_delta=0.14,
+        shadow_gain=(0.820, 1.000, 1.240), highlight_gain=(1.050, 1.008, 0.940),
+        shadow_lift=0.070, highlight_compression=0.00, highlight_boost=0.12,
+        grain_sigma=0.075, vignette_amount=0.95, sharpness_amount=0.42,
+        halation=0.24, black_point=0.045, flash_falloff=0.16,
     ),
 }
 
@@ -189,6 +196,23 @@ def _apply_pixel_recipe(
     if not np.any(white_balance_span):
         color_mix = 0.0
 
+    # Halation: cheap CCD sensors bloom around blown highlights. Build one low-resolution
+    # blurred highlight mask for the whole frame, then sample it per tile so the glow is
+    # continuous across tile borders instead of restarting at each boundary.
+    halation_map: np.ndarray | None = None
+    if preset.halation > 0 and main > 0:
+        full = source.astype(np.float32) / 255.0
+        luma_full = full[..., 0] * 0.2126 + full[..., 1] * 0.7152 + full[..., 2] * 0.0722
+        mask = np.clip((luma_full - 0.70) / 0.30, 0.0, 1.0)
+        small_w = max(1, width // 4)
+        small_h = max(1, height // 4)
+        small = Image.fromarray((mask * 255.0).astype(np.uint8)).resize(
+            (small_w, small_h), Image.BILINEAR
+        )
+        radius = max(1.0, min(width, height) / 180.0)
+        blurred = small.filter(ImageFilter.GaussianBlur(radius=radius))
+        halation_map = np.asarray(blurred, dtype=np.float32) / 255.0
+
     for y0 in range(0, height, TILE_ROWS):
         y1 = min(height, y0 + TILE_ROWS)
         work = source[y0:y1].astype(np.float32) / 255.0
@@ -208,6 +232,12 @@ def _apply_pixel_recipe(
         if curve_a > 0:
             work = np.clip(work, 0.0, 1.0)
             work = work + np.float32(curve_a) * work * (1.0 - work) * (2.0 * work - 1.0)
+
+        # A small toe deepens the black point, which is what gives small-sensor files their
+        # punchy contrast instead of the milky shadow lift of a modern HDR pipeline.
+        if preset.black_point > 0 and main > 0:
+            toe = np.float32(preset.black_point * main)
+            work = np.clip((work - toe) / (1.0 - toe), 0.0, 1.0)
 
         # Retain a little shadow detail instead of making global contrast crush blacks.
         luma = work[..., 0] * 0.2126 + work[..., 1] * 0.7152 + work[..., 2] * 0.0722
@@ -237,6 +267,24 @@ def _apply_pixel_recipe(
             above = np.maximum(work - start, 0.0)
             work = np.where(work > start, start + above * np.float32(1.0 - compression), work)
 
+        # Warm bloom around blown highlights; the map is quarter-resolution and is upsampled
+        # per tile so memory stays flat on large photos.
+        if halation_map is not None:
+            gy0, gy1 = y0 // 4, min(halation_map.shape[0], max(y0 // 4 + 1, (y1 + 3) // 4))
+            glow_small = halation_map[gy0:gy1]
+            glow = np.asarray(
+                Image.fromarray((glow_small * 255.0).astype(np.uint8)).resize(
+                    (width, y1 - y0), Image.BILINEAR
+                ),
+                dtype=np.float32,
+            ) / 255.0
+            strength = np.float32(preset.halation * main)
+            warm = np.asarray([1.00, 0.82, 0.66], dtype=np.float32)
+            # Asymptotic add: the glow fades out as pixels approach white, so bloom never
+            # creates a clipped plateau at the top of the range.
+            add = (1.0 - work) * (glow * strength)[..., None]
+            work = work + add * warm
+
         if preset.vignette_amount > 0 and vignette_mix > 0:
             y_coords = (np.arange(y0, y1, dtype=np.float32) + 0.5) / max(height, 1)
             yy = (y_coords - 0.5) * 2.0
@@ -247,10 +295,22 @@ def _apply_pixel_recipe(
             shadow_guard = np.clip(luma / 0.02, 0.0, 1.0)
             # Give night backgrounds a visible edge falloff while leaving true black pixels alone.
             dark_scene_boost = 1.0 + 0.35 * np.clip((0.08 - luma) / 0.08, 0.0, 1.0)
-            vignette_drop = np.float32(0.34 * preset.vignette_amount * vignette_mix)
-            local_drop = np.minimum(vignette_drop * dark_scene_boost, 0.20)
+            vignette_drop = np.float32(0.42 * preset.vignette_amount * vignette_mix)
+            local_drop = np.minimum(vignette_drop * dark_scene_boost, 0.45)
             factor = 1.0 - local_drop * radius2 * shadow_guard
-            work *= np.clip(factor, 0.45, 1.0)[..., None]
+            work *= np.clip(factor, 0.40, 1.0)[..., None]
+
+        # Direct on-camera flash illuminates the subject and falls off toward the edges. The gain
+        # is weighted toward shadows and midtones only, so it never pushes highlights past 1.0 and
+        # never creates a flat white shelf.
+        if preset.flash_falloff > 0 and main > 0:
+            y_coords = (np.arange(y0, y1, dtype=np.float32) + 0.5) / max(height, 1)
+            yy = (y_coords - 0.5) * 2.0
+            radius2 = (yy[:, None] ** 2 + xx[None, :] ** 2) * 0.5
+            center_gain = np.float32(preset.flash_falloff * main)
+            luma_now = work[..., 0] * 0.2126 + work[..., 1] * 0.7152 + work[..., 2] * 0.0722
+            shadow_weight = np.clip((0.75 - luma_now) / 0.75, 0.0, 1.0)
+            work *= (1.0 + center_gain * (1.0 - radius2) * shadow_weight)[..., None]
 
         if preset.grain_sigma > 0 and grain_mix > 0:
             rows = y1 - y0

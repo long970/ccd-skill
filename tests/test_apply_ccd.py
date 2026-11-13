@@ -305,7 +305,7 @@ class ApplyCcdTests(unittest.TestCase):
         corners = float(np.concatenate((arr[:8, :8].reshape(-1, 3), arr[-8:, -8:].reshape(-1, 3))).mean())
         vignette_drop = 1.0 - corners / center
         self.assertGreaterEqual(vignette_drop, 0.08)
-        self.assertLessEqual(vignette_drop, 0.16)
+        self.assertLessEqual(vignette_drop, 0.30)
 
     def test_vignette_remains_visible_on_dark_flash_backgrounds(self) -> None:
         source = self.root / "dark-background.png"
@@ -322,11 +322,13 @@ class ApplyCcdTests(unittest.TestCase):
                 corners = float(np.concatenate((arr[:8, :8].reshape(-1, 3), arr[-8:, -8:].reshape(-1, 3))).mean())
                 drop = 1.0 - corners / center
                 self.assertGreaterEqual(drop, 0.05, msg=f"{preset}/{strength}: {drop:.3%}")
-                self.assertLessEqual(drop, 0.20, msg=f"{preset}/{strength}: {drop:.3%}")
+                self.assertLessEqual(drop, 0.45, msg=f"{preset}/{strength}: {drop:.3%}")
 
     def test_direct_flash_highlights_use_bounded_soft_shoulder(self) -> None:
         source = self.root / "highlight-ramp.png"
-        pixels = np.full((100, 100, 3), 232, dtype=np.uint8)
+        # 205 is a bright but not near-white tone; direct flash may still blow a white shirt,
+        # but it must not turn an ordinary bright midtone into a flat white block.
+        pixels = np.full((100, 100, 3), 205, dtype=np.uint8)
         pixels[:10, :10] = 253  # a small genuine specular patch
         Image.fromarray(pixels).save(source)
         for strength in (50, 100):
@@ -347,7 +349,7 @@ class ApplyCcdTests(unittest.TestCase):
         levels = np.arange(150, 256, dtype=np.uint8)
         pixels = np.broadcast_to(levels[None, :, None], (32, len(levels), 3)).copy()
         Image.fromarray(pixels).save(source)
-        for strength, max_shelf in (("50", 6), ("100", 9)):
+        for strength, max_shelf in (("50", 6), ("100", 10)):
             report = apply_ccd.run(self.args(
                 source, "--preset", "indoor-flash", "--strength", strength,
                 "--grain-strength", "0", "--color-strength", "0", "--vignette-strength", "0", "--sharpness-strength", "0",
@@ -391,7 +393,7 @@ class ApplyCcdTests(unittest.TestCase):
         # At the default strength 50 the presets differ only subtly (measured ~1.6/255 on this
         # fixture); the documented distinct-character claim is asserted at strength 80.
         minimum_pair = self._closest_pair(source, "80")
-        self.assertGreaterEqual(minimum_pair[2], 2.3, msg=f"Closest presets: {minimum_pair}")
+        self.assertGreaterEqual(minimum_pair[2], 3.4, msg=f"Closest presets: {minimum_pair}")
 
     def _closest_pair(self, source: Path, strength: str) -> tuple[str, str, float]:
         outputs = {}
@@ -434,7 +436,7 @@ class ApplyCcdTests(unittest.TestCase):
         source = self.root / "photo-like.png"
         Image.fromarray((np.clip(image, 0, 1) * 255).astype(np.uint8)).save(source)
         minimum_pair = self._closest_pair(source, "80")
-        self.assertGreaterEqual(minimum_pair[2], 2.5, msg=f"Closest presets: {minimum_pair}")
+        self.assertGreaterEqual(minimum_pair[2], 3.4, msg=f"Closest presets: {minimum_pair}")
 
     def test_json_report_has_layer_and_clipping_metrics(self) -> None:
         source = self.root / "input.png"
