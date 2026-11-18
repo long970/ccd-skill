@@ -1,27 +1,134 @@
 # CCD Photo Enhancer
 
-A local-first Agent Skill for editing an existing photo or photo folder with a repeatable early compact-digital-camera (CCD-look) treatment. It is designed for privacy-conscious photographers and Agent power users who want deterministic, local results rather than generative reinterpretation. The repository keeps the discoverable skill bundle under `skills/ccd-photo-enhancer/`; tests and release metadata live at the repository root.
+[![tests](https://github.com/long970/ccd-skill/actions/workflows/tests.yml/badge.svg)](https://github.com/long970/ccd-skill/actions/workflows/tests.yml)
+[![release](https://img.shields.io/github/v/release/long970/ccd-skill?display_name=tag)](https://github.com/long970/ccd-skill/releases)
+[![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-## Repository layout
+**Turn existing photos into a repeatable early compact-digital-camera look — locally, without uploads or generative reinterpretation.**
+
+CCD Photo Enhancer is a local-first Agent Skill for CCD, Y2K and retro digicam styling. It provides four calibrated presets, deterministic Pillow/NumPy processing, single-image and folder workflows, and strict source-file protection. It is a visual approximation, not a physical simulation of a specific CCD sensor.
+
+## Why this Skill
+
+- **Private by design.** Photos are processed locally. The CLI makes no network requests and does not upload images.
+- **Repeatable.** The same image, parameters, seed and dependency versions produce the same pixels.
+- **Non-destructive.** Outputs are new files; existing files and source photos are never overwritten.
+- **Useful at collection scale.** Batch mode processes a folder level and reports every success or failure.
+- **Clear about its limits.** No face detection, semantic retouching, real flash-shadow reconstruction or claimed camera-model matching.
+
+## At a Glance
+
+| | |
+|---|---|
+| **Current release** | [v1.5.0](https://github.com/long970/ccd-skill/releases/tag/v1.5.0) |
+| **Input** | Static JPEG, PNG and WebP |
+| **Output** | New JPEG, PNG or WebP; orientation and dimensions preserved |
+| **Presets** | `daylight-clean`, `daylight-aged`, `indoor-flash`, `night-flash` |
+| **Workflows** | Single image, metric-only preview, non-recursive folder batch |
+| **Runtime** | Python 3.12 with Pillow and NumPy |
+| **Tested on** | Ubuntu and Windows through GitHub Actions |
+| **License** | MIT |
+
+## Install
+
+### Requirements
+
+- Python 3.12
+- [Pillow and NumPy](requirements.txt)
+- Node.js 22.20+ only when using the Skills CLI
+
+The processor never installs dependencies. Install them explicitly:
 
 ```text
-skills/ccd-photo-enhancer/
-  SKILL.md
-  VERSION
-  references/
-  scripts/apply_ccd.py
-tests/test_apply_ccd.py
-.github/workflows/tests.yml
-LICENSE
-CHANGELOG.md
-requirements.txt
+python -m pip install -r requirements.txt
 ```
 
-The skill separates three capability levels: local deterministic pixel processing for CCD effects (L2), an explicitly available and authorized generative image-edit backend for semantic/medium changes such as ink painting (L1), and prompt-only fallback (L3). It does not claim that pixel filters reproduce a particular sensor or reconstruct real flash shadows.
+### Skills CLI
+
+Install the public GitHub bundle with:
+
+```text
+npx skills add long970/ccd-skill --skill ccd-photo-enhancer
+```
+
+The Skills CLI installs the Skill files; it does not install the Python runtime dependencies.
+
+### Manual or archive install
+
+Download `ccd-photo-enhancer.zip` from [GitHub Releases](https://github.com/long970/ccd-skill/releases/latest), extract it, and place the `ccd-photo-enhancer` directory in your agent's Skill directory. Alternatively, clone this repository and point the agent at `skills/ccd-photo-enhancer/`.
+
+skills.sh is an external directory. Its website listing and audit metadata are updated asynchronously after the registry indexes this public repository; installation does not depend on the website page being present.
+
+## Quick Start
+
+The commands below use the repository layout. If the Skill is already installed, replace `skills/ccd-photo-enhancer/` with its installed directory.
+
+```bash
+# A clearly visible CCD treatment
+python skills/ccd-photo-enhancer/scripts/apply_ccd.py photo.jpg \
+  --preset daylight-aged --strength 75 --seed 0
+
+# Indoor flash look with reduced grain
+python skills/ccd-photo-enhancer/scripts/apply_ccd.py portrait.png \
+  --preset indoor-flash --strength 75 --grain-strength 10 --out portrait-ccd.png
+```
+
+Every successful run prints a JSON report with the resolved output path, preset, strength, seed, dimensions, clipping metrics and warnings.
+
+### Batch a folder
+
+Create an output directory that is separate from the input directory, then run:
+
+```bash
+python skills/ccd-photo-enhancer/scripts/apply_ccd.py photos \
+  --batch \
+  --preset daylight-aged \
+  --strength 75 \
+  --seed 7 \
+  --out ccd-output
+```
+
+Batch mode:
+
+- reads only the first directory level;
+- requires an existing `--out` directory different from the input directory;
+- uses the explicit seed for each source image;
+- emits one JSON summary with every per-image report;
+- never writes generated files back into the source directory.
+
+| Exit code | Meaning |
+|---:|---|
+| `0` | Every photo was processed |
+| `1` | Some photos were processed; failures are listed per image |
+| `2` | No photo was processed |
+
+Batch mode does not support `--preview`. Preview one representative image first.
+
+### Preview without writing
+
+```bash
+python skills/ccd-photo-enhancer/scripts/apply_ccd.py photo.jpg \
+  --preset night-flash --strength 50 --preview
+```
+
+`--preview` returns in-memory metrics and writes no image. Metrics are measured before JPEG encoding and do not replace viewing the saved result.
+
+## Presets
+
+| Preset | Look | Best for |
+|---|---|---|
+| `daylight-clean` | Light digital saturation, gentle S-curve, subtle grain and vignette | Daylight portraits, streets, travel |
+| `daylight-aged` | Warmer daylight colour, compressed highlights, visible grain and vignette | “Old digital camera” or lightly aged photos |
+| `indoor-flash` | Centre-weighted lift, darker edges, warm highlight bloom and visible grain | Indoor parties and close-range snapshots |
+| `night-flash` | Cool shadows, warm highlights, strong vignette, grain and deep blacks | Photos that are already shot at night |
+
+The CLI default is strength `50`, which remains intentionally restrained and backwards-compatible. Start at **75–85** when the preset character should be obvious on first viewing. Inspect portraits for warmer skin and deeper shadows at high strength.
+
+Individual sub-effects can be adjusted with `--grain-strength`, `--color-strength`, `--vignette-strength` and `--sharpness-strength`.
 
 ## Samples
 
-Real photographs, processed by the shipped CLI with `--seed 7`. Left is the unmodified photo, right is the result. Sources and licensing: [docs/samples/README.md](docs/samples/README.md).
+Real photographs processed with the shipped CLI at `--seed 7`. Each image shows the source on the left and the result on the right. Sources and licensing: [docs/samples/README.md](docs/samples/README.md).
 
 ![Indoor portrait, indoor-flash strength 80](docs/samples/indoor-portrait.jpg)
 
@@ -29,87 +136,100 @@ Real photographs, processed by the shipped CLI with `--seed 7`. Left is the unmo
 
 ![Night city, night-flash strength 80](docs/samples/night-city.jpg)
 
-Strength semantics on the same portrait (50 / 75 / 100). The default 50 is visible but restrained; 75-85 is where the preset character is obvious:
+Strength ladder on the same portrait at 50 / 75 / 100:
 
 ![Strength ladder 50 75 100](docs/samples/strength-ladder.jpg)
 
-Grain and highlight bloom are per-pixel effects, so they disappear when a 1600 px photo is scaled down for a web page. This is the same indoor portrait at 100% crop:
+Per-pixel grain disappears when a 1600 px photo is scaled down for a web page. This is the same indoor portrait at a 100% crop:
 
 ![100% crop before and after](docs/samples/detail-100-percent.jpg)
 
-These show the pipeline working on real photos. They do not prove the look matches a specific CCD model. Known limitation: warm highlight gains still shift light skin warmer at high strength, and L2 has no face or skin detection, so portrait output needs a visual check.
+The samples demonstrate the shipped pipeline on real photos. They do not prove that the result matches a particular CCD model.
 
-### Extended real-photo evaluation
+### Real-photo evaluation
 
-The repeatable offline evaluation covers 15 licensed photographs and 30 CLI runs at default and recommended strengths, including low-key and high-key portraits, groups, indoor events, backlight, landscapes, neon and rainy nights. It records source hashes, dependency versions, clipping and tonal metrics, and writes side-by-side comparisons.
+The offline evaluation covers 15 licensed photographs and 30 runs at restrained and recommended strengths, including low-key and high-key portraits, groups, indoor events, backlight, landscapes, neon and rainy nights.
 
 ```text
 python tests/real_photo_eval.py
 ```
 
-See the [30-run overview](docs/samples/real-evaluation-overview.jpg) and [JSON report](docs/samples/real-evaluation.json). The current mean absolute pixel change is 11.1/255 and the maximum near-white ratio after processing is 0.12%. These measurements are technical alerts, not proof of CCD authenticity or aesthetic quality.
+Results are recorded in the [30-run overview](docs/samples/real-evaluation-overview.jpg) and [JSON report](docs/samples/real-evaluation.json). The current mean absolute pixel change is 11.1/255, with a maximum post-processing near-white ratio of 0.12%. These are technical alerts, not proof of CCD authenticity or aesthetic quality.
 
-## Run the local CCD processor
+## How It Works
 
-The CLI requires Python, Pillow, and NumPy in the chosen interpreter. It never installs dependencies or accesses the network.
+The default path is **L2 local deterministic pixel processing**: colour curves, highlight roll-off, halation, flash falloff, black-point adjustment, vignette, grain and sharpening. The script does not use a generative model, move objects, crop or resize.
 
-```text
-# First result with clearly visible preset character
-python skills/ccd-photo-enhancer/scripts/apply_ccd.py photo.jpg --preset daylight-aged --strength 75 --seed 0
+The Skill also has two non-default routes:
 
-# Single-image custom output and sub-effect control
-python skills/ccd-photo-enhancer/scripts/apply_ccd.py portrait.png --preset indoor-flash --strength 75 --grain-strength 10 --out portrait-ccd.png
+- **L1 generative editing** for semantic or medium-changing work such as ink painting, only when an authorized editor is available.
+- **L3 prompt-only fallback** when no suitable local or generative backend exists. No image is changed in this route.
 
-# Inspect metrics without writing an image
-python skills/ccd-photo-enhancer/scripts/apply_ccd.py photo.jpg --preset night-flash --strength 50 --preview
+CCD presets always use the local pixel pipeline.
 
-# Process one folder level into an existing, separate output folder
-python skills/ccd-photo-enhancer/scripts/apply_ccd.py photos --batch --preset daylight-aged --strength 75 --seed 7 --out ccd-output
-```
+## Privacy and Safety
 
-Strength 50 remains the CLI default for backwards-compatible, restrained output. Start at 75–85 when the goal is an immediately recognizable CCD treatment; review portraits for warmer skin and darker shadows.
+- No network access and no image uploads in the local pipeline.
+- EXIF/GPS metadata is not copied to outputs.
+- Inputs are never overwritten; existing output names receive a numbered suffix.
+- Output dimensions and display orientation are preserved.
+- Transparent inputs stay transparent; flattening to JPEG without consent is rejected.
+- Failed output verification removes the incomplete file created by that run.
+- Unsupported formats, corrupt ICC profiles and over-limit images fail explicitly instead of being guessed or silently resized.
 
-For batch mode, create `ccd-output` first and keep it different from the input folder. Batch mode reads only the first directory level, does not recurse, uses the explicit seed for each source image, and never mixes generated images back into the source folder. It returns one JSON summary containing every per-image report. Exit codes are 0 for complete success, 1 for partial success, and 2 when no image was processed; partial success never claims that the whole folder succeeded.
+### Supported limits
 
-`--preview` reports in-memory pixel metrics and never writes an image; those metrics are measured before JPEG encoding and are not a substitute for viewing the saved result. Batch mode does not support `--preview`; preview a representative single image first.
+- Static JPEG, PNG and WebP only.
+- HEIC/HEIF must be exported locally to a supported format first.
+- Animation, floating-point rasters and unsupported ICC profiles fail explicitly.
+- The default pixel ceiling is 60 MP and can be lowered with `--max-pixels`; images above the limit are not automatically resized.
+- JPEG output uses quality 94, 4:4:4 chroma sampling and `optimize=False`.
 
-The CLI prints a JSON report on success and writes errors to stderr with a non-zero exit. It never overwrites an existing file; collisions receive a numbered suffix. PNG inputs and alpha-bearing images default to PNG; opaque JPEG/WebP inputs default to JPEG. JPEG uses quality 94, 4:4:4 chroma sampling, and `optimize=False` to avoid encoder failures on high-entropy content; output sizes vary by image. EXIF/GPS metadata is not copied. HEIC/HEIF, animation, unsupported ICC profiles, and floating-point rasters fail explicitly. The default pixel cap is 60MP; `--max-pixels` can be set from 1 to 60MP, with no automatic resizing.
+## Reproducibility
 
-## Tests and CI
+The JSON report records the parameters, seed, dependency versions, orientation-corrected size, output format, clipping metrics and warnings. Identical input, parameters, seed and library versions are reproducible for the same image dimensions. Cross-version byte output may differ, and pixel-sized grain changes apparent size when the image is resized.
+
+## Verification
 
 ```text
 python -m unittest discover -s tests -v
 ```
 
-The tests use `os.makedirs`-created unique child directories. They prefer `tests/.test-work` or `CCD_TEST_TMP`; if neither is writable, they fall back to `LOCALAPPDATA`, `TEMP`, or `TMP` and print the chosen path. They do not rely on `tempfile`'s private temporary-directory ACLs.
+- 38 automated tests cover orientation and EXIF removal, alpha preservation, deterministic output, clipping bounds, preset separation, batch safety and CLI failure reporting.
+- GitHub Actions runs the suite on Ubuntu and Windows with Python 3.12.
+- Release 1.5.0 was installed from the public GitHub repository with the Skills CLI and checked against the bundled files.
 
-GitHub Actions runs the same suite on Windows and Ubuntu with the pinned dependencies in `requirements.txt`. The preset separation, dark vignette, and highlight assertions use generated calibration and photo-like fixtures. Measured with grain disabled: closest preset pair is about 2.2–2.3/255 at strength 50 and ≥3.4/255 at strength 80, so the documented "obvious preset character" applies from about strength 75 upward. Real-photo before/after examples are included above; the synthetic calibration fixtures below complement rather than replace visual review of those photographs.
-
-## Install
-
-The public repository is [long970/ccd-skill](https://github.com/long970/ccd-skill). Install the discoverable `ccd-photo-enhancer` bundle with the Skills CLI:
+## Repository Layout
 
 ```text
-npx skills add long970/ccd-skill --skill ccd-photo-enhancer
+skills/ccd-photo-enhancer/
+  SKILL.md                 Agent routing and output contract
+  VERSION                  Current bundle version
+  scripts/apply_ccd.py     Local deterministic CLI
+  references/              Presets, pipeline rules, artistic routes and tests
+tests/
+  test_apply_ccd.py        Automated unit tests
+  real_photo_eval.py       Offline real-photo evaluation
+  real-photo-manifest.json Evaluation sources and licensing
+docs/samples/              Before/after examples and evaluation output
+.github/workflows/         Ubuntu and Windows CI
 ```
 
-Release archives and version notes are available on the [GitHub Releases](https://github.com/long970/ccd-skill/releases) page. Directory indexing, install counts and security audit results on skills.sh are maintained by that service after discovery.
+## Versioning and Support
 
-### Install in DeepSeek Harness
+This project follows Semantic Versioning. See [CHANGELOG.md](CHANGELOG.md) for release notes and [GitHub Issues](https://github.com/long970/ccd-skill/issues) for bug reports and feature requests.
 
-The skill manifest slug is `ccd-photo-enhancer`. Copy only `skills/ccd-photo-enhancer/` as a one-level child of the user skill root, for example:
+## Design References
 
-```powershell
-Copy-Item -Recurse 'C:\work\ccd-skill\skills\ccd-photo-enhancer' 'C:\Users\user\.dsh\skills\ccd-photo-enhancer'
-```
-
-## Design references
-
-The structure adapts ideas from related public skills without copying their provider-specific APIs or implementation code:
+The structure adapts ideas from related public Skills without copying their provider-specific APIs or implementation code:
 
 - [Meitu image-style-transfer](https://www.skills.sh/meitu/meitu-skills/image-style-transfer): separate single-image presets from reference-guided style transfer.
-- [Local Photo Filters](https://www.skills.sh/wendy7756/awesome-photo-filters/local-photo-filters): filter catalog, intensity controls, and source preservation.
+- [Local Photo Filters](https://www.skills.sh/wendy7756/awesome-photo-filters/local-photo-filters): filter catalog, intensity controls and source preservation.
 - [Eachlabs style-transfer](https://www.skills.sh/eachlabs/skills/style-transfer): preserve composition and identity while varying effect strength.
 - [Openfilm vintage-film](https://www.skills.sh/openfilm/skills/vintage-film): protect people and moments; do not invent dates or source metadata.
 - [Analog Memory Photo Director](https://www.skills.sh/chinelee/chinese-visual-director-skills/analog-memory-photo-director): build nostalgia from camera-era limitations rather than a sepia overlay alone.
-- [Aesthetic Atelier](https://github.com/wzj52501/aesthetic-atelier): keep the core workflow concise and load recipes and regression guidance only when needed.
+- [Aesthetic Atelier](https://github.com/wzj52501/aesthetic-atelier): keep the core workflow concise and load recipes only when needed.
+
+## License
+
+[MIT](LICENSE) © 2026 CCD Photo Enhancer contributors
