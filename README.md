@@ -148,7 +148,7 @@ The samples demonstrate the shipped pipeline on real photos. They do not prove t
 
 ### Real-photo evaluation
 
-The offline evaluation covers 15 licensed photographs and 30 runs at restrained and recommended strengths, including low-key and high-key portraits, groups, indoor events, backlight, landscapes, neon and rainy nights.
+The offline evaluation covers 15 licensed photographs and 30 runs at restrained and recommended strengths, including low-key and high-key portraits, groups, indoor events, backlight, landscapes, neon and rainy nights. The licensed source files are not committed to this repository; place them at the paths in `tests/real-photo-manifest.json` before running the offline evaluator.
 
 ```text
 python tests/real_photo_eval.py
