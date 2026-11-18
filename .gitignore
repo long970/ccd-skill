@@ -7,5 +7,8 @@ tests/.test-work/
 _probe/
 _samples-work/
 
+# local release and development archives
+dist/
+
 # agent scratch state
 .workbuddy/
