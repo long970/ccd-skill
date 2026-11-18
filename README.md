@@ -85,15 +85,23 @@ The tests use `os.makedirs`-created unique child directories. They prefer `tests
 
 GitHub Actions runs the same suite on Windows and Ubuntu with the pinned dependencies in `requirements.txt`. The preset separation, dark vignette, and highlight assertions use generated calibration and photo-like fixtures. Measured with grain disabled: closest preset pair is about 2.2–2.3/255 at strength 50 and ≥3.4/255 at strength 80, so the documented "obvious preset character" applies from about strength 75 upward. Real-photo before/after examples are included above; the synthetic calibration fixtures below complement rather than replace visual review of those photographs.
 
-## Install in DeepSeek Harness
+## Install
+
+The public repository is [long970/ccd-skill](https://github.com/long970/ccd-skill). Install the discoverable `ccd-photo-enhancer` bundle with the Skills CLI:
+
+```text
+npx skills add long970/ccd-skill --skill ccd-photo-enhancer
+```
+
+Release archives and version notes are available on the [GitHub Releases](https://github.com/long970/ccd-skill/releases) page. Directory indexing, install counts and security audit results on skills.sh are maintained by that service after discovery.
+
+### Install in DeepSeek Harness
 
 The skill manifest slug is `ccd-photo-enhancer`. Copy only `skills/ccd-photo-enhancer/` as a one-level child of the user skill root, for example:
 
 ```powershell
 Copy-Item -Recurse 'C:\work\ccd-skill\skills\ccd-photo-enhancer' 'C:\Users\user\.dsh\skills\ccd-photo-enhancer'
 ```
-
-For skills.sh, after publishing this repository to a public GitHub location, install with `npx skills add <owner>/<repo> --skill ccd-photo-enhancer`. This workspace now has a local git repository with an initial commit, but **no remote is configured and nothing has been pushed**, so no marketplace listing, install count, or audit badge exists yet.
 
 ## Design references
 
