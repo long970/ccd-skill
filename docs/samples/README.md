@@ -16,9 +16,13 @@ python skills/ccd-photo-enhancer/scripts/apply_ccd.py <source> --preset <preset>
 
 Each side-by-side file is `BEFORE` on the left and `AFTER` on the right. The `BEFORE` half is the downloaded photo resized for layout only; no other edit was applied to it. The `AFTER` half is the CLI output, then resized for layout.
 
+## Extended real-photo evaluation
+
+`real-evaluation-overview.jpg` contains 30 before/after runs across 15 photographs at default and recommended strengths. `real-evaluation.json` records source hashes, exact parameters, dependency versions, clipping and tonal metrics. The source matrix and page URLs are in `tests/real-photo-manifest.json`; run `python tests/real_photo_eval.py` from the repository root after placing the licensed sources at the manifest paths. The evaluator itself is offline and always invokes the shipped CLI.
+
 ## Licensing
 
-The source photographs come from [Pexels](https://www.pexels.com/license/) and are used under the Pexels License: free to use and modify, no attribution required, but the images may not be sold unaltered or used to imply endorsement by the depicted people or by Pexels. Photo pages follow the Pexels URL convention `https://www.pexels.com/photo/<id>/`; the image bytes here were retrieved from `https://images.pexels.com/photos/<id>/pexels-photo-<id>.jpeg`, because the `www.pexels.com` HTML endpoints returned HTTP 403 from the machine that built these samples, so the individual photo pages were not fetched and their photographer credits could not be recorded.
+The source photographs come from [Pexels](https://www.pexels.com/license/) and are used under the Pexels License: free to use and modify, no attribution required, but the images may not be sold unaltered or used to imply endorsement by the depicted people or by Pexels. Photo pages follow the Pexels URL convention `https://www.pexels.com/photo/<id>/`; image bytes were retrieved from `https://images.pexels.com/photos/<id>/pexels-photo-<id>.jpeg`. Photographer credits are recorded in `tests/real-photo-manifest.json` when available; some photo pages were not accessible from the machine that built the original samples.
 
 If you republish these files, keep the Pexels License terms in mind. If you need a fully self-contained license story, replace them with photos you own and regenerate with the same commands.
 

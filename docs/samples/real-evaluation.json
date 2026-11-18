@@ -1,0 +1,1256 @@
+{
+  "schema_version": 1,
+  "license": {
+    "name": "Pexels License",
+    "url": "https://www.pexels.com/license/",
+    "reviewed_on": "2026-11-13",
+    "notes": "Free to use and modify. No attribution required. Do not imply endorsement or sell unaltered copies."
+  },
+  "photo_count": 15,
+  "run_count": 30,
+  "max_long_edge": 1600,
+  "summary": {
+    "mean_abs_delta_255": 11.109173057495955,
+    "min_abs_delta_255": 3.561702574243686,
+    "max_abs_delta_255": 18.208770696657293,
+    "max_near_white_ratio_after": 0.0011953125,
+    "max_near_black_ratio_after": 0.12304341914430747
+  },
+  "limitations": [
+    "Pixel metrics do not prove CCD authenticity or aesthetic quality.",
+    "No automatic face or skin detection is used; portrait review remains visual.",
+    "Sources are resized to the evaluation long edge before running the unchanged CLI."
+  ],
+  "entries": [
+    {
+      "id": "indoor-portrait-220453",
+      "category": "indoor_portrait",
+      "source_page": "https://www.pexels.com/photo/220453/",
+      "photographer": null,
+      "source_sha256": "6d13b560c58e82e167db78f73a8e7bfea6af486d0885261fb15cfe355ea38d11",
+      "working_image": "_samples-work/real-eval/working/indoor-portrait-220453.jpg",
+      "output_image": "_samples-work/real-eval/outputs/indoor-portrait-220453-indoor-flash-s50.jpg",
+      "comparison": "_samples-work/real-eval/comparisons/indoor-portrait-220453-s50.jpg",
+      "preset": "indoor-flash",
+      "strength": 50,
+      "seed": 7,
+      "size": {
+        "height": 1600,
+        "width": 1067
+      },
+      "script_version": "1.4.1",
+      "pillow_version": "12.3.0",
+      "numpy_version": "2.5.3",
+      "clipping": {
+        "after": {
+          "clipped_channel_ratio": 0.005731021555763824,
+          "near_black_luma_ratio": 0.0005693533270852858,
+          "near_white_ratio": 0.00017162605435801313
+        },
+        "before": {
+          "clipped_channel_ratio": 0.0035742736644798503,
+          "near_black_luma_ratio": 1.1715089034676663e-06,
+          "near_white_ratio": 0.0007269212746016869
+        }
+      },
+      "metrics": {
+        "mean_abs_delta_255": 9.055792525773196,
+        "mean_luma_before": 161.46841430664062,
+        "mean_luma_after": 156.31961059570312,
+        "centre_luma_before": 125.57197570800781,
+        "centre_luma_after": 127.96638488769531,
+        "corner_luma_before": 148.03195190429688,
+        "corner_luma_after": 128.84376525878906
+      }
+    },
+    {
+      "id": "indoor-portrait-220453",
+      "category": "indoor_portrait",
+      "source_page": "https://www.pexels.com/photo/220453/",
+      "photographer": null,
+      "source_sha256": "6d13b560c58e82e167db78f73a8e7bfea6af486d0885261fb15cfe355ea38d11",
+      "working_image": "_samples-work/real-eval/working/indoor-portrait-220453.jpg",
+      "output_image": "_samples-work/real-eval/outputs/indoor-portrait-220453-indoor-flash-s80.jpg",
+      "comparison": "_samples-work/real-eval/comparisons/indoor-portrait-220453-s80.jpg",
+      "preset": "indoor-flash",
+      "strength": 80,
+      "seed": 7,
+      "size": {
+        "height": 1600,
+        "width": 1067
+      },
+      "script_version": "1.4.1",
+      "pillow_version": "12.3.0",
+      "numpy_version": "2.5.3",
+      "clipping": {
+        "after": {
+          "clipped_channel_ratio": 0.008631677600749765,
+          "near_black_luma_ratio": 0.0031138706654170573,
+          "near_white_ratio": 0.00020911433926897843
+        },
+        "before": {
+          "clipped_channel_ratio": 0.0035742736644798503,
+          "near_black_luma_ratio": 1.1715089034676663e-06,
+          "near_white_ratio": 0.0007269212746016869
+        }
+      },
+      "metrics": {
+        "mean_abs_delta_255": 14.807885035926272,
+        "mean_luma_before": 161.46841430664062,
+        "mean_luma_after": 153.03379821777344,
+        "centre_luma_before": 125.57197570800781,
+        "centre_luma_after": 129.52146911621094,
+        "corner_luma_before": 148.03195190429688,
+        "corner_luma_after": 117.23397827148438
+      }
+    },
+    {
+      "id": "portrait-natural-34943686",
+      "category": "low_key_portrait",
+      "source_page": "https://www.pexels.com/photo/captivating-portrait-of-black-woman-with-afro-hairstyle-34943686/",
+      "photographer": "Aniekan Umoh",
+      "source_sha256": "ef0ffe85a5045c2aaa17d000a7134b19c1746bd07f18b5c568d60bfe93105280",
+      "working_image": "_samples-work/real-eval/working/portrait-natural-34943686.jpg",
+      "output_image": "_samples-work/real-eval/outputs/portrait-natural-34943686-indoor-flash-s50.jpg",
+      "comparison": "_samples-work/real-eval/comparisons/portrait-natural-34943686-s50.jpg",
+      "preset": "indoor-flash",
+      "strength": 50,
+      "seed": 7,
+      "size": {
+        "height": 1600,
+        "width": 1379
+      },
+      "script_version": "1.4.1",
+      "pillow_version": "12.3.0",
+      "numpy_version": "2.5.3",
+      "clipping": {
+        "after": {
+          "clipped_channel_ratio": 2.402102973168963e-05,
+          "near_black_luma_ratio": 0.09082441986947062,
+          "near_white_ratio": 4.985496736765772e-06
+        },
+        "before": {
+          "clipped_channel_ratio": 4.215010877447426e-05,
+          "near_black_luma_ratio": 0.08986176577229876,
+          "near_white_ratio": 3.6258158085569253e-06
+        }
+      },
+      "metrics": {
+        "mean_abs_delta_255": 7.381826051486584,
+        "mean_luma_before": 31.566823959350586,
+        "mean_luma_after": 28.731853485107422,
+        "centre_luma_before": 39.845672607421875,
+        "centre_luma_after": 37.89099884033203,
+        "corner_luma_before": 47.852230072021484,
+        "corner_luma_after": 37.648048400878906
+      }
+    },
+    {
+      "id": "portrait-natural-34943686",
+      "category": "low_key_portrait",
+      "source_page": "https://www.pexels.com/photo/captivating-portrait-of-black-woman-with-afro-hairstyle-34943686/",
+      "photographer": "Aniekan Umoh",
+      "source_sha256": "ef0ffe85a5045c2aaa17d000a7134b19c1746bd07f18b5c568d60bfe93105280",
+      "working_image": "_samples-work/real-eval/working/portrait-natural-34943686.jpg",
+      "output_image": "_samples-work/real-eval/outputs/portrait-natural-34943686-indoor-flash-s80.jpg",
+      "comparison": "_samples-work/real-eval/comparisons/portrait-natural-34943686-s80.jpg",
+      "preset": "indoor-flash",
+      "strength": 80,
+      "seed": 7,
+      "size": {
+        "height": 1600,
+        "width": 1379
+      },
+      "script_version": "1.4.1",
+      "pillow_version": "12.3.0",
+      "numpy_version": "2.5.3",
+      "clipping": {
+        "after": {
+          "clipped_channel_ratio": 2.945975344452502e-05,
+          "near_black_luma_ratio": 0.12304341914430747,
+          "near_white_ratio": 4.532269760696156e-06
+        },
+        "before": {
+          "clipped_channel_ratio": 4.215010877447426e-05,
+          "near_black_luma_ratio": 0.08986176577229876,
+          "near_white_ratio": 3.6258158085569253e-06
+        }
+      },
+      "metrics": {
+        "mean_abs_delta_255": 11.56378353879623,
+        "mean_luma_before": 31.566823959350586,
+        "mean_luma_after": 28.215805053710938,
+        "centre_luma_before": 39.845672607421875,
+        "centre_luma_after": 37.45506286621094,
+        "corner_luma_before": 47.852230072021484,
+        "corner_luma_after": 32.907554626464844
+      }
+    },
+    {
+      "id": "portrait-studio-2474257",
+      "category": "high_key_portrait",
+      "source_page": "https://www.pexels.com/photo/photo-of-woman-wearing-brown-dress-while-sitting-on-stool-2474257/",
+      "photographer": "Dellon Thomas",
+      "source_sha256": "35e5dcdb460e68c63284e139478093a6777c710b5c122d98ae6cae28f31628c7",
+      "working_image": "_samples-work/real-eval/working/portrait-studio-2474257.jpg",
+      "output_image": "_samples-work/real-eval/outputs/portrait-studio-2474257-daylight-clean-s50.jpg",
+      "comparison": "_samples-work/real-eval/comparisons/portrait-studio-2474257-s50.jpg",
+      "preset": "daylight-clean",
+      "strength": 50,
+      "seed": 7,
+      "size": {
+        "height": 1600,
+        "width": 1067
+      },
+      "script_version": "1.4.1",
+      "pillow_version": "12.3.0",
+      "numpy_version": "2.5.3",
+      "clipping": {
+        "after": {
+          "clipped_channel_ratio": 0.02482427366447985,
+          "near_black_luma_ratio": 0.005315721649484536,
+          "near_white_ratio": 4.978912839737582e-05
+        },
+        "before": {
+          "clipped_channel_ratio": 0.13645735707591378,
+          "near_black_luma_ratio": 0.005020501405810684,
+          "near_white_ratio": 0.1356109418931584
+        }
+      },
+      "metrics": {
+        "mean_abs_delta_255": 3.5819490003124024,
+        "mean_luma_before": 196.43048095703125,
+        "mean_luma_after": 195.4647674560547,
+        "centre_luma_before": 93.00347137451172,
+        "centre_luma_after": 90.56297302246094,
+        "corner_luma_before": 227.208251953125,
+        "corner_luma_after": 222.60324096679688
+      }
+    },
+    {
+      "id": "portrait-studio-2474257",
+      "category": "high_key_portrait",
+      "source_page": "https://www.pexels.com/photo/photo-of-woman-wearing-brown-dress-while-sitting-on-stool-2474257/",
+      "photographer": "Dellon Thomas",
+      "source_sha256": "35e5dcdb460e68c63284e139478093a6777c710b5c122d98ae6cae28f31628c7",
+      "working_image": "_samples-work/real-eval/working/portrait-studio-2474257.jpg",
+      "output_image": "_samples-work/real-eval/outputs/portrait-studio-2474257-daylight-clean-s80.jpg",
+      "comparison": "_samples-work/real-eval/comparisons/portrait-studio-2474257-s80.jpg",
+      "preset": "daylight-clean",
+      "strength": 80,
+      "seed": 7,
+      "size": {
+        "height": 1600,
+        "width": 1067
+      },
+      "script_version": "1.4.1",
+      "pillow_version": "12.3.0",
+      "numpy_version": "2.5.3",
+      "clipping": {
+        "after": {
+          "clipped_channel_ratio": 0.03177249297094658,
+          "near_black_luma_ratio": 0.005465674789128397,
+          "near_white_ratio": 4.158856607310215e-05
+        },
+        "before": {
+          "clipped_channel_ratio": 0.13645735707591378,
+          "near_black_luma_ratio": 0.005020501405810684,
+          "near_white_ratio": 0.1356109418931584
+        }
+      },
+      "metrics": {
+        "mean_abs_delta_255": 5.942803811308966,
+        "mean_luma_before": 196.43048095703125,
+        "mean_luma_after": 194.85238647460938,
+        "centre_luma_before": 93.00347137451172,
+        "centre_luma_after": 89.10302734375,
+        "corner_luma_before": 227.208251953125,
+        "corner_luma_after": 219.8084716796875
+      }
+    },
+    {
+      "id": "portrait-outdoor-2905873",
+      "category": "side_lit_portrait",
+      "source_page": "https://www.pexels.com/photo/photo-of-woman-wearing-traditional-wear-2905873/",
+      "photographer": "Atul Choudhary",
+      "source_sha256": "6a4fe9a3ce5ef720d02fe0ea3991ec130faaf0f3e69a5e183185435ce4298276",
+      "working_image": "_samples-work/real-eval/working/portrait-outdoor-2905873.jpg",
+      "output_image": "_samples-work/real-eval/outputs/portrait-outdoor-2905873-daylight-aged-s50.jpg",
+      "comparison": "_samples-work/real-eval/comparisons/portrait-outdoor-2905873-s50.jpg",
+      "preset": "daylight-aged",
+      "strength": 50,
+      "seed": 7,
+      "size": {
+        "height": 1600,
+        "width": 1067
+      },
+      "script_version": "1.4.1",
+      "pillow_version": "12.3.0",
+      "numpy_version": "2.5.3",
+      "clipping": {
+        "after": {
+          "clipped_channel_ratio": 0.013260309278350516,
+          "near_black_luma_ratio": 0.0049912136832239926,
+          "near_white_ratio": 0.0
+        },
+        "before": {
+          "clipped_channel_ratio": 0.041426312089971884,
+          "near_black_luma_ratio": 0.0,
+          "near_white_ratio": 0.0
+        }
+      },
+      "metrics": {
+        "mean_abs_delta_255": 9.403427444548578,
+        "mean_luma_before": 79.0792007446289,
+        "mean_luma_after": 72.29981994628906,
+        "centre_luma_before": 79.76185607910156,
+        "centre_luma_after": 75.0122299194336,
+        "corner_luma_before": 92.914306640625,
+        "corner_luma_after": 81.33296966552734
+      }
+    },
+    {
+      "id": "portrait-outdoor-2905873",
+      "category": "side_lit_portrait",
+      "source_page": "https://www.pexels.com/photo/photo-of-woman-wearing-traditional-wear-2905873/",
+      "photographer": "Atul Choudhary",
+      "source_sha256": "6a4fe9a3ce5ef720d02fe0ea3991ec130faaf0f3e69a5e183185435ce4298276",
+      "working_image": "_samples-work/real-eval/working/portrait-outdoor-2905873.jpg",
+      "output_image": "_samples-work/real-eval/outputs/portrait-outdoor-2905873-daylight-aged-s75.jpg",
+      "comparison": "_samples-work/real-eval/comparisons/portrait-outdoor-2905873-s75.jpg",
+      "preset": "daylight-aged",
+      "strength": 75,
+      "seed": 7,
+      "size": {
+        "height": 1600,
+        "width": 1067
+      },
+      "script_version": "1.4.1",
+      "pillow_version": "12.3.0",
+      "numpy_version": "2.5.3",
+      "clipping": {
+        "after": {
+          "clipped_channel_ratio": 0.01415651358950328,
+          "near_black_luma_ratio": 0.024451148078725397,
+          "near_white_ratio": 0.0
+        },
+        "before": {
+          "clipped_channel_ratio": 0.041426312089971884,
+          "near_black_luma_ratio": 0.0,
+          "near_white_ratio": 0.0
+        }
+      },
+      "metrics": {
+        "mean_abs_delta_255": 13.807253202124336,
+        "mean_luma_before": 79.0792007446289,
+        "mean_luma_after": 69.4302749633789,
+        "centre_luma_before": 79.76185607910156,
+        "centre_luma_after": 72.84033203125,
+        "corner_luma_before": 92.914306640625,
+        "corner_luma_after": 76.19703674316406
+      }
+    },
+    {
+      "id": "portrait-park-3616939",
+      "category": "daylight_portrait",
+      "source_page": "https://www.pexels.com/photo/3616939/",
+      "photographer": null,
+      "source_sha256": "8c338f5324ea52b429f52d2bb860f07c5b7354b7bbfa769fefe395dd0b74b8f9",
+      "working_image": "_samples-work/real-eval/working/portrait-park-3616939.jpg",
+      "output_image": "_samples-work/real-eval/outputs/portrait-park-3616939-daylight-aged-s50.jpg",
+      "comparison": "_samples-work/real-eval/comparisons/portrait-park-3616939-s50.jpg",
+      "preset": "daylight-aged",
+      "strength": 50,
+      "seed": 7,
+      "size": {
+        "height": 1067,
+        "width": 1600
+      },
+      "script_version": "1.4.1",
+      "pillow_version": "12.3.0",
+      "numpy_version": "2.5.3",
+      "clipping": {
+        "after": {
+          "clipped_channel_ratio": 0.01009020618556701,
+          "near_black_luma_ratio": 3.514526710402999e-06,
+          "near_white_ratio": 0.0
+        },
+        "before": {
+          "clipped_channel_ratio": 0.02140288191190253,
+          "near_black_luma_ratio": 0.0,
+          "near_white_ratio": 0.0
+        }
+      },
+      "metrics": {
+        "mean_abs_delta_255": 10.015339542330521,
+        "mean_luma_before": 89.10833740234375,
+        "mean_luma_after": 81.00106811523438,
+        "centre_luma_before": 110.4411392211914,
+        "centre_luma_after": 106.26235961914062,
+        "corner_luma_before": 70.09598541259766,
+        "corner_luma_after": 57.23440170288086
+      }
+    },
+    {
+      "id": "portrait-park-3616939",
+      "category": "daylight_portrait",
+      "source_page": "https://www.pexels.com/photo/3616939/",
+      "photographer": null,
+      "source_sha256": "8c338f5324ea52b429f52d2bb860f07c5b7354b7bbfa769fefe395dd0b74b8f9",
+      "working_image": "_samples-work/real-eval/working/portrait-park-3616939.jpg",
+      "output_image": "_samples-work/real-eval/outputs/portrait-park-3616939-daylight-aged-s75.jpg",
+      "comparison": "_samples-work/real-eval/comparisons/portrait-park-3616939-s75.jpg",
+      "preset": "daylight-aged",
+      "strength": 75,
+      "seed": 7,
+      "size": {
+        "height": 1067,
+        "width": 1600
+      },
+      "script_version": "1.4.1",
+      "pillow_version": "12.3.0",
+      "numpy_version": "2.5.3",
+      "clipping": {
+        "after": {
+          "clipped_channel_ratio": 0.010028116213683224,
+          "near_black_luma_ratio": 0.0004697750702905342,
+          "near_white_ratio": 0.0
+        },
+        "before": {
+          "clipped_channel_ratio": 0.02140288191190253,
+          "near_black_luma_ratio": 0.0,
+          "near_white_ratio": 0.0
+        }
+      },
+      "metrics": {
+        "mean_abs_delta_255": 14.946318728522337,
+        "mean_luma_before": 89.10833740234375,
+        "mean_luma_after": 77.15431213378906,
+        "centre_luma_before": 110.4411392211914,
+        "centre_luma_after": 104.20571899414062,
+        "corner_luma_before": 70.09598541259766,
+        "corner_luma_after": 51.357574462890625
+      }
+    },
+    {
+      "id": "portrait-group-7325563",
+      "category": "group_portrait",
+      "source_page": "https://www.pexels.com/photo/women-posing-for-a-photo-shoot-7325563/",
+      "photographer": "KoolShooters",
+      "source_sha256": "e4b96727231d749b74f709a88dffc3b8fdc6e4608b1b4e9c0d8282848c6749e3",
+      "working_image": "_samples-work/real-eval/working/portrait-group-7325563.jpg",
+      "output_image": "_samples-work/real-eval/outputs/portrait-group-7325563-indoor-flash-s50.jpg",
+      "comparison": "_samples-work/real-eval/comparisons/portrait-group-7325563-s50.jpg",
+      "preset": "indoor-flash",
+      "strength": 50,
+      "seed": 7,
+      "size": {
+        "height": 1600,
+        "width": 1067
+      },
+      "script_version": "1.4.1",
+      "pillow_version": "12.3.0",
+      "numpy_version": "2.5.3",
+      "clipping": {
+        "after": {
+          "clipped_channel_ratio": 5.2717900656044985e-06,
+          "near_black_luma_ratio": 0.01658798031865042,
+          "near_white_ratio": 0.0
+        },
+        "before": {
+          "clipped_channel_ratio": 0.0,
+          "near_black_luma_ratio": 0.0007386363636363636,
+          "near_white_ratio": 0.0
+        }
+      },
+      "metrics": {
+        "mean_abs_delta_255": 8.90537937363324,
+        "mean_luma_before": 107.5472412109375,
+        "mean_luma_after": 101.91287994384766,
+        "centre_luma_before": 44.1558723449707,
+        "centre_luma_after": 43.34807586669922,
+        "corner_luma_before": 171.5743408203125,
+        "corner_luma_after": 151.1917724609375
+      }
+    },
+    {
+      "id": "portrait-group-7325563",
+      "category": "group_portrait",
+      "source_page": "https://www.pexels.com/photo/women-posing-for-a-photo-shoot-7325563/",
+      "photographer": "KoolShooters",
+      "source_sha256": "e4b96727231d749b74f709a88dffc3b8fdc6e4608b1b4e9c0d8282848c6749e3",
+      "working_image": "_samples-work/real-eval/working/portrait-group-7325563.jpg",
+      "output_image": "_samples-work/real-eval/outputs/portrait-group-7325563-indoor-flash-s80.jpg",
+      "comparison": "_samples-work/real-eval/comparisons/portrait-group-7325563-s80.jpg",
+      "preset": "indoor-flash",
+      "strength": 80,
+      "seed": 7,
+      "size": {
+        "height": 1600,
+        "width": 1067
+      },
+      "script_version": "1.4.1",
+      "pillow_version": "12.3.0",
+      "numpy_version": "2.5.3",
+      "clipping": {
+        "after": {
+          "clipped_channel_ratio": 0.0004199859418931584,
+          "near_black_luma_ratio": 0.02927249297094658,
+          "near_white_ratio": 0.0
+        },
+        "before": {
+          "clipped_channel_ratio": 0.0,
+          "near_black_luma_ratio": 0.0007386363636363636,
+          "near_white_ratio": 0.0
+        }
+      },
+      "metrics": {
+        "mean_abs_delta_255": 14.348575835676352,
+        "mean_luma_before": 107.5472412109375,
+        "mean_luma_after": 98.91353607177734,
+        "centre_luma_before": 44.1558723449707,
+        "centre_luma_after": 43.81480026245117,
+        "corner_luma_before": 171.5743408203125,
+        "corner_luma_after": 138.4499969482422
+      }
+    },
+    {
+      "id": "portrait-indoor-8892333",
+      "category": "backlit_indoor_portrait",
+      "source_page": "https://www.pexels.com/photo/a-woman-sitting-on-the-floor-8892333/",
+      "photographer": "Yaroslav Shuraev",
+      "source_sha256": "bd59b5a6015f5a14e2e86cfc7c6f63a0068357eaffcb433c2cb631d7cd10a792",
+      "working_image": "_samples-work/real-eval/working/portrait-indoor-8892333.jpg",
+      "output_image": "_samples-work/real-eval/outputs/portrait-indoor-8892333-indoor-flash-s50.jpg",
+      "comparison": "_samples-work/real-eval/comparisons/portrait-indoor-8892333-s50.jpg",
+      "preset": "indoor-flash",
+      "strength": 50,
+      "seed": 7,
+      "size": {
+        "height": 1600,
+        "width": 1067
+      },
+      "script_version": "1.4.1",
+      "pillow_version": "12.3.0",
+      "numpy_version": "2.5.3",
+      "clipping": {
+        "after": {
+          "clipped_channel_ratio": 0.002893041237113402,
+          "near_black_luma_ratio": 2.050140581068416e-05,
+          "near_white_ratio": 2.4601686972820993e-05
+        },
+        "before": {
+          "clipped_channel_ratio": 0.0008956185567010309,
+          "near_black_luma_ratio": 0.0,
+          "near_white_ratio": 0.0
+        }
+      },
+      "metrics": {
+        "mean_abs_delta_255": 9.532841690096845,
+        "mean_luma_before": 92.1433334350586,
+        "mean_luma_after": 85.00944519042969,
+        "centre_luma_before": 114.73533630371094,
+        "centre_luma_after": 114.65945434570312,
+        "corner_luma_before": 106.60121154785156,
+        "corner_luma_after": 89.73686218261719
+      }
+    },
+    {
+      "id": "portrait-indoor-8892333",
+      "category": "backlit_indoor_portrait",
+      "source_page": "https://www.pexels.com/photo/a-woman-sitting-on-the-floor-8892333/",
+      "photographer": "Yaroslav Shuraev",
+      "source_sha256": "bd59b5a6015f5a14e2e86cfc7c6f63a0068357eaffcb433c2cb631d7cd10a792",
+      "working_image": "_samples-work/real-eval/working/portrait-indoor-8892333.jpg",
+      "output_image": "_samples-work/real-eval/outputs/portrait-indoor-8892333-indoor-flash-s80.jpg",
+      "comparison": "_samples-work/real-eval/comparisons/portrait-indoor-8892333-s80.jpg",
+      "preset": "indoor-flash",
+      "strength": 80,
+      "seed": 7,
+      "size": {
+        "height": 1600,
+        "width": 1067
+      },
+      "script_version": "1.4.1",
+      "pillow_version": "12.3.0",
+      "numpy_version": "2.5.3",
+      "clipping": {
+        "after": {
+          "clipped_channel_ratio": 0.003546157450796626,
+          "near_black_luma_ratio": 0.0011961105904404873,
+          "near_white_ratio": 5.271790065604499e-05
+        },
+        "before": {
+          "clipped_channel_ratio": 0.0008956185567010309,
+          "near_black_luma_ratio": 0.0,
+          "near_white_ratio": 0.0
+        }
+      },
+      "metrics": {
+        "mean_abs_delta_255": 15.255070095282724,
+        "mean_luma_before": 92.1433334350586,
+        "mean_luma_after": 81.04173278808594,
+        "centre_luma_before": 114.73533630371094,
+        "centre_luma_after": 114.47339630126953,
+        "corner_luma_before": 106.60121154785156,
+        "corner_luma_after": 80.02680206298828
+      }
+    },
+    {
+      "id": "indoor-friends-7856018",
+      "category": "indoor_group",
+      "source_page": "https://www.pexels.com/photo/friends-playing-together-on-a-game-console-7856018/",
+      "photographer": null,
+      "source_sha256": "aa707e1afcc4a1c36b7185fb565e5939d9d2d2afada3f78dbecb7d07bd5bfee1",
+      "working_image": "_samples-work/real-eval/working/indoor-friends-7856018.jpg",
+      "output_image": "_samples-work/real-eval/outputs/indoor-friends-7856018-indoor-flash-s50.jpg",
+      "comparison": "_samples-work/real-eval/comparisons/indoor-friends-7856018-s50.jpg",
+      "preset": "indoor-flash",
+      "strength": 50,
+      "seed": 7,
+      "size": {
+        "height": 1067,
+        "width": 1600
+      },
+      "script_version": "1.4.1",
+      "pillow_version": "12.3.0",
+      "numpy_version": "2.5.3",
+      "clipping": {
+        "after": {
+          "clipped_channel_ratio": 3.163074039362699e-05,
+          "near_black_luma_ratio": 0.005614456419868791,
+          "near_white_ratio": 0.0
+        },
+        "before": {
+          "clipped_channel_ratio": 0.00011890815370196814,
+          "near_black_luma_ratio": 0.0008264995313964386,
+          "near_white_ratio": 0.0
+        }
+      },
+      "metrics": {
+        "mean_abs_delta_255": 8.880172016557326,
+        "mean_luma_before": 134.55465698242188,
+        "mean_luma_after": 130.06253051757812,
+        "centre_luma_before": 149.7238006591797,
+        "centre_luma_after": 154.06283569335938,
+        "corner_luma_before": 103.45629119873047,
+        "corner_luma_after": 87.92477416992188
+      }
+    },
+    {
+      "id": "indoor-friends-7856018",
+      "category": "indoor_group",
+      "source_page": "https://www.pexels.com/photo/friends-playing-together-on-a-game-console-7856018/",
+      "photographer": null,
+      "source_sha256": "aa707e1afcc4a1c36b7185fb565e5939d9d2d2afada3f78dbecb7d07bd5bfee1",
+      "working_image": "_samples-work/real-eval/working/indoor-friends-7856018.jpg",
+      "output_image": "_samples-work/real-eval/outputs/indoor-friends-7856018-indoor-flash-s80.jpg",
+      "comparison": "_samples-work/real-eval/comparisons/indoor-friends-7856018-s80.jpg",
+      "preset": "indoor-flash",
+      "strength": 80,
+      "seed": 7,
+      "size": {
+        "height": 1067,
+        "width": 1600
+      },
+      "script_version": "1.4.1",
+      "pillow_version": "12.3.0",
+      "numpy_version": "2.5.3",
+      "clipping": {
+        "after": {
+          "clipped_channel_ratio": 0.0007386363636363636,
+          "near_black_luma_ratio": 0.009990627928772259,
+          "near_white_ratio": 2.2844423617619495e-05
+        },
+        "before": {
+          "clipped_channel_ratio": 0.00011890815370196814,
+          "near_black_luma_ratio": 0.0008264995313964386,
+          "near_white_ratio": 0.0
+        }
+      },
+      "metrics": {
+        "mean_abs_delta_255": 14.353100398313027,
+        "mean_luma_before": 134.55465698242188,
+        "mean_luma_after": 127.57698059082031,
+        "centre_luma_before": 149.7238006591797,
+        "centre_luma_after": 156.8749542236328,
+        "corner_luma_before": 103.45629119873047,
+        "corner_luma_after": 79.26344299316406
+      }
+    },
+    {
+      "id": "indoor-party-6519096",
+      "category": "indoor_party",
+      "source_page": "https://www.pexels.com/photo/a-woman-slicing-a-pie-6519096/",
+      "photographer": null,
+      "source_sha256": "6bce11b7883d78e6da2a3bfce7001d359267d834f5cf341ecac9f3bc93ba43f8",
+      "working_image": "_samples-work/real-eval/working/indoor-party-6519096.jpg",
+      "output_image": "_samples-work/real-eval/outputs/indoor-party-6519096-indoor-flash-s50.jpg",
+      "comparison": "_samples-work/real-eval/comparisons/indoor-party-6519096-s50.jpg",
+      "preset": "indoor-flash",
+      "strength": 50,
+      "seed": 7,
+      "size": {
+        "height": 1600,
+        "width": 1067
+      },
+      "script_version": "1.4.1",
+      "pillow_version": "12.3.0",
+      "numpy_version": "2.5.3",
+      "clipping": {
+        "after": {
+          "clipped_channel_ratio": 0.0018849578256794751,
+          "near_black_luma_ratio": 0.0019224461105904404,
+          "near_white_ratio": 2.401593252108716e-05
+        },
+        "before": {
+          "clipped_channel_ratio": 1.4058106841611996e-05,
+          "near_black_luma_ratio": 1.874414245548266e-05,
+          "near_white_ratio": 0.0
+        }
+      },
+      "metrics": {
+        "mean_abs_delta_255": 9.526712941268354,
+        "mean_luma_before": 162.30751037597656,
+        "mean_luma_after": 157.1693572998047,
+        "centre_luma_before": 96.5285873413086,
+        "centre_luma_after": 98.30543518066406,
+        "corner_luma_before": 170.4878692626953,
+        "corner_luma_after": 149.422119140625
+      }
+    },
+    {
+      "id": "indoor-party-6519096",
+      "category": "indoor_party",
+      "source_page": "https://www.pexels.com/photo/a-woman-slicing-a-pie-6519096/",
+      "photographer": null,
+      "source_sha256": "6bce11b7883d78e6da2a3bfce7001d359267d834f5cf341ecac9f3bc93ba43f8",
+      "working_image": "_samples-work/real-eval/working/indoor-party-6519096.jpg",
+      "output_image": "_samples-work/real-eval/outputs/indoor-party-6519096-indoor-flash-s80.jpg",
+      "comparison": "_samples-work/real-eval/comparisons/indoor-party-6519096-s80.jpg",
+      "preset": "indoor-flash",
+      "strength": 80,
+      "seed": 7,
+      "size": {
+        "height": 1600,
+        "width": 1067
+      },
+      "script_version": "1.4.1",
+      "pillow_version": "12.3.0",
+      "numpy_version": "2.5.3",
+      "clipping": {
+        "after": {
+          "clipped_channel_ratio": 0.00708118556701031,
+          "near_black_luma_ratio": 0.006462043111527648,
+          "near_white_ratio": 0.00011012183692596063
+        },
+        "before": {
+          "clipped_channel_ratio": 1.4058106841611996e-05,
+          "near_black_luma_ratio": 1.874414245548266e-05,
+          "near_white_ratio": 0.0
+        }
+      },
+      "metrics": {
+        "mean_abs_delta_255": 15.570780615432676,
+        "mean_luma_before": 162.30751037597656,
+        "mean_luma_after": 153.83026123046875,
+        "centre_luma_before": 96.5285873413086,
+        "centre_luma_after": 99.96481323242188,
+        "corner_luma_before": 170.4878692626953,
+        "corner_luma_after": 136.16299438476562
+      }
+    },
+    {
+      "id": "backlit-cafe-7186854",
+      "category": "backlit_highlight",
+      "source_page": "https://www.pexels.com/photo/a-woman-sitting-in-the-bar-7186854/",
+      "photographer": null,
+      "source_sha256": "38e5a40b8b8000b34aec115b2ac8bfba424998a0ab9b3ad8e1dc3423dc3ab734",
+      "working_image": "_samples-work/real-eval/working/backlit-cafe-7186854.jpg",
+      "output_image": "_samples-work/real-eval/outputs/backlit-cafe-7186854-daylight-clean-s50.jpg",
+      "comparison": "_samples-work/real-eval/comparisons/backlit-cafe-7186854-s50.jpg",
+      "preset": "daylight-clean",
+      "strength": 50,
+      "seed": 7,
+      "size": {
+        "height": 1600,
+        "width": 1201
+      },
+      "script_version": "1.4.1",
+      "pillow_version": "12.3.0",
+      "numpy_version": "2.5.3",
+      "clipping": {
+        "after": {
+          "clipped_channel_ratio": 0.06258222314737719,
+          "near_black_luma_ratio": 4.787676935886761e-05,
+          "near_white_ratio": 1.5611990008326395e-06
+        },
+        "before": {
+          "clipped_channel_ratio": 0.14601998334721067,
+          "near_black_luma_ratio": 1.0407993338884262e-06,
+          "near_white_ratio": 1.4050791007493754e-05
+        }
+      },
+      "metrics": {
+        "mean_abs_delta_255": 3.561702574243686,
+        "mean_luma_before": 160.2295684814453,
+        "mean_luma_after": 158.92979431152344,
+        "centre_luma_before": 114.62264251708984,
+        "centre_luma_after": 113.435302734375,
+        "corner_luma_before": 159.53277587890625,
+        "corner_luma_after": 154.95550537109375
+      }
+    },
+    {
+      "id": "backlit-cafe-7186854",
+      "category": "backlit_highlight",
+      "source_page": "https://www.pexels.com/photo/a-woman-sitting-in-the-bar-7186854/",
+      "photographer": null,
+      "source_sha256": "38e5a40b8b8000b34aec115b2ac8bfba424998a0ab9b3ad8e1dc3423dc3ab734",
+      "working_image": "_samples-work/real-eval/working/backlit-cafe-7186854.jpg",
+      "output_image": "_samples-work/real-eval/outputs/backlit-cafe-7186854-daylight-clean-s80.jpg",
+      "comparison": "_samples-work/real-eval/comparisons/backlit-cafe-7186854-s80.jpg",
+      "preset": "daylight-clean",
+      "strength": 80,
+      "seed": 7,
+      "size": {
+        "height": 1600,
+        "width": 1201
+      },
+      "script_version": "1.4.1",
+      "pillow_version": "12.3.0",
+      "numpy_version": "2.5.3",
+      "clipping": {
+        "after": {
+          "clipped_channel_ratio": 0.05137229392173189,
+          "near_black_luma_ratio": 0.0009580557868442964,
+          "near_white_ratio": 1.0407993338884262e-06
+        },
+        "before": {
+          "clipped_channel_ratio": 0.14601998334721067,
+          "near_black_luma_ratio": 1.0407993338884262e-06,
+          "near_white_ratio": 1.4050791007493754e-05
+        }
+      },
+      "metrics": {
+        "mean_abs_delta_255": 5.91231942131557,
+        "mean_luma_before": 160.2295684814453,
+        "mean_luma_after": 158.04869079589844,
+        "centre_luma_before": 114.62264251708984,
+        "centre_luma_after": 112.64495849609375,
+        "corner_luma_before": 159.53277587890625,
+        "corner_luma_after": 152.1143798828125
+      }
+    },
+    {
+      "id": "daylight-landscape-1366909",
+      "category": "daylight_landscape",
+      "source_page": "https://www.pexels.com/photo/1366909/",
+      "photographer": null,
+      "source_sha256": "1b8fa63e0628b1efb9b1c95dbe356eab4bd51c1345188fdb02156b580307c92a",
+      "working_image": "_samples-work/real-eval/working/daylight-landscape-1366909.jpg",
+      "output_image": "_samples-work/real-eval/outputs/daylight-landscape-1366909-daylight-aged-s50.jpg",
+      "comparison": "_samples-work/real-eval/comparisons/daylight-landscape-1366909-s50.jpg",
+      "preset": "daylight-aged",
+      "strength": 50,
+      "seed": 7,
+      "size": {
+        "height": 1600,
+        "width": 1067
+      },
+      "script_version": "1.4.1",
+      "pillow_version": "12.3.0",
+      "numpy_version": "2.5.3",
+      "clipping": {
+        "after": {
+          "clipped_channel_ratio": 1.464386129334583e-05,
+          "near_black_luma_ratio": 0.00010367853795688847,
+          "near_white_ratio": 0.0
+        },
+        "before": {
+          "clipped_channel_ratio": 0.0,
+          "near_black_luma_ratio": 0.0,
+          "near_white_ratio": 0.0
+        }
+      },
+      "metrics": {
+        "mean_abs_delta_255": 9.412656396438614,
+        "mean_luma_before": 125.72974395751953,
+        "mean_luma_after": 118.73087310791016,
+        "centre_luma_before": 94.04084777832031,
+        "centre_luma_after": 89.31099700927734,
+        "corner_luma_before": 145.559814453125,
+        "corner_luma_after": 131.31512451171875
+      }
+    },
+    {
+      "id": "daylight-landscape-1366909",
+      "category": "daylight_landscape",
+      "source_page": "https://www.pexels.com/photo/1366909/",
+      "photographer": null,
+      "source_sha256": "1b8fa63e0628b1efb9b1c95dbe356eab4bd51c1345188fdb02156b580307c92a",
+      "working_image": "_samples-work/real-eval/working/daylight-landscape-1366909.jpg",
+      "output_image": "_samples-work/real-eval/outputs/daylight-landscape-1366909-daylight-aged-s75.jpg",
+      "comparison": "_samples-work/real-eval/comparisons/daylight-landscape-1366909-s75.jpg",
+      "preset": "daylight-aged",
+      "strength": 75,
+      "seed": 7,
+      "size": {
+        "height": 1600,
+        "width": 1067
+      },
+      "script_version": "1.4.1",
+      "pillow_version": "12.3.0",
+      "numpy_version": "2.5.3",
+      "clipping": {
+        "after": {
+          "clipped_channel_ratio": 9.547797563261481e-05,
+          "near_black_luma_ratio": 0.002099343955014058,
+          "near_white_ratio": 0.0
+        },
+        "before": {
+          "clipped_channel_ratio": 0.0,
+          "near_black_luma_ratio": 0.0,
+          "near_white_ratio": 0.0
+        }
+      },
+      "metrics": {
+        "mean_abs_delta_255": 14.15812343798813,
+        "mean_luma_before": 125.72974395751953,
+        "mean_luma_after": 115.28082275390625,
+        "centre_luma_before": 94.04084777832031,
+        "centre_luma_after": 86.99419403076172,
+        "corner_luma_before": 145.559814453125,
+        "corner_luma_after": 124.2101821899414
+      }
+    },
+    {
+      "id": "landscape-lake-1525085",
+      "category": "daylight_landscape",
+      "source_page": "https://www.pexels.com/photo/green-mountain-1525085/",
+      "photographer": null,
+      "source_sha256": "3705b42065c7a3b1cfecb37ceb0587d31e7af0d496b9ac29e559bac53d8a75a4",
+      "working_image": "_samples-work/real-eval/working/landscape-lake-1525085.jpg",
+      "output_image": "_samples-work/real-eval/outputs/landscape-lake-1525085-daylight-aged-s50.jpg",
+      "comparison": "_samples-work/real-eval/comparisons/landscape-lake-1525085-s50.jpg",
+      "preset": "daylight-aged",
+      "strength": 50,
+      "seed": 7,
+      "size": {
+        "height": 1067,
+        "width": 1600
+      },
+      "script_version": "1.4.1",
+      "pillow_version": "12.3.0",
+      "numpy_version": "2.5.3",
+      "clipping": {
+        "after": {
+          "clipped_channel_ratio": 0.02196696344892221,
+          "near_black_luma_ratio": 0.01016811152764761,
+          "near_white_ratio": 5.857544517338331e-07
+        },
+        "before": {
+          "clipped_channel_ratio": 0.09387007966260544,
+          "near_black_luma_ratio": 0.0006654170571696344,
+          "near_white_ratio": 0.0
+        }
+      },
+      "metrics": {
+        "mean_abs_delta_255": 9.440243283348954,
+        "mean_luma_before": 130.6956329345703,
+        "mean_luma_after": 124.17945861816406,
+        "centre_luma_before": 230.46250915527344,
+        "centre_luma_after": 228.07127380371094,
+        "corner_luma_before": 117.97136688232422,
+        "corner_luma_after": 105.13165283203125
+      }
+    },
+    {
+      "id": "landscape-lake-1525085",
+      "category": "daylight_landscape",
+      "source_page": "https://www.pexels.com/photo/green-mountain-1525085/",
+      "photographer": null,
+      "source_sha256": "3705b42065c7a3b1cfecb37ceb0587d31e7af0d496b9ac29e559bac53d8a75a4",
+      "working_image": "_samples-work/real-eval/working/landscape-lake-1525085.jpg",
+      "output_image": "_samples-work/real-eval/outputs/landscape-lake-1525085-daylight-aged-s75.jpg",
+      "comparison": "_samples-work/real-eval/comparisons/landscape-lake-1525085-s75.jpg",
+      "preset": "daylight-aged",
+      "strength": 75,
+      "seed": 7,
+      "size": {
+        "height": 1067,
+        "width": 1600
+      },
+      "script_version": "1.4.1",
+      "pillow_version": "12.3.0",
+      "numpy_version": "2.5.3",
+      "clipping": {
+        "after": {
+          "clipped_channel_ratio": 0.027039011246485473,
+          "near_black_luma_ratio": 0.018580131208997187,
+          "near_white_ratio": 3.163074039362699e-05
+        },
+        "before": {
+          "clipped_channel_ratio": 0.09387007966260544,
+          "near_black_luma_ratio": 0.0006654170571696344,
+          "near_white_ratio": 0.0
+        }
+      },
+      "metrics": {
+        "mean_abs_delta_255": 13.964171157450796,
+        "mean_luma_before": 130.6956329345703,
+        "mean_luma_after": 121.12821197509766,
+        "centre_luma_before": 230.46250915527344,
+        "centre_luma_after": 226.59031677246094,
+        "corner_luma_before": 117.97136688232422,
+        "corner_luma_after": 99.1325454711914
+      }
+    },
+    {
+      "id": "night-texture-1699031",
+      "category": "dark_texture",
+      "source_page": "https://www.pexels.com/photo/1699031/",
+      "photographer": null,
+      "source_sha256": "5010ebf13cc7a887a64ed1dbb2fbbea6cdcbc5a1c35c29effa8153b50c3816f4",
+      "working_image": "_samples-work/real-eval/working/night-texture-1699031.jpg",
+      "output_image": "_samples-work/real-eval/outputs/night-texture-1699031-night-flash-s50.jpg",
+      "comparison": "_samples-work/real-eval/comparisons/night-texture-1699031-s50.jpg",
+      "preset": "night-flash",
+      "strength": 50,
+      "seed": 7,
+      "size": {
+        "height": 1600,
+        "width": 1067
+      },
+      "script_version": "1.4.1",
+      "pillow_version": "12.3.0",
+      "numpy_version": "2.5.3",
+      "clipping": {
+        "after": {
+          "clipped_channel_ratio": 0.0015745079662605435,
+          "near_black_luma_ratio": 0.004701265229615745,
+          "near_white_ratio": 0.0
+        },
+        "before": {
+          "clipped_channel_ratio": 0.0007005623242736645,
+          "near_black_luma_ratio": 0.0,
+          "near_white_ratio": 0.0
+        }
+      },
+      "metrics": {
+        "mean_abs_delta_255": 11.84784989065917,
+        "mean_luma_before": 56.299373626708984,
+        "mean_luma_after": 46.90119171142578,
+        "centre_luma_before": 59.225685119628906,
+        "centre_luma_after": 54.032100677490234,
+        "corner_luma_before": 68.82840728759766,
+        "corner_luma_after": 51.28236389160156
+      }
+    },
+    {
+      "id": "night-texture-1699031",
+      "category": "dark_texture",
+      "source_page": "https://www.pexels.com/photo/1699031/",
+      "photographer": null,
+      "source_sha256": "5010ebf13cc7a887a64ed1dbb2fbbea6cdcbc5a1c35c29effa8153b50c3816f4",
+      "working_image": "_samples-work/real-eval/working/night-texture-1699031.jpg",
+      "output_image": "_samples-work/real-eval/outputs/night-texture-1699031-night-flash-s80.jpg",
+      "comparison": "_samples-work/real-eval/comparisons/night-texture-1699031-s80.jpg",
+      "preset": "night-flash",
+      "strength": 80,
+      "seed": 7,
+      "size": {
+        "height": 1600,
+        "width": 1067
+      },
+      "script_version": "1.4.1",
+      "pillow_version": "12.3.0",
+      "numpy_version": "2.5.3",
+      "clipping": {
+        "after": {
+          "clipped_channel_ratio": 0.0021087160262417996,
+          "near_black_luma_ratio": 0.04717373477038426,
+          "near_white_ratio": 0.0
+        },
+        "before": {
+          "clipped_channel_ratio": 0.0007005623242736645,
+          "near_black_luma_ratio": 0.0,
+          "near_white_ratio": 0.0
+        }
+      },
+      "metrics": {
+        "mean_abs_delta_255": 18.208770696657293,
+        "mean_luma_before": 56.299373626708984,
+        "mean_luma_after": 43.010948181152344,
+        "centre_luma_before": 59.225685119628906,
+        "centre_luma_after": 52.14360427856445,
+        "corner_luma_before": 68.82840728759766,
+        "corner_luma_after": 43.14133071899414
+      }
+    },
+    {
+      "id": "night-tokyo-32070841",
+      "category": "night_neon",
+      "source_page": "https://www.pexels.com/photo/vibrant-nightlife-on-tokyo-streets-32070841/",
+      "photographer": null,
+      "source_sha256": "82600e51ca08d67cf59c150a1c1986f62d7ff3475cc0169a818c0f9ff979801a",
+      "working_image": "_samples-work/real-eval/working/night-tokyo-32070841.jpg",
+      "output_image": "_samples-work/real-eval/outputs/night-tokyo-32070841-night-flash-s50.jpg",
+      "comparison": "_samples-work/real-eval/comparisons/night-tokyo-32070841-s50.jpg",
+      "preset": "night-flash",
+      "strength": 50,
+      "seed": 7,
+      "size": {
+        "height": 1600,
+        "width": 1280
+      },
+      "script_version": "1.4.1",
+      "pillow_version": "12.3.0",
+      "numpy_version": "2.5.3",
+      "clipping": {
+        "after": {
+          "clipped_channel_ratio": 0.01131640625,
+          "near_black_luma_ratio": 0.01840966796875,
+          "near_white_ratio": 0.00022265625
+        },
+        "before": {
+          "clipped_channel_ratio": 0.0097197265625,
+          "near_black_luma_ratio": 1.318359375e-05,
+          "near_white_ratio": 7.32421875e-06
+        }
+      },
+      "metrics": {
+        "mean_abs_delta_255": 10.338896647135417,
+        "mean_luma_before": 84.4476547241211,
+        "mean_luma_after": 78.59294891357422,
+        "centre_luma_before": 151.8069610595703,
+        "centre_luma_after": 152.85250854492188,
+        "corner_luma_before": 25.32501792907715,
+        "corner_luma_after": 18.78856658935547
+      }
+    },
+    {
+      "id": "night-tokyo-32070841",
+      "category": "night_neon",
+      "source_page": "https://www.pexels.com/photo/vibrant-nightlife-on-tokyo-streets-32070841/",
+      "photographer": null,
+      "source_sha256": "82600e51ca08d67cf59c150a1c1986f62d7ff3475cc0169a818c0f9ff979801a",
+      "working_image": "_samples-work/real-eval/working/night-tokyo-32070841.jpg",
+      "output_image": "_samples-work/real-eval/outputs/night-tokyo-32070841-night-flash-s80.jpg",
+      "comparison": "_samples-work/real-eval/comparisons/night-tokyo-32070841-s80.jpg",
+      "preset": "night-flash",
+      "strength": 80,
+      "seed": 7,
+      "size": {
+        "height": 1600,
+        "width": 1280
+      },
+      "script_version": "1.4.1",
+      "pillow_version": "12.3.0",
+      "numpy_version": "2.5.3",
+      "clipping": {
+        "after": {
+          "clipped_channel_ratio": 0.01982861328125,
+          "near_black_luma_ratio": 0.05215283203125,
+          "near_white_ratio": 0.0011953125
+        },
+        "before": {
+          "clipped_channel_ratio": 0.0097197265625,
+          "near_black_luma_ratio": 1.318359375e-05,
+          "near_white_ratio": 7.32421875e-06
+        }
+      },
+      "metrics": {
+        "mean_abs_delta_255": 16.079949381510417,
+        "mean_luma_before": 84.4476547241211,
+        "mean_luma_after": 76.53680419921875,
+        "centre_luma_before": 151.8069610595703,
+        "centre_luma_after": 153.26947021484375,
+        "corner_luma_before": 25.32501792907715,
+        "corner_luma_after": 18.01589012145996
+      }
+    },
+    {
+      "id": "night-rain-36675526",
+      "category": "night_reflections",
+      "source_page": "https://www.pexels.com/photo/rainy-night-urban-traffic-scene-with-lights-36675526/",
+      "photographer": null,
+      "source_sha256": "3c8361ab4b4bebaa70e72bcd356fb84cd621218933eab8438f978b43b9f03ad2",
+      "working_image": "_samples-work/real-eval/working/night-rain-36675526.jpg",
+      "output_image": "_samples-work/real-eval/outputs/night-rain-36675526-night-flash-s50.jpg",
+      "comparison": "_samples-work/real-eval/comparisons/night-rain-36675526-s50.jpg",
+      "preset": "night-flash",
+      "strength": 50,
+      "seed": 7,
+      "size": {
+        "height": 1600,
+        "width": 900
+      },
+      "script_version": "1.4.1",
+      "pillow_version": "12.3.0",
+      "numpy_version": "2.5.3",
+      "clipping": {
+        "after": {
+          "clipped_channel_ratio": 0.0028472222222222223,
+          "near_black_luma_ratio": 0.005313888888888889,
+          "near_white_ratio": 0.0
+        },
+        "before": {
+          "clipped_channel_ratio": 0.0008645833333333333,
+          "near_black_luma_ratio": 0.0,
+          "near_white_ratio": 0.0
+        }
+      },
+      "metrics": {
+        "mean_abs_delta_255": 9.11639861111111,
+        "mean_luma_before": 44.321434020996094,
+        "mean_luma_after": 39.40330123901367,
+        "centre_luma_before": 66.30040740966797,
+        "centre_luma_after": 62.24338912963867,
+        "corner_luma_before": 21.359609603881836,
+        "corner_luma_after": 16.49795913696289
+      }
+    },
+    {
+      "id": "night-rain-36675526",
+      "category": "night_reflections",
+      "source_page": "https://www.pexels.com/photo/rainy-night-urban-traffic-scene-with-lights-36675526/",
+      "photographer": null,
+      "source_sha256": "3c8361ab4b4bebaa70e72bcd356fb84cd621218933eab8438f978b43b9f03ad2",
+      "working_image": "_samples-work/real-eval/working/night-rain-36675526.jpg",
+      "output_image": "_samples-work/real-eval/outputs/night-rain-36675526-night-flash-s80.jpg",
+      "comparison": "_samples-work/real-eval/comparisons/night-rain-36675526-s80.jpg",
+      "preset": "night-flash",
+      "strength": 80,
+      "seed": 7,
+      "size": {
+        "height": 1600,
+        "width": 900
+      },
+      "script_version": "1.4.1",
+      "pillow_version": "12.3.0",
+      "numpy_version": "2.5.3",
+      "clipping": {
+        "after": {
+          "clipped_channel_ratio": 0.004695138888888889,
+          "near_black_luma_ratio": 0.05860555555555556,
+          "near_white_ratio": 2.777777777777778e-06
+        },
+        "before": {
+          "clipped_channel_ratio": 0.0008645833333333333,
+          "near_black_luma_ratio": 0.0,
+          "near_white_ratio": 0.0
+        }
+      },
+      "metrics": {
+        "mean_abs_delta_255": 14.355098379629629,
+        "mean_luma_before": 44.321434020996094,
+        "mean_luma_after": 38.418739318847656,
+        "centre_luma_before": 66.30040740966797,
+        "centre_luma_after": 60.76298904418945,
+        "corner_luma_before": 21.359609603881836,
+        "corner_luma_after": 16.584808349609375
+      }
+    }
+  ]
+}

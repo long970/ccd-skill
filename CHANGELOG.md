@@ -2,6 +2,12 @@
 
 This project follows Semantic Versioning.
 
+## 1.5.0 — 2026-11-18
+
+- Add non-recursive directory batch processing with a required, separate output directory, per-image JSON reports, collision-safe names and explicit all/partial/no-success exit codes.
+- Preserve the single-image default strength of 50 for reproducibility while changing the quick-start recommendation to 75 for a clearly visible first result.
+- Add five batch/default-contract regressions, bringing the suite to 38 tests, and declare the bundle as agent-created for standard skill packaging.
+
 ## 1.4.1 — 2026-11-13
 
 - Build halation from a quarter-resolution source and upsample one shared 8-bit glow map. This removes full-frame float32 RGB/luma/mask intermediates and keeps interpolation continuous across tile boundaries.
@@ -11,6 +17,7 @@ This project follows Semantic Versioning.
 - Remove a dead branch in the flash-falloff stage (`np.clip(falloff, -1, 0)` was always zero, so the "edge darkening" multiply never ran and its comment was misleading).
 - Correct the README separation figures, which still said ~1.6–1.8/255 at strength 50 and ≥2.4/255 at strength 80 while the code, tests and preset reference all say 2.2–2.3 and ≥3.4.
 - Regenerate all five sample composites with 1.4.1 and replace the self-referential halation test (it re-implemented the algorithm) with an independent tile-seam assertion.
+- Add a repeatable offline real-photo evaluator with 15 licensed photographs, 30 CLI runs, source hashes, per-image comparisons, an overview and JSON metrics. Record the low-key portrait's near-black increase as a visual-review warning rather than changing the calibrated presets.
 
 ## 1.4.0 — 2026-11-13
 

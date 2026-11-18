@@ -1,0 +1,147 @@
+{
+  "license": {
+    "name": "Pexels License",
+    "url": "https://www.pexels.com/license/",
+    "reviewed_on": "2026-11-13",
+    "notes": "Free to use and modify. No attribution required. Do not imply endorsement or sell unaltered copies."
+  },
+  "max_long_edge": 1600,
+  "seed": 7,
+  "cases": [
+    {
+      "id": "indoor-portrait-220453",
+      "source": "_samples-work/src-220453.jpg",
+      "page": "https://www.pexels.com/photo/220453/",
+      "photographer": null,
+      "category": "indoor_portrait",
+      "preset": "indoor-flash",
+      "strengths": [50, 80]
+    },
+    {
+      "id": "portrait-natural-34943686",
+      "source": "_samples-work/real-eval/sources/portrait-natural-34943686.jpg",
+      "page": "https://www.pexels.com/photo/captivating-portrait-of-black-woman-with-afro-hairstyle-34943686/",
+      "photographer": "Aniekan Umoh",
+      "category": "low_key_portrait",
+      "preset": "indoor-flash",
+      "strengths": [50, 80]
+    },
+    {
+      "id": "portrait-studio-2474257",
+      "source": "_samples-work/real-eval/sources/portrait-studio-2474257.jpg",
+      "page": "https://www.pexels.com/photo/photo-of-woman-wearing-brown-dress-while-sitting-on-stool-2474257/",
+      "photographer": "Dellon Thomas",
+      "category": "high_key_portrait",
+      "preset": "daylight-clean",
+      "strengths": [50, 80]
+    },
+    {
+      "id": "portrait-outdoor-2905873",
+      "source": "_samples-work/real-eval/sources/portrait-outdoor-2905873.jpg",
+      "page": "https://www.pexels.com/photo/photo-of-woman-wearing-traditional-wear-2905873/",
+      "photographer": "Atul Choudhary",
+      "category": "side_lit_portrait",
+      "preset": "daylight-aged",
+      "strengths": [50, 75]
+    },
+    {
+      "id": "portrait-park-3616939",
+      "source": "_samples-work/real-eval/sources/portrait-park-3616939.jpg",
+      "page": "https://www.pexels.com/photo/3616939/",
+      "photographer": null,
+      "category": "daylight_portrait",
+      "preset": "daylight-aged",
+      "strengths": [50, 75]
+    },
+    {
+      "id": "portrait-group-7325563",
+      "source": "_samples-work/real-eval/sources/portrait-group-7325563.jpg",
+      "page": "https://www.pexels.com/photo/women-posing-for-a-photo-shoot-7325563/",
+      "photographer": "KoolShooters",
+      "category": "group_portrait",
+      "preset": "indoor-flash",
+      "strengths": [50, 80]
+    },
+    {
+      "id": "portrait-indoor-8892333",
+      "source": "_samples-work/real-eval/sources/portrait-indoor-8892333.jpg",
+      "page": "https://www.pexels.com/photo/a-woman-sitting-on-the-floor-8892333/",
+      "photographer": "Yaroslav Shuraev",
+      "category": "backlit_indoor_portrait",
+      "preset": "indoor-flash",
+      "strengths": [50, 80]
+    },
+    {
+      "id": "indoor-friends-7856018",
+      "source": "_samples-work/real-eval/sources/indoor-friends-7856018.jpg",
+      "page": "https://www.pexels.com/photo/friends-playing-together-on-a-game-console-7856018/",
+      "photographer": null,
+      "category": "indoor_group",
+      "preset": "indoor-flash",
+      "strengths": [50, 80]
+    },
+    {
+      "id": "indoor-party-6519096",
+      "source": "_samples-work/real-eval/sources/indoor-party-6519096.jpg",
+      "page": "https://www.pexels.com/photo/a-woman-slicing-a-pie-6519096/",
+      "photographer": null,
+      "category": "indoor_party",
+      "preset": "indoor-flash",
+      "strengths": [50, 80]
+    },
+    {
+      "id": "backlit-cafe-7186854",
+      "source": "_samples-work/real-eval/sources/backlit-cafe-7186854.jpg",
+      "page": "https://www.pexels.com/photo/a-woman-sitting-in-the-bar-7186854/",
+      "photographer": null,
+      "category": "backlit_highlight",
+      "preset": "daylight-clean",
+      "strengths": [50, 80]
+    },
+    {
+      "id": "daylight-landscape-1366909",
+      "source": "_samples-work/src-1366909.jpg",
+      "page": "https://www.pexels.com/photo/1366909/",
+      "photographer": null,
+      "category": "daylight_landscape",
+      "preset": "daylight-aged",
+      "strengths": [50, 75]
+    },
+    {
+      "id": "landscape-lake-1525085",
+      "source": "_samples-work/real-eval/sources/landscape-lake-1525085.jpg",
+      "page": "https://www.pexels.com/photo/green-mountain-1525085/",
+      "photographer": null,
+      "category": "daylight_landscape",
+      "preset": "daylight-aged",
+      "strengths": [50, 75]
+    },
+    {
+      "id": "night-texture-1699031",
+      "source": "_samples-work/src-1699031.jpg",
+      "page": "https://www.pexels.com/photo/1699031/",
+      "photographer": null,
+      "category": "dark_texture",
+      "preset": "night-flash",
+      "strengths": [50, 80]
+    },
+    {
+      "id": "night-tokyo-32070841",
+      "source": "_samples-work/real-eval/sources/night-tokyo-32070841.jpg",
+      "page": "https://www.pexels.com/photo/vibrant-nightlife-on-tokyo-streets-32070841/",
+      "photographer": null,
+      "category": "night_neon",
+      "preset": "night-flash",
+      "strengths": [50, 80]
+    },
+    {
+      "id": "night-rain-36675526",
+      "source": "_samples-work/real-eval/sources/night-rain-36675526.jpg",
+      "page": "https://www.pexels.com/photo/rainy-night-urban-traffic-scene-with-lights-36675526/",
+      "photographer": null,
+      "category": "night_reflections",
+      "preset": "night-flash",
+      "strengths": [50, 80]
+    }
+  ]
+}

@@ -8,6 +8,7 @@ sensor simulation. Source EXIF metadata is intentionally not copied.
 from __future__ import annotations
 
 import argparse
+import copy
 import io
 import json
 import math
@@ -31,6 +32,7 @@ SCRIPT_VERSION = _load_bundle_version()
 MAX_PIXELS = 60_000_000
 TILE_ROWS = 256
 SUPPORTED_INPUT_FORMATS = {"JPEG", "PNG", "WEBP"}
+BATCH_INPUT_SUFFIXES = {".jpg", ".jpeg", ".png", ".webp", ".heic", ".heif"}
 OUTPUT_FORMATS = {".jpg": "JPEG", ".jpeg": "JPEG", ".png": "PNG", ".webp": "WEBP"}
 
 
@@ -394,11 +396,12 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="使用 Pillow/NumPy 在本地对静态照片应用可复现的 CCD 观感近似；不联网、不覆盖原图。"
     )
-    parser.add_argument("input", type=Path, help="输入静态照片：JPEG、PNG 或 WebP")
+    parser.add_argument("input", type=Path, help="输入静态照片；配合 --batch 时为输入目录")
+    parser.add_argument("--batch", action="store_true", help="处理输入目录第一层的照片；--out 必须是另一个已存在目录")
     parser.add_argument("--preset", choices=sorted(PRESETS), default="daylight-aged")
-    parser.add_argument("--strength", type=int, default=50, help="主强度 0–100；默认 50")
+    parser.add_argument("--strength", type=int, default=50, help="主强度 0–100；默认 50，明显风格建议 75–85")
     parser.add_argument("--seed", type=int, default=0, help="颗粒随机种子；默认 0，可复现")
-    parser.add_argument("--out", type=Path, help="可选输出路径；不得与输入相同，现有文件不会覆盖")
+    parser.add_argument("--out", type=Path, help="单张为输出文件；批处理为独立输出目录。绝不覆盖已有文件")
     parser.add_argument("--preview", action="store_true", help="只计算像素效果与指标，不写入图像文件")
     parser.add_argument("--quality", type=int, default=94, help="JPEG/WebP 质量 70–100；默认 94")
     parser.add_argument("--max-pixels", type=int, default=MAX_PIXELS, help=f"本次最大像素数 1–{MAX_PIXELS:,}；默认 {MAX_PIXELS:,}，可向下调以限制内存")
@@ -424,7 +427,7 @@ def _validate_args(args: argparse.Namespace) -> None:
             raise ProcessingError(f"--{key.replace('_', '-')} 必须是 0–100。")
 
 
-def run(args: argparse.Namespace) -> dict[str, Any]:
+def _run_single(args: argparse.Namespace) -> dict[str, Any]:
     _validate_args(args)
     if args.preview and args.out is not None:
         raise ProcessingError("--preview 不写文件；请移除 --out。")
@@ -434,6 +437,8 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         raise ProcessingError(f"输入文件不存在：{args.input}") from exc
     except OSError as exc:
         raise ProcessingError(f"无法访问输入路径 {args.input}：{exc}") from exc
+    if source_path.is_dir():
+        raise ProcessingError("输入是目录；整组处理请添加 --batch，并用 --out 指定另一个已存在的输出目录。")
     if not source_path.is_file():
         raise ProcessingError(f"输入不是普通文件：{source_path}")
     explicit_output = args.out.expanduser().resolve(strict=False) if args.out else None
@@ -508,6 +513,9 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     requested = explicit_output if explicit_output is not None else _default_output_path(
         source_path, args.preset, args.strength, has_alpha, input_format
     )
+    batch_output_dir = getattr(args, "_batch_output_dir", None)
+    if batch_output_dir is not None:
+        requested = batch_output_dir / requested.name
     fmt = _format_from_path(requested)
     if alpha_source is not None and fmt == "JPEG":
         raise ProcessingError("输入有透明通道，不能无提示地压平成 JPEG；请使用 .png 或 .webp 输出。")
@@ -593,6 +601,108 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     }
 
 
+def _run_batch(args: argparse.Namespace) -> dict[str, Any]:
+    """Process one directory level without mixing generated files with sources."""
+    _validate_args(args)
+    if args.preview:
+        raise ProcessingError("--batch 暂不支持 --preview；请先对单张代表照片使用 --preview。")
+    if args.out is None:
+        raise ProcessingError("--batch 必须通过 --out 指定另一个已存在的输出目录。")
+    try:
+        source_dir = args.input.expanduser().resolve(strict=True)
+    except FileNotFoundError as exc:
+        raise ProcessingError(f"批处理输入目录不存在：{args.input}") from exc
+    except OSError as exc:
+        raise ProcessingError(f"无法访问批处理输入路径 {args.input}：{exc}") from exc
+    if not source_dir.is_dir():
+        raise ProcessingError("--batch 的输入必须是目录；单张照片请移除 --batch。")
+
+    output_dir = args.out.expanduser().resolve(strict=False)
+    if os.path.normcase(str(output_dir)) == os.path.normcase(str(source_dir)):
+        raise ProcessingError("批处理输出目录不得与输入目录相同，避免生成图被再次处理。")
+    if not output_dir.exists() or not output_dir.is_dir():
+        raise ProcessingError(f"批处理输出目录不存在或不是目录：{output_dir}")
+
+    try:
+        entries = list(source_dir.iterdir())
+    except OSError as exc:
+        raise ProcessingError(f"无法读取批处理输入目录 {source_dir}：{exc}") from exc
+    candidates = sorted(
+        (path for path in entries if path.is_file() and path.suffix.lower() in BATCH_INPUT_SUFFIXES),
+        key=lambda path: (path.name.casefold(), path.name),
+    )
+    if not candidates:
+        raise ProcessingError("输入目录第一层没有 JPEG、PNG、WebP、HEIC 或 HEIF 文件；批处理不递归子目录。")
+    regular_files = sum(1 for path in entries if path.is_file())
+
+    results: list[dict[str, Any]] = []
+    for source_path in candidates:
+        child = copy.copy(args)
+        child.input = source_path
+        child.out = None
+        child.batch = False
+        child.preview = False
+        child._batch_output_dir = output_dir
+        try:
+            results.append(_run_single(child))
+        except ProcessingError as exc:
+            results.append({
+                "status": "not_processed",
+                "capability_layer": "L2-local-deterministic-pixel-processing",
+                "input_path": str(source_path),
+                "output_path": None,
+                "error": str(exc),
+            })
+        except Exception as exc:
+            results.append({
+                "status": "not_processed",
+                "capability_layer": "L2-local-deterministic-pixel-processing",
+                "input_path": str(source_path),
+                "output_path": None,
+                "error": f"意外处理错误：{exc}",
+            })
+
+    processed = [item for item in results if item["status"] == "processed"]
+    failed = [item for item in results if item["status"] == "not_processed"]
+    if not processed:
+        status = "not_processed"
+    elif failed:
+        status = "partially_processed"
+    else:
+        status = "processed"
+    return {
+        "status": status,
+        "capability_layer": "L2-local-deterministic-batch-pixel-processing",
+        "error": None if status == "processed" else (
+            "部分照片未处理；逐张原因见 results。" if status == "partially_processed"
+            else "所有照片均未处理；逐张原因见 results。"
+        ),
+        "batch": True,
+        "preview_only": False,
+        "image_written": bool(processed),
+        "script_version": SCRIPT_VERSION,
+        "pillow_version": PILLOW_VERSION,
+        "numpy_version": np.__version__,
+        "input_dir": str(source_dir),
+        "output_dir": str(output_dir),
+        "preset": args.preset,
+        "strength": args.strength,
+        "seed": args.seed,
+        "seed_policy": "same-explicit-seed-for-each-source-image",
+        "recursive": False,
+        "total_files": len(results),
+        "processed_files": len(processed),
+        "failed_files": len(failed),
+        "ignored_non_photo_files": regular_files - len(candidates),
+        "output_paths": [item["output_path"] for item in processed],
+        "results": results,
+    }
+
+
+def run(args: argparse.Namespace) -> dict[str, Any]:
+    return _run_batch(args) if args.batch else _run_single(args)
+
+
 def main(argv: list[str] | None = None) -> int:
     args = _parse_args(argv)
     try:
@@ -603,7 +713,20 @@ def main(argv: list[str] | None = None) -> int:
     except Exception as exc:  # last-resort failure is explicit; never imply success
         print(json.dumps({"status": "not_processed", "capability_layer": "L2-local-deterministic-pixel-processing", "error": f"意外处理错误：{exc}"}, ensure_ascii=False), file=sys.stderr)
         return 3
+
+    if args.batch and report["status"] == "not_processed":
+        print(json.dumps(report, ensure_ascii=False, sort_keys=True), file=sys.stderr)
+        return 2
     print(json.dumps(report, ensure_ascii=False, sort_keys=True))
+    if args.batch and report["status"] == "partially_processed":
+        print(json.dumps({
+            "status": "partially_processed",
+            "capability_layer": report["capability_layer"],
+            "processed_files": report["processed_files"],
+            "failed_files": report["failed_files"],
+            "error": "部分照片未处理；逐张原因见 stdout 的 results。",
+        }, ensure_ascii=False), file=sys.stderr)
+        return 1
     return 0
 
 

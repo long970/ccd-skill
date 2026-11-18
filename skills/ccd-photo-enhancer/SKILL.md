@@ -1,8 +1,9 @@
 ---
 name: ccd-photo-enhancer
-description: Style-edit an existing photo as a CCD / early compact digital camera look, 复古, 千禧/Y2K, or ink painting (水墨/国画/工笔). Routes CCD to a local deterministic script; not for screenshots or film-stock simulation.
+description: Edits an existing photo or photo folder into a repeatable CCD / early compact digital camera look, 复古, 千禧/Y2K, or ink painting (水墨/国画/工笔). Routes CCD to a local deterministic script; not for screenshots or film-stock simulation.
 whenToUse: "对已有照片做 CCD、卡片机、千禧/Y2K、复古、数码相机风格增强，或水墨、国画、工笔等风格转换；不用于截图、胶片仿真或老照片修复（除非用户明确要求）。"
 user-invocable: true
+agent_created: true
 ---
 
 # CCD Photo Enhancer
@@ -38,17 +39,19 @@ For an existing photo, route CCD looks to the local deterministic Pillow/NumPy s
 
 调用 `scripts/apply_ccd.py`，将原图作为输入，明确选择配方、主强度和 seed；如用户未指定强度，默认为 50。基本参数、预设及子效果覆盖见 `references/ccd-presets.md`。现有四个预设是三轴上的离散组合，当前不支持任意轴插值；组合不匹配时诚实说明并走 L1/L3。默认输出为输入同目录的 `<原名>_ccd-<预设>-<强度>.<扩展名>`；若名称已存在，使用不冲突的序号，不得覆盖。
 
-调用前只问确实影响结果的问题。对“复古一点”可直接使用 `daylight-aged` / `strength=50`；对明确的室内闪光、白天、夜景意图分别选择对应预设。若用户要求不同子效果强度，可用 grain / color / vignette / sharpness 覆盖值，而非增加五个必答问题。用户想先查看指标时可加 `--preview`；它只计算内存结果，不写文件，报告的剪切指标在 JPEG 编码前统计，不等于最终 JPEG 像素。预览不得称为已处理图片，且不能与 `--out` 一起使用。
+调用前只问确实影响结果的问题。对“复古一点”可直接使用 `daylight-aged` / `strength=50`；用户希望第一眼看出 CCD 风格、或用于快速上手演示时，使用 `strength=75` 并复核肤色和暗部。对明确的室内闪光、白天、夜景意图分别选择对应预设。若用户要求不同子效果强度，可用 grain / color / vignette / sharpness 覆盖值，而非增加五个必答问题。用户想先查看指标时可加 `--preview`；它只计算内存结果，不写文件，报告的剪切指标在 JPEG 编码前统计，不等于最终 JPEG 像素。预览不得称为已处理图片，且不能与 `--out` 一起使用。
+
+整组照片使用 `<输入目录> --batch --out <另一个已存在目录>`。只处理输入目录第一层，不递归；输出目录不得等于输入目录，避免生成图回流为输入。逐张沿用相同预设、强度和显式 seed，逐张报告成功或失败；不支持批量 `--preview`，先用一张代表照片预览。全部成功退出码为 0，部分成功为 1，全部失败为 2。部分成功时必须报告成功/失败数量和失败原因，不得称为整组已完成。
 
 ## 输出状态契约（每次回复必须包含）
 
 ```text
-处理状态：已处理 / 仅预览（未写文件）/ 未处理
+处理状态：已处理 / 部分已处理 / 仅预览（未写文件）/ 未处理
 能力层级：L1 生成式编辑 / L2 本地像素处理 / L2 预览指标 / L3 仅提示词
-输出文件：<绝对路径> / 无
+输出文件：<绝对路径或批处理输出目录> / 无
 ```
 
-L2 处理完成时交付文件或可点击路径；L2 preview 只报告指标、输出文件写“无”，图片没有实际修改；L3 时说明图片未改变并提供提示词。脚本失败时状态必须是“未处理”，保留错误原因，不得把 preview 或 L3 提示词描述成已处理结果。
+L2 处理完成时交付文件或可点击路径；批处理还要给出输出目录、成功/失败数量，部分失败时列出对应文件及原因。L2 preview 只报告指标、输出文件写“无”，图片没有实际修改；L3 时说明图片未改变并提供提示词。脚本失败时状态必须是“未处理”，保留错误原因，不得把 preview、部分批处理成功或 L3 提示词描述成全部处理完成。
 
 ## 质量检查
 

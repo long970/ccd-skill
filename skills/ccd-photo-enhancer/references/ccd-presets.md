@@ -33,8 +33,9 @@
 ## 参考命令
 
 ```text
-python scripts/apply_ccd.py input.jpg --preset daylight-aged --strength 50 --seed 0
-python scripts/apply_ccd.py input.png --preset indoor-flash --strength 65 --grain-strength 10 --seed 17 --out result.png
+python scripts/apply_ccd.py input.jpg --preset daylight-aged --strength 75 --seed 0
+python scripts/apply_ccd.py input.png --preset indoor-flash --strength 75 --grain-strength 10 --seed 17 --out result.png
+python scripts/apply_ccd.py photos --batch --preset daylight-aged --strength 75 --seed 7 --out ccd-output
 ```
 
-没有显式 `--out` 时脚本在输入旁创建唯一新文件；透明图或 PNG 输入默认 PNG，其他静态照片默认 JPEG。若要选择子效果覆盖，先确认用户表达的偏好；不要仅因强度大就自动加日期戳或漏光。
+强度省略时仍为兼容默认 `50`；参考命令使用 `75` 是为了让首次结果更容易辨认。没有显式 `--out` 时，单张脚本在输入旁创建唯一新文件；批处理必须指定另一个已存在的输出目录。透明图或 PNG 输入默认 PNG，其他静态照片默认 JPEG。若要选择子效果覆盖，先确认用户表达的偏好；不要仅因强度大就自动加日期戳或漏光。

@@ -550,6 +550,105 @@ class ApplyCcdTests(unittest.TestCase):
         failure = json.loads(stderr.getvalue())
         self.assertEqual(failure["status"], "not_processed")
         self.assertIn("error", failure)
+    def test_single_file_default_contract_is_unchanged(self) -> None:
+        args = self.args(self.root / "photo.jpg")
+        self.assertFalse(args.batch)
+        self.assertEqual(args.strength, 50)
+        self.assertEqual(args.preset, "daylight-aged")
+        self.assertIsNone(args.out)
+
+    def test_batch_processes_directory_without_overwriting_sources_or_outputs(self) -> None:
+        sources = self.root / "sources"
+        outputs = self.root / "outputs"
+        sources.mkdir()
+        outputs.mkdir()
+        first = sources / "b.jpg"
+        second = sources / "a.png"
+        Image.new("RGB", (12, 8), (90, 110, 130)).save(first)
+        Image.new("RGB", (10, 14), (150, 100, 70)).save(second)
+        (sources / "notes.txt").write_text("not a photo", encoding="utf-8")
+        original_bytes = {path: path.read_bytes() for path in (first, second)}
+
+        argv = [str(sources), "--batch", "--out", str(outputs), "--preset", "daylight-aged", "--strength", "75", "--seed", "7"]
+        report = apply_ccd.run(apply_ccd._parse_args(argv))
+        self.assertEqual(report["status"], "processed")
+        self.assertEqual(report["processed_files"], 2)
+        self.assertEqual(report["failed_files"], 0)
+        self.assertEqual(report["ignored_non_photo_files"], 1)
+        self.assertFalse(report["recursive"])
+        self.assertEqual(report["seed_policy"], "same-explicit-seed-for-each-source-image")
+        self.assertEqual(len(report["output_paths"]), 2)
+        self.assertTrue(all(Path(path).parent == outputs for path in report["output_paths"]))
+        for path, content in original_bytes.items():
+            self.assertEqual(path.read_bytes(), content)
+
+        repeated = apply_ccd.run(apply_ccd._parse_args(argv))
+        self.assertEqual(repeated["status"], "processed")
+        self.assertTrue(set(report["output_paths"]).isdisjoint(repeated["output_paths"]))
+        self.assertEqual(len(list(outputs.iterdir())), 4)
+
+    def test_batch_rejects_unsafe_output_and_preview_combinations(self) -> None:
+        sources = self.root / "batch-validation"
+        outputs = self.root / "batch-output"
+        sources.mkdir()
+        outputs.mkdir()
+        photo = sources / "photo.png"
+        Image.new("RGB", (4, 3), (40, 60, 80)).save(photo)
+
+        with self.assertRaisesRegex(apply_ccd.ProcessingError, "必须通过 --out"):
+            apply_ccd.run(self.args(sources, "--batch"))
+        with self.assertRaisesRegex(apply_ccd.ProcessingError, "不得与输入目录相同"):
+            apply_ccd.run(self.args(sources, "--batch", "--out", str(sources)))
+        with self.assertRaisesRegex(apply_ccd.ProcessingError, "输出目录不存在"):
+            apply_ccd.run(self.args(sources, "--batch", "--out", str(self.root / "missing-output")))
+        with self.assertRaisesRegex(apply_ccd.ProcessingError, "暂不支持 --preview"):
+            apply_ccd.run(self.args(sources, "--batch", "--out", str(outputs), "--preview"))
+        with self.assertRaisesRegex(apply_ccd.ProcessingError, "输入必须是目录"):
+            apply_ccd.run(self.args(photo, "--batch", "--out", str(outputs)))
+
+    def test_batch_partial_failure_is_explicit_in_report_and_cli_exit(self) -> None:
+        sources = self.root / "partial-sources"
+        sources.mkdir()
+        Image.new("RGB", (8, 6), (100, 120, 140)).save(sources / "good.png")
+        (sources / "phone.heic").write_bytes(b"not a decodable HEIC")
+        outputs = self.root / "partial-output"
+        outputs.mkdir()
+
+        report = apply_ccd.run(self.args(sources, "--batch", "--out", str(outputs)))
+        self.assertEqual(report["status"], "partially_processed")
+        self.assertEqual(report["processed_files"], 1)
+        self.assertEqual(report["failed_files"], 1)
+        failure = next(item for item in report["results"] if item["status"] == "not_processed")
+        self.assertIn("HEIC/HEIF", failure["error"])
+        self.assertIsNone(failure["output_path"])
+
+        cli_outputs = self.root / "partial-cli-output"
+        cli_outputs.mkdir()
+        stdout = StringIO()
+        stderr = StringIO()
+        with redirect_stdout(stdout), redirect_stderr(stderr):
+            code = apply_ccd.main([str(sources), "--batch", "--out", str(cli_outputs)])
+        self.assertEqual(code, 1)
+        self.assertEqual(json.loads(stdout.getvalue())["status"], "partially_processed")
+        self.assertEqual(json.loads(stderr.getvalue())["status"], "partially_processed")
+
+    def test_batch_all_failed_uses_stderr_and_nonzero_exit(self) -> None:
+        sources = self.root / "failed-sources"
+        outputs = self.root / "failed-output"
+        sources.mkdir()
+        outputs.mkdir()
+        (sources / "only.heic").write_bytes(b"not a decodable HEIC")
+        stdout = StringIO()
+        stderr = StringIO()
+        with redirect_stdout(stdout), redirect_stderr(stderr):
+            code = apply_ccd.main([str(sources), "--batch", "--out", str(outputs)])
+        self.assertEqual(code, 2)
+        self.assertEqual(stdout.getvalue(), "")
+        failure = json.loads(stderr.getvalue())
+        self.assertEqual(failure["status"], "not_processed")
+        self.assertEqual(failure["processed_files"], 0)
+        self.assertEqual(failure["failed_files"], 1)
+        self.assertEqual(list(outputs.iterdir()), [])
 
 
 if __name__ == "__main__":

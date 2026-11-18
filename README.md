@@ -1,6 +1,6 @@
 # CCD Photo Enhancer
 
-A local-first Agent Skill for editing an existing photo with a repeatable early compact-digital-camera (CCD-look) treatment. The repository keeps the discoverable skill bundle under `skills/ccd-photo-enhancer/`; tests and release metadata live at the repository root.
+A local-first Agent Skill for editing an existing photo or photo folder with a repeatable early compact-digital-camera (CCD-look) treatment. It is designed for privacy-conscious photographers and Agent power users who want deterministic, local results rather than generative reinterpretation. The repository keeps the discoverable skill bundle under `skills/ccd-photo-enhancer/`; tests and release metadata live at the repository root.
 
 ## Repository layout
 
@@ -39,17 +39,39 @@ Grain and highlight bloom are per-pixel effects, so they disappear when a 1600 p
 
 These show the pipeline working on real photos. They do not prove the look matches a specific CCD model. Known limitation: warm highlight gains still shift light skin warmer at high strength, and L2 has no face or skin detection, so portrait output needs a visual check.
 
+### Extended real-photo evaluation
+
+The repeatable offline evaluation covers 15 licensed photographs and 30 CLI runs at default and recommended strengths, including low-key and high-key portraits, groups, indoor events, backlight, landscapes, neon and rainy nights. It records source hashes, dependency versions, clipping and tonal metrics, and writes side-by-side comparisons.
+
+```text
+python tests/real_photo_eval.py
+```
+
+See the [30-run overview](docs/samples/real-evaluation-overview.jpg) and [JSON report](docs/samples/real-evaluation.json). The current mean absolute pixel change is 11.1/255 and the maximum near-white ratio after processing is 0.12%. These measurements are technical alerts, not proof of CCD authenticity or aesthetic quality.
+
 ## Run the local CCD processor
 
 The CLI requires Python, Pillow, and NumPy in the chosen interpreter. It never installs dependencies or accesses the network.
 
 ```text
-python skills/ccd-photo-enhancer/scripts/apply_ccd.py photo.jpg --preset daylight-aged --strength 50 --seed 0
-python skills/ccd-photo-enhancer/scripts/apply_ccd.py portrait.png --preset indoor-flash --strength 65 --grain-strength 10 --out portrait-ccd.png
+# First result with clearly visible preset character
+python skills/ccd-photo-enhancer/scripts/apply_ccd.py photo.jpg --preset daylight-aged --strength 75 --seed 0
+
+# Single-image custom output and sub-effect control
+python skills/ccd-photo-enhancer/scripts/apply_ccd.py portrait.png --preset indoor-flash --strength 75 --grain-strength 10 --out portrait-ccd.png
+
+# Inspect metrics without writing an image
 python skills/ccd-photo-enhancer/scripts/apply_ccd.py photo.jpg --preset night-flash --strength 50 --preview
+
+# Process one folder level into an existing, separate output folder
+python skills/ccd-photo-enhancer/scripts/apply_ccd.py photos --batch --preset daylight-aged --strength 75 --seed 7 --out ccd-output
 ```
 
-`--preview` reports in-memory pixel metrics and never writes an image; those metrics are measured before JPEG encoding and are not a substitute for viewing the saved result.
+Strength 50 remains the CLI default for backwards-compatible, restrained output. Start at 75–85 when the goal is an immediately recognizable CCD treatment; review portraits for warmer skin and darker shadows.
+
+For batch mode, create `ccd-output` first and keep it different from the input folder. Batch mode reads only the first directory level, does not recurse, uses the explicit seed for each source image, and never mixes generated images back into the source folder. It returns one JSON summary containing every per-image report. Exit codes are 0 for complete success, 1 for partial success, and 2 when no image was processed; partial success never claims that the whole folder succeeded.
+
+`--preview` reports in-memory pixel metrics and never writes an image; those metrics are measured before JPEG encoding and are not a substitute for viewing the saved result. Batch mode does not support `--preview`; preview a representative single image first.
 
 The CLI prints a JSON report on success and writes errors to stderr with a non-zero exit. It never overwrites an existing file; collisions receive a numbered suffix. PNG inputs and alpha-bearing images default to PNG; opaque JPEG/WebP inputs default to JPEG. JPEG uses quality 94, 4:4:4 chroma sampling, and `optimize=False` to avoid encoder failures on high-entropy content; output sizes vary by image. EXIF/GPS metadata is not copied. HEIC/HEIF, animation, unsupported ICC profiles, and floating-point rasters fail explicitly. The default pixel cap is 60MP; `--max-pixels` can be set from 1 to 60MP, with no automatic resizing.
 
