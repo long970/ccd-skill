@@ -96,11 +96,14 @@ Batch mode:
 - emits one JSON summary with every per-image report;
 - never writes generated files back into the source directory.
 
-| Exit code | Meaning |
-|---:|---|
-| `0` | Every photo was processed |
-| `1` | Some photos were processed; failures are listed per image |
-| `2` | No photo was processed |
+| Exit code | Status | Meaning |
+|---:|---|---|
+| `0` | `processed` | Every photo was processed |
+| `0` | `processed_with_skips` | Photos were processed; some files were explicitly skipped |
+| `1` | `partially_processed` | At least one photo failed; per-image reasons are listed |
+| `2` | `nothing_processed` | No photo was produced at all |
+
+Pass `--skip-unsupported` to record undecodable files (HEIC/HEIF) as `skipped` with a `reason` instead of failing the batch. Skips are counted in `skipped_files` and reported in `notice`; they are not successes, and an all-HEIC folder still exits 2.
 
 Batch mode does not support `--preview`. Preview one representative image first.
 
@@ -180,7 +183,7 @@ CCD presets always use the local pixel pipeline.
 ### Supported limits
 
 - Static JPEG, PNG and WebP only.
-- HEIC/HEIF must be exported locally to a supported format first.
+- HEIC/HEIF cannot be decoded here. Single images fail explicitly; batch mode fails them by default, or records them as `skipped` with `--skip-unsupported`.
 - Animation, floating-point rasters and unsupported ICC profiles fail explicitly.
 - The default pixel ceiling is 60 MP and can be lowered with `--max-pixels`; images above the limit are not automatically resized.
 - JPEG output uses quality 94, 4:4:4 chroma sampling and `optimize=False`.
@@ -195,7 +198,7 @@ The JSON report records the parameters, seed, dependency versions, orientation-c
 python -m unittest discover -s tests -v
 ```
 
-- 38 automated tests cover orientation and EXIF removal, alpha preservation, deterministic output, clipping bounds, preset separation, batch safety and CLI failure reporting.
+- 41 automated tests cover orientation and EXIF removal, alpha preservation, deterministic output, clipping bounds, preset separation, batch safety, skip semantics and CLI failure reporting.
 - GitHub Actions runs the suite on Ubuntu and Windows with Python 3.12.
 - Release 1.5.0 was installed from the public GitHub repository with the Skills CLI and checked against the bundled files.
 

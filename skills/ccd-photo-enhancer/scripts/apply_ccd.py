@@ -40,6 +40,10 @@ class ProcessingError(Exception):
     """Expected input/processing failure suitable for an actionable message."""
 
 
+class UnsupportedFormatError(ProcessingError):
+    """Format this environment cannot decode; --skip-unsupported may skip it."""
+
+
 @dataclass(frozen=True)
 class Preset:
     name: str
@@ -398,6 +402,11 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     )
     parser.add_argument("input", type=Path, help="输入静态照片；配合 --batch 时为输入目录")
     parser.add_argument("--batch", action="store_true", help="处理输入目录第一层的照片；--out 必须是另一个已存在目录")
+    parser.add_argument(
+        "--skip-unsupported",
+        action="store_true",
+        help="批处理时把当前环境无法解码的文件（如 HEIC）记为 skipped 而不是失败；单张 HEIC 仍返回非零并明确报告 skipped",
+    )
     parser.add_argument("--preset", choices=sorted(PRESETS), default="daylight-aged")
     parser.add_argument("--strength", type=int, default=50, help="主强度 0–100；默认 50，明显风格建议 75–85")
     parser.add_argument("--seed", type=int, default=0, help="颗粒随机种子；默认 0，可复现")
@@ -449,13 +458,13 @@ def _run_single(args: argparse.Namespace) -> dict[str, Any]:
         if not explicit_output.parent.exists() or not explicit_output.parent.is_dir():
             raise ProcessingError(f"输出目录不存在或不是目录：{explicit_output.parent}")
     if source_path.suffix.lower() in {".heic", ".heif"}:
-        raise ProcessingError("当前没有 HEIC/HEIF 解码器。请在本机导出 JPEG/PNG 后重试；图片不会被上传。")
+        raise UnsupportedFormatError("当前没有 HEIC/HEIF 解码器。请在本机导出 JPEG/PNG 后重试；图片不会被上传。")
 
     warnings: list[str] = []
     try:
         with Image.open(source_path) as raw:
             if raw.format not in SUPPORTED_INPUT_FORMATS:
-                raise ProcessingError(f"不支持输入格式 {raw.format!r}；支持静态 JPEG、PNG、WebP。")
+                raise UnsupportedFormatError(f"不支持输入格式 {raw.format!r}；支持静态 JPEG、PNG、WebP。")
             input_format = raw.format
             if getattr(raw, "n_frames", 1) != 1:
                 raise ProcessingError("不支持多帧/动画图像；请先在本机导出所需静态帧。")
@@ -645,6 +654,24 @@ def _run_batch(args: argparse.Namespace) -> dict[str, Any]:
         child._batch_output_dir = output_dir
         try:
             results.append(_run_single(child))
+        except UnsupportedFormatError as exc:
+            if args.skip_unsupported:
+                results.append({
+                    "status": "skipped",
+                    "capability_layer": "L2-local-deterministic-pixel-processing",
+                    "input_path": str(source_path),
+                    "output_path": None,
+                    "reason": str(exc),
+                    "error": None,
+                })
+            else:
+                results.append({
+                    "status": "not_processed",
+                    "capability_layer": "L2-local-deterministic-pixel-processing",
+                    "input_path": str(source_path),
+                    "output_path": None,
+                    "error": str(exc),
+                })
         except ProcessingError as exc:
             results.append({
                 "status": "not_processed",
@@ -664,18 +691,23 @@ def _run_batch(args: argparse.Namespace) -> dict[str, Any]:
 
     processed = [item for item in results if item["status"] == "processed"]
     failed = [item for item in results if item["status"] == "not_processed"]
+    skipped = [item for item in results if item["status"] == "skipped"]
     if not processed:
-        status = "not_processed"
+        status = "nothing_processed"
+        error = "没有处理任何图片；逐张原因见 results。"
     elif failed:
         status = "partially_processed"
+        error = "部分照片处理失败；逐张原因见 results。"
     else:
-        status = "processed"
+        status = "processed_with_skips" if skipped else "processed"
+        error = None
     return {
         "status": status,
         "capability_layer": "L2-local-deterministic-batch-pixel-processing",
-        "error": None if status == "processed" else (
-            "部分照片未处理；逐张原因见 results。" if status == "partially_processed"
-            else "所有照片均未处理；逐张原因见 results。"
+        "error": error,
+        "notice": (
+            f"{len(skipped)} 张因格式不受支持被跳过；不计入失败，也未生成输出。"
+            if skipped else None
         ),
         "batch": True,
         "preview_only": False,
@@ -693,6 +725,7 @@ def _run_batch(args: argparse.Namespace) -> dict[str, Any]:
         "total_files": len(results),
         "processed_files": len(processed),
         "failed_files": len(failed),
+        "skipped_files": len(skipped),
         "ignored_non_photo_files": regular_files - len(candidates),
         "output_paths": [item["output_path"] for item in processed],
         "results": results,
@@ -707,6 +740,16 @@ def main(argv: list[str] | None = None) -> int:
     args = _parse_args(argv)
     try:
         report = run(args)
+    except UnsupportedFormatError as exc:
+        skipped = bool(getattr(args, "skip_unsupported", False))
+        print(json.dumps({
+            "status": "skipped" if skipped else "not_processed",
+            "capability_layer": "L2-local-deterministic-pixel-processing",
+            "image_written": False,
+            "reason": str(exc) if skipped else None,
+            "error": None if skipped else str(exc),
+        }, ensure_ascii=False), file=sys.stderr)
+        return 2
     except ProcessingError as exc:
         print(json.dumps({"status": "not_processed", "capability_layer": "L2-local-deterministic-pixel-processing", "error": str(exc)}, ensure_ascii=False), file=sys.stderr)
         return 2
@@ -714,7 +757,10 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps({"status": "not_processed", "capability_layer": "L2-local-deterministic-pixel-processing", "error": f"意外处理错误：{exc}"}, ensure_ascii=False), file=sys.stderr)
         return 3
 
-    if args.batch and report["status"] == "not_processed":
+    if report.get("status") == "skipped":
+        print(json.dumps(report, ensure_ascii=False, sort_keys=True), file=sys.stderr)
+        return 2
+    if args.batch and report["status"] == "nothing_processed":
         print(json.dumps(report, ensure_ascii=False, sort_keys=True), file=sys.stderr)
         return 2
     print(json.dumps(report, ensure_ascii=False, sort_keys=True))
@@ -724,7 +770,8 @@ def main(argv: list[str] | None = None) -> int:
             "capability_layer": report["capability_layer"],
             "processed_files": report["processed_files"],
             "failed_files": report["failed_files"],
-            "error": "部分照片未处理；逐张原因见 stdout 的 results。",
+            "skipped_files": report["skipped_files"],
+            "error": "部分照片处理失败；逐张原因见 stdout 的 results。",
         }, ensure_ascii=False), file=sys.stderr)
         return 1
     return 0

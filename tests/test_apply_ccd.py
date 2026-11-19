@@ -645,10 +645,74 @@ class ApplyCcdTests(unittest.TestCase):
         self.assertEqual(code, 2)
         self.assertEqual(stdout.getvalue(), "")
         failure = json.loads(stderr.getvalue())
-        self.assertEqual(failure["status"], "not_processed")
+        self.assertEqual(failure["status"], "nothing_processed")
         self.assertEqual(failure["processed_files"], 0)
         self.assertEqual(failure["failed_files"], 1)
+        self.assertEqual(failure["skipped_files"], 0)
         self.assertEqual(list(outputs.iterdir()), [])
+
+    def test_batch_skip_unsupported_records_skips_without_failures(self) -> None:
+        sources = self.root / "skip-sources"
+        outputs = self.root / "skip-output"
+        sources.mkdir()
+        outputs.mkdir()
+        Image.new("RGB", (8, 6), (100, 120, 140)).save(sources / "good.png")
+        (sources / "phone.heic").write_bytes(b"not a decodable HEIC")
+        stdout = StringIO()
+        stderr = StringIO()
+        with redirect_stdout(stdout), redirect_stderr(stderr):
+            code = apply_ccd.main(
+                [str(sources), "--batch", "--out", str(outputs), "--skip-unsupported"]
+            )
+        self.assertEqual(code, 0)
+        self.assertEqual(stderr.getvalue(), "")
+        report = json.loads(stdout.getvalue())
+        self.assertEqual(report["status"], "processed_with_skips")
+        self.assertEqual(report["processed_files"], 1)
+        self.assertEqual(report["failed_files"], 0)
+        self.assertEqual(report["skipped_files"], 1)
+        self.assertIsNone(report["error"])
+        self.assertIn("跳过", report["notice"])
+        skipped = next(item for item in report["results"] if item["status"] == "skipped")
+        self.assertIsNone(skipped["output_path"])
+        self.assertIsNone(skipped["error"])
+        self.assertIn("HEIC/HEIF", skipped["reason"])
+        self.assertEqual(len(list(outputs.iterdir())), 1)
+
+    def test_batch_all_unsupported_with_skip_still_produces_nothing(self) -> None:
+        sources = self.root / "all-skip-sources"
+        outputs = self.root / "all-skip-output"
+        sources.mkdir()
+        outputs.mkdir()
+        (sources / "a.heic").write_bytes(b"not a decodable HEIC")
+        (sources / "b.heif").write_bytes(b"not a decodable HEIF")
+        stdout = StringIO()
+        stderr = StringIO()
+        with redirect_stdout(stdout), redirect_stderr(stderr):
+            code = apply_ccd.main(
+                [str(sources), "--batch", "--out", str(outputs), "--skip-unsupported"]
+            )
+        self.assertEqual(code, 2)
+        self.assertEqual(stdout.getvalue(), "")
+        report = json.loads(stderr.getvalue())
+        self.assertEqual(report["status"], "nothing_processed")
+        self.assertEqual(report["processed_files"], 0)
+        self.assertEqual(report["failed_files"], 0)
+        self.assertEqual(report["skipped_files"], 2)
+        self.assertEqual(list(outputs.iterdir()), [])
+
+    def test_single_unsupported_with_skip_reports_skipped_and_exit_two(self) -> None:
+        photo = self.root / "single.heic"
+        photo.write_bytes(b"not a decodable HEIC")
+        stderr = StringIO()
+        with redirect_stderr(stderr):
+            code = apply_ccd.main([str(photo), "--skip-unsupported"])
+        self.assertEqual(code, 2)
+        report = json.loads(stderr.getvalue())
+        self.assertEqual(report["status"], "skipped")
+        self.assertFalse(report["image_written"])
+        self.assertIsNone(report["error"])
+        self.assertIn("HEIC/HEIF", report["reason"])
 
 
 if __name__ == "__main__":

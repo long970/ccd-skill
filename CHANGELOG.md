@@ -2,6 +2,14 @@
 
 This project follows Semantic Versioning.
 
+## 1.5.1 — 2026-11-19
+
+- Close the batch status model. `processed` means every file succeeded (exit 0), `processed_with_skips` means explicit skips but no failures (exit 0), `partially_processed` means at least one failure (exit 1), and `nothing_processed` means no image was produced at all (exit 2). Skips are therefore neither failures nor silent successes, and an all-HEIC folder can no longer report success.
+- Add `--skip-unsupported`: undecodable files (HEIC/HEIF) are recorded as `skipped` with a `reason` instead of `not_processed` with an `error`. The report gains `skipped_files` and a `notice` line.
+- Single-file HEIC stays explicit: with `--skip-unsupported` it reports `skipped` and `image_written: false`, and still exits 2 because no image was written.
+- Describe the flag, the four statuses and the exit-code mapping in `SKILL.md`, `references/image-pipeline.md` and `README.md`.
+- Add three batch skip/single-skip regressions, bringing the suite to 41 tests.
+
 ## 1.5.0 — 2026-11-18
 
 - Add non-recursive directory batch processing with a required, separate output directory, per-image JSON reports, collision-safe names and explicit all/partial/no-success exit codes.
