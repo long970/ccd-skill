@@ -308,7 +308,10 @@ class ReferenceModeTests(unittest.TestCase):
         self.assertEqual(record["before"], record["after"])
 
     def test_reference_report_drops_guardrails_and_carries_coverage(self) -> None:
-        coverage = {"daylight-clean": {"calibration": 1, "holdout": 0, "status": "pilot"}}
+        coverage = {
+            "daylight-clean": {"calibration": 1, "holdout": 0, "status": "pilot"},
+            "night-flash": {"calibration": 0, "holdout": 0, "status": "missing"},
+        }
         with tempfile.TemporaryDirectory(prefix="ccd-ref-") as tmp:
             path = Path(tmp) / "src.png"
             Image.new("RGB", (48, 32), (118, 120, 122)).save(path)
@@ -326,6 +329,10 @@ class ReferenceModeTests(unittest.TestCase):
         self.assertIsNone(report["ablation"])
         self.assertEqual(report["coverage"], coverage)
         self.assertIn("daylight-clean", report["families"])
+        absent = report["families"]["night-flash"]
+        self.assertEqual(absent["n"], 0)
+        self.assertTrue(absent["absent"])
+        self.assertTrue(absent["insufficient_n"])
         self.assertIn("不是四族完整基线", report["note"])
 
 

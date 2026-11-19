@@ -1351,6 +1351,14 @@
         }
       },
       "delta": {}
+    },
+    "night-flash": {
+      "n": 0,
+      "insufficient_n": true,
+      "absent": true,
+      "before": {},
+      "after": {},
+      "delta": {}
     }
   }
 }

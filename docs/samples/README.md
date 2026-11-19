@@ -1,6 +1,6 @@
 # Sample before/after images
 
-These five images are the visual evidence for the CCD presets. They are **real photographs**, not synthetic charts, and were produced with the 1.4.1 CLI. The 1.5.0 release adds batch processing and documentation without changing the pixel recipe, so the same settings remain representative of the current release:
+These five images are the visual evidence for the CCD presets. They are **real photographs**, not synthetic charts, and were produced with the 1.4.1 CLI. The pixel recipe has not changed since 1.4.1 — later releases add batch handling, wording and tooling — so the same settings remain representative of the current 1.5.2 release:
 
 ```text
 python skills/ccd-photo-enhancer/scripts/apply_ccd.py <source> --preset <preset> --strength <n> --seed 7
@@ -18,7 +18,7 @@ Each side-by-side file is `BEFORE` on the left and `AFTER` on the right. The `BE
 
 ## Extended real-photo evaluation
 
-`real-evaluation-overview.jpg` contains 30 before/after runs across 15 photographs at default and recommended strengths, generated with the current 1.5.0 CLI. `real-evaluation.json` records source hashes, exact parameters, dependency versions, clipping and tonal metrics. The source matrix and page URLs are in `tests/real-photo-manifest.json`; run `python tests/real_photo_eval.py` from the repository root after placing the licensed sources at the manifest paths. The evaluator itself is offline and always invokes the shipped CLI.
+`real-evaluation-overview.jpg` contains 30 before/after runs across 15 photographs at default and recommended strengths, generated with the current 1.5.2 CLI. `real-evaluation.json` records source hashes, exact parameters, `script_version`, dependency versions, clipping and tonal metrics; rerunning `tests/real_photo_eval.py` refreshes all of them, so check those fields before citing a number. The source matrix and page URLs are in `tests/real-photo-manifest.json`; run `python tests/real_photo_eval.py` from the repository root after placing the licensed sources at the manifest paths. The evaluator itself is offline and always invokes the shipped CLI.
 
 ## Licensing
 

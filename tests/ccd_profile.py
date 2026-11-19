@@ -485,6 +485,15 @@ def build_report(
 
     measured = [record for record in records if record["status"] == "ok"]
     violations = [] if reference else _guardrail_violations(measured)
+    families = aggregate(records)
+    # A family the manifest declares but no image covers must still appear, with n=0,
+    # so a reader cannot mistake an omission for a family that happened to be fine.
+    for name in (coverage or {}):
+        families.setdefault(
+            name,
+            {"n": 0, "insufficient_n": True, "absent": True, "before": {}, "after": {}, "delta": {}},
+        )
+    families = {name: families[name] for name in sorted(families)}
 
     return {
         "title": REFERENCE_TITLE if reference else TITLE,
@@ -534,7 +543,7 @@ def build_report(
         },
         "coverage": coverage,
         "images": records,
-        "families": aggregate(records),
+        "families": families,
     }
 
 

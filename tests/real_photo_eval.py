@@ -120,6 +120,12 @@ def main() -> int:
     comparison_dir = args.workspace / "comparisons"
     for directory in (working_dir, output_dir, comparison_dir):
         directory.mkdir(parents=True, exist_ok=True)
+        # These directories hold generated scratch files only, so clear them before each
+        # run. Leaving them in place makes the CLI's collision-safe naming append -2, -3, ...
+        # and the recorded output_image path stops matching what a rerun produces.
+        for stale in directory.iterdir():
+            if stale.is_file():
+                stale.unlink()
     args.report.parent.mkdir(parents=True, exist_ok=True)
     args.overview.parent.mkdir(parents=True, exist_ok=True)
 
