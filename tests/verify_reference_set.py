@@ -61,7 +61,8 @@ def _exif_facts(path: Path) -> dict[str, Any]:
 
     def pick(tag: int) -> Any:
         value = exif.get(tag)
-        if value in (None, "", 0):
+        # 0 is a real value for Flash ("did not fire"), so only None/"" may fall through.
+        if value is None or value == "":
             value = sub_ifd.get(tag)
         return value
 
@@ -76,7 +77,7 @@ def _exif_facts(path: Path) -> dict[str, Any]:
 def validate(manifest: dict[str, Any], root: Path) -> dict[str, Any]:
     errors: list[dict[str, Any]] = []
     status = manifest.get("status", "template")
-    if status not in ("template", "filled"):
+    if status not in ("template", "filled", "partial"):
         errors.append({"scope": "manifest", "reason": f"unknown status {status!r}"})
 
     families = manifest.get("families")
@@ -130,7 +131,8 @@ def validate(manifest: dict[str, Any], root: Path) -> dict[str, Any]:
                     entry_errors.append(f"sha256 mismatch: recorded {recorded[:12]}… actual {actual[:12]}…")
                 facts = _exif_facts(path)
                 for key, value in facts.items():
-                    if value in (None, "", 0):
+                    # Flash 0 means "did not fire": present evidence, not a missing tag.
+                    if value is None or value == "":
                         reasons.append(f"exif {key} missing")
             else:
                 if status == "filled":
@@ -194,11 +196,47 @@ def validate(manifest: dict[str, Any], root: Path) -> dict[str, Any]:
                 }
             )
 
+    if status == "partial":
+        coverage = manifest.get("coverage")
+        if not isinstance(coverage, dict):
+            errors.append(
+                {"scope": "manifest", "reason": "a partial manifest must declare per-family coverage"}
+            )
+        else:
+            for family in FAMILIES:
+                plan = coverage.get(family)
+                if not isinstance(plan, dict):
+                    errors.append(
+                        {
+                            "scope": family,
+                            "reason": "coverage must name every family, including the missing ones",
+                        }
+                    )
+                    continue
+                actual = per_family[family]
+                for key in ("calibration", "holdout"):
+                    if plan.get(key) != actual[key]:
+                        errors.append(
+                            {
+                                "scope": family,
+                                "reason": f"coverage {key}={plan.get(key)!r} does not match entries ({actual[key]})",
+                            }
+                        )
+        if counts["unverified"]:
+            errors.append(
+                {
+                    "scope": "manifest",
+                    "reason": f"{counts['unverified']} entries are unverified; a partial manifest may contain only verified entries",
+                }
+            )
+
     return {
         "manifest_status": status,
+        "partial": status == "partial",
         "result": "fail" if errors else "pass",
         "counts": counts,
         "per_family": per_family,
+        "coverage": manifest.get("coverage"),
         "errors": errors,
         "entries": results,
     }
@@ -213,7 +251,12 @@ def main(argv: list[str] | None = None) -> int:
         default=Path("reference_set/manifest.template.json"),
         help="清单路径，默认 reference_set/manifest.template.json",
     )
-    parser.add_argument("--root", type=Path, default=None, help="相对 local_path 的基准目录，默认清单所在仓库根")
+    parser.add_argument(
+        "--root",
+        type=Path,
+        default=None,
+        help="相对 local_path 的基准目录，默认清单所在目录（reference_set/）",
+    )
     parser.add_argument("--out", type=Path, help="把 JSON 报告写到文件")
     args = parser.parse_args(argv)
 
@@ -223,7 +266,7 @@ def main(argv: list[str] | None = None) -> int:
         return 1
 
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-    root = args.root.resolve() if args.root else manifest_path.parent.parent
+    root = args.root.resolve() if args.root else manifest_path.parent
     report = validate(manifest, root)
     report["manifest"] = str(manifest_path)
     report["root"] = str(root)

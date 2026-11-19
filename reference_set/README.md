@@ -1,6 +1,6 @@
 # Reference set
 
-This directory holds a **plan** for collecting reference photos, not the photos themselves and not a baseline. The 16 entries in [manifest.template.json](manifest.template.json) are placeholders: every fact field is `null`, and the validator reports all of them as `unverified`. Nothing in this repository may be described as a "CCD baseline" until a manifest is filled, validated, and the samples are actually CCD output.
+This directory holds a **plan** for collecting reference photos, not the photos themselves and not a baseline. The 16 entries in [manifest.template.json](manifest.template.json) are placeholders: every fact field is `null`, and the validator reports all of them as `unverified`. [manifest.daylight.json](manifest.daylight.json) is a smaller Tier C pilot filled from web samples; it is descriptive evidence only, never a calibration target. Nothing in this repository may be described as a "CCD baseline" until a manifest is filled with Tier A samples, validated, and actually measured.
 
 ## Why a reference set
 
@@ -12,9 +12,36 @@ The pipeline currently has engineering targets (deterministic output, no clippin
 | --- | --- | --- |
 | A | Original straight-out-of-camera file from a CCD compact, EXIF `Make`/`Model`/`ISO`/`Flash` intact | The only tier allowed in calibration or holdout intervals |
 | B | Phone photo of the same scene, taken at the same time | Sanity comparison only; never enters an interval |
-| C | Stock or web photos | Pipeline self-check inputs only; never enters an interval |
+| C | Stock or web photos | Pipeline self-check inputs only; never enters a calibration interval (see the Tier C daylight pilot below) |
 
 Tier A is the hard requirement. A web image that "looks CCD" is Tier C no matter how convincing it is, because its tone curve has already been through an unknown editor, a resizer and often a re-encoder.
+
+## Tier C daylight pilot
+
+`manifest.daylight.json` holds 15 entries measured from web samples. It exists to prove the tooling end to end and to record what daylight CCD frames measure like — it is not a baseline and it must not steer the presets.
+
+Where the frames come from: the retro reviews on cameralabs.com of CCD-era compacts (Canon PowerShot G2 and Pro1, Nikon COOLPIX 990, Sony Cyber-shot DSC-F828). Every sample image in those reviews was downloaded (115 files); only 25 kept `Make`/`Model`, and of those 15 were native-resolution, non-duplicate frames usable here. Coverage is unresolved by construction:
+
+| Family | Calibration | Holdout | Status |
+| --- | --- | --- | --- |
+| `daylight-clean` | 5 | 2 | `pilot` |
+| `daylight-aged` | 5 | 2 | `pilot` |
+| `indoor-flash` | 1 | 0 | `insufficient` |
+| `night-flash` | 0 | 0 | `missing` |
+
+Only one frame carries "flash fired" and none is a night scene, so the two flash families cannot be characterised from this source at all. The scenes are also narrow: mostly Brighton seafront, street and shopfront daylight from one reviewer's shoot.
+
+Licensing: the sample files are the publisher's, so they are analysis-only. The originals live under `reference_set/originals/` (gitignored), the manifest records the source URL and the SHA-256 of the exact bytes measured, and nothing is redistributed.
+
+Measure it without running the recipe:
+
+```text
+python tests/ccd_profile.py --manifest reference_set/manifest.daylight.json --reference --out docs/samples/ccd-reference-daylight.json
+```
+
+What this pilot supports: that the reference path works end to end; that these daylight CCD frames sit at L\* medians around 45 (`daylight-clean`) and 57 (`daylight-aged`), with near-white reaching 14% and 6% respectively; and that the `daylight-clean` frames lose roughly 20% of centre luminance in the corners, which is direct evidence for a real in-camera vignette rather than an invented one.
+
+What it cannot support: any statement about flash behaviour, night behaviour, a specific camera body, or a population of CCD output. One reviewer's daylight shoot with unknown in-camera settings is a sample of convenience. Because of that, the presets stay untuned until Tier A frames arrive, and no result measured here may be described as "matching CCD".
 
 What disqualifies an otherwise usable file:
 
@@ -53,7 +80,7 @@ When expanding to 30–40 entries, keep whole camera models out of calibration s
 3. Validate:
 
    ```text
-   python tests/verify_reference_set.py reference_set/manifest.json --root .
+   python tests/verify_reference_set.py reference_set/manifest.json
    ```
 
    Exit 0 means the structure is coherent. `unverified` entries are reported but do not fail a template; a `filled` manifest with any unverified entry, a missing file, a hash mismatch, fewer than four entries per family or no holdout fails.

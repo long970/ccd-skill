@@ -185,13 +185,21 @@ The generated [report](docs/samples/pipeline-self-check.json) is titled `管线�
 python tests/ccd_profile.py --manifest tests/real-photo-manifest.json --ablate vignette
 ```
 
+`--reference` is the opposite switch: it measures a manifest of source frames without running the recipe, so the numbers describe the camera instead of this pipeline. Such a report carries `reference: true`, no guardrails and the title `CCD 参考区间（…）`.
+
+```text
+python tests/ccd_profile.py --manifest reference_set/manifest.daylight.json --reference --out docs/samples/ccd-reference-daylight.json
+```
+
+That manifest is a **Tier C pilot**: 15 web samples from retro reviews of CCD-era compacts (Canon PowerShot G2/Pro1, Nikon COOLPIX 990, Sony Cyber-shot DSC-F828), kept only where the original EXIF `Make`/`Model` and native resolution survived. Coverage is daylight only — one frame records "flash fired" and none is a night scene — so `indoor-flash` is marked `insufficient` and `night-flash` `missing`. The [generated report](docs/samples/ccd-reference-daylight.json) is descriptive evidence, not a tuning target: no preset may be changed against it. See [reference_set/README.md](reference_set/README.md#tier-c-daylight-pilot) for provenance and limits.
+
 The recipe currently has four visible defects — a fused top end, `indoor-flash` dimming the centre, a median shift at restrained strength, and grain crushing dark patches. They are documented with measurements in [tests/KNOWN_ISSUES.md](tests/KNOWN_ISSUES.md) and pinned by `tests/test_known_issues.py`, which is written to fail on purpose (four expected failures) until reference intervals exist. When a fix lands, the test turns red as an unexpected success and the entry is retired.
 
 `tests/verify_reference_set.py` validates the reference-set manifest before anyone treats its numbers as evidence. It checks the declarative fields, recorded SHA-256 values against local files, and EXIF provenance (`Make`, `Model`, `ISO`, `Flash`, read from IFD0 and the Exif sub-IFD). Missing provenance marks an entry `unverified` rather than failing, but a `filled` manifest must be fully verified, with at least four entries and one holdout per family.
 
 ```text
 python tests/verify_reference_set.py                      # validates the template
-python tests/verify_reference_set.py reference_set/manifest.json --root .
+python tests/verify_reference_set.py reference_set/manifest.json
 ```
 
 The 16-entry [template](reference_set/manifest.template.json) is a plan, not data: every fact field is `null` until a Tier A sample (an original straight-out-of-camera CCD file with intact EXIF) replaces it. See [reference_set/README.md](reference_set/README.md) for the tier rules.
@@ -236,7 +244,7 @@ The JSON report records the parameters, seed, dependency versions, orientation-c
 python -m unittest discover -s tests -v
 ```
 
-- 67 automated tests cover orientation and EXIF removal, alpha preservation, deterministic output, clipping bounds, preset separation, batch safety, skip wording, empty folders and CLI failure reporting, plus the fingerprint instrument, the single-stage ablation and the manifest validator. Four of them are deliberate expected failures pinned to the open defects in `tests/KNOWN_ISSUES.md`.
+- 74 automated tests cover orientation and EXIF removal, alpha preservation, deterministic output, clipping bounds, preset separation, batch safety, skip wording, empty folders and CLI failure reporting, plus the fingerprint instrument in both pipeline and reference modes, the single-stage ablation, and the manifest validator with partial-coverage rules. Four of them are deliberate expected failures pinned to the open defects in `tests/KNOWN_ISSUES.md`.
 - GitHub Actions runs the suite on Ubuntu and Windows with Python 3.12.
 - Release 1.5.2 was installed into the DSH skill directory and checked file by file: the installed copy reports `script_version` 1.5.2 and all four batch statuses and three exit codes behave as documented. The previous 1.4.1 install is preserved as `ccd-photo-enhancer.bak-1.4.1` for rollback.
 
@@ -258,8 +266,8 @@ tests/
   verify_reference_set.py  Reference-set manifest validator
   real_photo_eval.py       Offline real-photo evaluation
   real-photo-manifest.json Evaluation sources and licensing
-reference_set/             Tier rules and the 16-entry manifest template
-docs/samples/              Before/after examples and evaluation output
+reference_set/             Tier rules, the 16-entry template and the Tier C daylight pilot
+docs/samples/              Before/after examples, evaluation and reference output
 .github/workflows/         Ubuntu and Windows CI
 ```
 

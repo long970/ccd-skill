@@ -1,0 +1,1356 @@
+{
+  "title": "CCD 参考区间（网页样张，daylight 子集）",
+  "baseline": false,
+  "reference": true,
+  "note": "这些数字量的是真实 CCD 相机的直出 JPEG 本身，不经过本仓库的像素管线。样本来自公开的相机评测样张，只覆盖 daylight 两族；indoor-flash 只有 1 张、night-flash 为 0，所以它是“分区间的第一步”，不是四族完整基线，也没有与手机同期对照或盲测。",
+  "generated_by": "tests/ccd_profile.py",
+  "script_version": "1.5.2",
+  "seed": 7,
+  "ablation": null,
+  "source_label": "manifest:manifest.daylight.json",
+  "sources": {
+    "origin": "manifest",
+    "count": 15,
+    "measured": 15,
+    "redistributed": false,
+    "note": "真实 CCD 直出样张，版权归原站与摄影师；原图不入库、不转载，只保留文件名与 SHA-256。"
+  },
+  "metric_definitions": {
+    "L_p*": "CIELAB L* 的百分位（D65，按 sRGB 解释；已由脚本转成 sRGB）",
+    "near_white": "L* ≥ 97 的像素比例",
+    "clipped_channel": "8-bit 通道值等于 255 的比例",
+    "near_black": "L* ≤ 2 的像素比例",
+    "highlight_a/_b": "L* ≥ 80 像素的平均 a*/b*",
+    "shadow_a/_b": "L* ≤ 25 像素的平均 a*/b*",
+    "corner_drop_ratio": "(处理前四角均值 − 处理后四角均值) / 处理前四角均值",
+    "centre_delta_ratio": "(处理后中心均值 − 处理前中心均值) / 处理前中心均值",
+    "flat_noise": "在源图最平滑四分位区域上测得的 L* 残差稳健标准差（1.4826×MAD）；前后两相使用同一掩膜",
+    "flat_probe_fraction": "颗粒探针覆盖的像素比例；为 null 表示画面太平滑区域不足，未测颗粒"
+  },
+  "guardrails": null,
+  "coverage": {
+    "daylight-clean": {
+      "calibration": 5,
+      "holdout": 2,
+      "status": "pilot"
+    },
+    "daylight-aged": {
+      "calibration": 5,
+      "holdout": 2,
+      "status": "pilot"
+    },
+    "indoor-flash": {
+      "calibration": 1,
+      "holdout": 0,
+      "status": "insufficient"
+    },
+    "night-flash": {
+      "calibration": 0,
+      "holdout": 0,
+      "status": "missing"
+    }
+  },
+  "images": [
+    {
+      "file": "clean-01.jpg",
+      "sha256": "8ca7ff899372df78aad06ed0361ff4d39abe4b8a167a5e7cc82e6f3454695c79",
+      "size": [
+        2560,
+        1920
+      ],
+      "family": "daylight-clean",
+      "preset": null,
+      "recipe": null,
+      "strength": null,
+      "reference": true,
+      "flat_probe_fraction": 0.25,
+      "warnings": [
+        "输入未嵌入 ICC；按 sRGB 假设处理，原始色彩空间未知。"
+      ],
+      "before": {
+        "L_p5": 3.221,
+        "L_p25": 26.198,
+        "L_p50": 45.0,
+        "L_p75": 61.949,
+        "L_p95": 88.572,
+        "near_white": 0.00056,
+        "clipped_channel": 4e-05,
+        "near_black": 0.00531,
+        "mean_a": -1.825,
+        "mean_b": -3.697,
+        "highlight_a": -0.652,
+        "highlight_b": 4.259,
+        "shadow_a": 0.72,
+        "shadow_b": -1.99,
+        "centre_L": 44.389,
+        "corner_L": 48.139,
+        "flat_noise": 0.341
+      },
+      "after": {
+        "L_p5": 3.221,
+        "L_p25": 26.198,
+        "L_p50": 45.0,
+        "L_p75": 61.949,
+        "L_p95": 88.572,
+        "near_white": 0.00056,
+        "clipped_channel": 4e-05,
+        "near_black": 0.00531,
+        "mean_a": -1.825,
+        "mean_b": -3.697,
+        "highlight_a": -0.652,
+        "highlight_b": 4.259,
+        "shadow_a": 0.72,
+        "shadow_b": -1.99,
+        "centre_L": 44.389,
+        "corner_L": 48.139,
+        "flat_noise": 0.341
+      },
+      "delta": {},
+      "id": "clean-01",
+      "status": "ok"
+    },
+    {
+      "file": "clean-02.jpg",
+      "sha256": "b75f89415818d11cec226f423f7c52aa3a0d8904c72d0373daff9dbc898313d3",
+      "size": [
+        2560,
+        1920
+      ],
+      "family": "daylight-clean",
+      "preset": null,
+      "recipe": null,
+      "strength": null,
+      "reference": true,
+      "flat_probe_fraction": 0.25,
+      "warnings": [
+        "输入未嵌入 ICC；按 sRGB 假设处理，原始色彩空间未知。"
+      ],
+      "before": {
+        "L_p5": 13.656,
+        "L_p25": 29.353,
+        "L_p50": 43.212,
+        "L_p75": 55.312,
+        "L_p95": 77.512,
+        "near_white": 0.00017,
+        "clipped_channel": 0.00218,
+        "near_black": 0.0,
+        "mean_a": -11.209,
+        "mean_b": 2.604,
+        "highlight_a": -1.281,
+        "highlight_b": -0.375,
+        "shadow_a": -7.298,
+        "shadow_b": 0.744,
+        "centre_L": 50.316,
+        "corner_L": 38.045,
+        "flat_noise": 0.513
+      },
+      "after": {
+        "L_p5": 13.656,
+        "L_p25": 29.353,
+        "L_p50": 43.212,
+        "L_p75": 55.312,
+        "L_p95": 77.512,
+        "near_white": 0.00017,
+        "clipped_channel": 0.00218,
+        "near_black": 0.0,
+        "mean_a": -11.209,
+        "mean_b": 2.604,
+        "highlight_a": -1.281,
+        "highlight_b": -0.375,
+        "shadow_a": -7.298,
+        "shadow_b": 0.744,
+        "centre_L": 50.316,
+        "corner_L": 38.045,
+        "flat_noise": 0.513
+      },
+      "delta": {},
+      "id": "clean-02",
+      "status": "ok"
+    },
+    {
+      "file": "clean-03.jpg",
+      "sha256": "73005e852ef6056cd82349a6c1f1e42bc1dda7faefac25c2bd60453ec37135d9",
+      "size": [
+        3264,
+        2448
+      ],
+      "family": "daylight-clean",
+      "preset": null,
+      "recipe": null,
+      "strength": null,
+      "reference": true,
+      "flat_probe_fraction": 0.25,
+      "warnings": [
+        "输入未嵌入 ICC；按 sRGB 假设处理，原始色彩空间未知。"
+      ],
+      "before": {
+        "L_p5": 21.968,
+        "L_p25": 48.559,
+        "L_p50": 59.118,
+        "L_p75": 66.992,
+        "L_p95": 78.733,
+        "near_white": 0.00068,
+        "clipped_channel": 0.00014,
+        "near_black": 7e-05,
+        "mean_a": -3.85,
+        "mean_b": -0.465,
+        "highlight_a": -8.398,
+        "highlight_b": -0.412,
+        "shadow_a": -1.831,
+        "shadow_b": 5.192,
+        "centre_L": 59.52,
+        "corner_L": 56.835,
+        "flat_noise": 0.392
+      },
+      "after": {
+        "L_p5": 21.968,
+        "L_p25": 48.559,
+        "L_p50": 59.118,
+        "L_p75": 66.992,
+        "L_p95": 78.733,
+        "near_white": 0.00068,
+        "clipped_channel": 0.00014,
+        "near_black": 7e-05,
+        "mean_a": -3.85,
+        "mean_b": -0.465,
+        "highlight_a": -8.398,
+        "highlight_b": -0.412,
+        "shadow_a": -1.831,
+        "shadow_b": 5.192,
+        "centre_L": 59.52,
+        "corner_L": 56.835,
+        "flat_noise": 0.392
+      },
+      "delta": {},
+      "id": "clean-03",
+      "status": "ok"
+    },
+    {
+      "file": "clean-04.jpg",
+      "sha256": "512162cb4f3f74adef853c3cbfbd29c6459e57e584ed58018f522259784fba80",
+      "size": [
+        3264,
+        2448
+      ],
+      "family": "daylight-clean",
+      "preset": null,
+      "recipe": null,
+      "strength": null,
+      "reference": true,
+      "flat_probe_fraction": 0.25,
+      "warnings": [
+        "输入未嵌入 ICC；按 sRGB 假设处理，原始色彩空间未知。"
+      ],
+      "before": {
+        "L_p5": 2.233,
+        "L_p25": 22.195,
+        "L_p50": 47.541,
+        "L_p75": 71.823,
+        "L_p95": 80.44,
+        "near_white": 6e-05,
+        "clipped_channel": 6e-05,
+        "near_black": 0.04424,
+        "mean_a": 5.096,
+        "mean_b": 0.986,
+        "highlight_a": 4.998,
+        "highlight_b": 8.175,
+        "shadow_a": 3.863,
+        "shadow_b": -4.392,
+        "centre_L": 62.401,
+        "corner_L": 25.17,
+        "flat_noise": 0.342
+      },
+      "after": {
+        "L_p5": 2.233,
+        "L_p25": 22.195,
+        "L_p50": 47.541,
+        "L_p75": 71.823,
+        "L_p95": 80.44,
+        "near_white": 6e-05,
+        "clipped_channel": 6e-05,
+        "near_black": 0.04424,
+        "mean_a": 5.096,
+        "mean_b": 0.986,
+        "highlight_a": 4.998,
+        "highlight_b": 8.175,
+        "shadow_a": 3.863,
+        "shadow_b": -4.392,
+        "centre_L": 62.401,
+        "corner_L": 25.17,
+        "flat_noise": 0.342
+      },
+      "delta": {},
+      "id": "clean-04",
+      "status": "ok"
+    },
+    {
+      "file": "clean-05.jpg",
+      "sha256": "1ec574df7cb3075298c548aecde5471dcb41de1ffe9b5861399d099921d269ac",
+      "size": [
+        2048,
+        1536
+      ],
+      "family": "daylight-clean",
+      "preset": null,
+      "recipe": null,
+      "strength": null,
+      "reference": true,
+      "flat_probe_fraction": 0.25,
+      "warnings": [
+        "输入未嵌入 ICC；按 sRGB 假设处理，原始色彩空间未知。"
+      ],
+      "before": {
+        "L_p5": 3.023,
+        "L_p25": 22.833,
+        "L_p50": 48.057,
+        "L_p75": 59.573,
+        "L_p95": 80.231,
+        "near_white": 0.00771,
+        "clipped_channel": 0.00189,
+        "near_black": 0.02583,
+        "mean_a": 7.546,
+        "mean_b": 5.544,
+        "highlight_a": -1.174,
+        "highlight_b": -4.931,
+        "shadow_a": 2.112,
+        "shadow_b": -0.903,
+        "centre_L": 53.658,
+        "corner_L": 36.859,
+        "flat_noise": 0.494
+      },
+      "after": {
+        "L_p5": 3.023,
+        "L_p25": 22.833,
+        "L_p50": 48.057,
+        "L_p75": 59.573,
+        "L_p95": 80.231,
+        "near_white": 0.00771,
+        "clipped_channel": 0.00189,
+        "near_black": 0.02583,
+        "mean_a": 7.546,
+        "mean_b": 5.544,
+        "highlight_a": -1.174,
+        "highlight_b": -4.931,
+        "shadow_a": 2.112,
+        "shadow_b": -0.903,
+        "centre_L": 53.658,
+        "corner_L": 36.859,
+        "flat_noise": 0.494
+      },
+      "delta": {},
+      "id": "clean-05",
+      "status": "ok"
+    },
+    {
+      "file": "clean-06.jpg",
+      "sha256": "8374d2fbe8e440727ccd0a8c7b86ee6512ad61dfb691cc55d1426b637ed6f98f",
+      "size": [
+        2048,
+        1536
+      ],
+      "family": "daylight-clean",
+      "preset": null,
+      "recipe": null,
+      "strength": null,
+      "reference": true,
+      "flat_probe_fraction": 0.25,
+      "warnings": [
+        "输入未嵌入 ICC；按 sRGB 假设处理，原始色彩空间未知。"
+      ],
+      "before": {
+        "L_p5": 4.453,
+        "L_p25": 20.855,
+        "L_p50": 34.891,
+        "L_p75": 51.251,
+        "L_p95": 100.0,
+        "near_white": 0.13857,
+        "clipped_channel": 0.12174,
+        "near_black": 0.01333,
+        "mean_a": 4.4,
+        "mean_b": 3.507,
+        "highlight_a": -0.466,
+        "highlight_b": -0.482,
+        "shadow_a": 4.481,
+        "shadow_b": 4.686,
+        "centre_L": 35.506,
+        "corner_L": 42.677,
+        "flat_noise": 0.039
+      },
+      "after": {
+        "L_p5": 4.453,
+        "L_p25": 20.855,
+        "L_p50": 34.891,
+        "L_p75": 51.251,
+        "L_p95": 100.0,
+        "near_white": 0.13857,
+        "clipped_channel": 0.12174,
+        "near_black": 0.01333,
+        "mean_a": 4.4,
+        "mean_b": 3.507,
+        "highlight_a": -0.466,
+        "highlight_b": -0.482,
+        "shadow_a": 4.481,
+        "shadow_b": 4.686,
+        "centre_L": 35.506,
+        "corner_L": 42.677,
+        "flat_noise": 0.039
+      },
+      "delta": {},
+      "id": "clean-06",
+      "status": "ok"
+    },
+    {
+      "file": "clean-07.jpg",
+      "sha256": "0c7f182e15a7c3ba952c8a8a28288beaab513987556fc70daa5d1a1c335acf6a",
+      "size": [
+        2048,
+        1536
+      ],
+      "family": "daylight-clean",
+      "preset": null,
+      "recipe": null,
+      "strength": null,
+      "reference": true,
+      "flat_probe_fraction": 0.25,
+      "warnings": [
+        "输入未嵌入 ICC；按 sRGB 假设处理，原始色彩空间未知。"
+      ],
+      "before": {
+        "L_p5": 5.247,
+        "L_p25": 12.124,
+        "L_p50": 30.944,
+        "L_p75": 46.899,
+        "L_p95": 73.432,
+        "near_white": 0.00598,
+        "clipped_channel": 0.0042,
+        "near_black": 0.00012,
+        "mean_a": 1.717,
+        "mean_b": 6.735,
+        "highlight_a": 0.768,
+        "highlight_b": 2.198,
+        "shadow_a": 0.017,
+        "shadow_b": 2.907,
+        "centre_L": 40.356,
+        "corner_L": 40.279,
+        "flat_noise": 0.479
+      },
+      "after": {
+        "L_p5": 5.247,
+        "L_p25": 12.124,
+        "L_p50": 30.944,
+        "L_p75": 46.899,
+        "L_p95": 73.432,
+        "near_white": 0.00598,
+        "clipped_channel": 0.0042,
+        "near_black": 0.00012,
+        "mean_a": 1.717,
+        "mean_b": 6.735,
+        "highlight_a": 0.768,
+        "highlight_b": 2.198,
+        "shadow_a": 0.017,
+        "shadow_b": 2.907,
+        "centre_L": 40.356,
+        "corner_L": 40.279,
+        "flat_noise": 0.479
+      },
+      "delta": {},
+      "id": "clean-07",
+      "status": "ok"
+    },
+    {
+      "file": "aged-01.jpg",
+      "sha256": "8338e0b832209dd518e6668cc25a7ed2b45fc166225585272e4fdfa3648c5e42",
+      "size": [
+        2560,
+        1920
+      ],
+      "family": "daylight-aged",
+      "preset": null,
+      "recipe": null,
+      "strength": null,
+      "reference": true,
+      "flat_probe_fraction": 0.25,
+      "warnings": [
+        "输入未嵌入 ICC；按 sRGB 假设处理，原始色彩空间未知。"
+      ],
+      "before": {
+        "L_p5": 23.934,
+        "L_p25": 33.535,
+        "L_p50": 40.765,
+        "L_p75": 50.889,
+        "L_p95": 83.771,
+        "near_white": 0.0,
+        "clipped_channel": 0.0,
+        "near_black": 0.0,
+        "mean_a": 11.252,
+        "mean_b": 26.256,
+        "highlight_a": -1.809,
+        "highlight_b": -1.003,
+        "shadow_a": 17.276,
+        "shadow_b": 22.079,
+        "centre_L": 51.388,
+        "corner_L": 43.355,
+        "flat_noise": 0.37
+      },
+      "after": {
+        "L_p5": 23.934,
+        "L_p25": 33.535,
+        "L_p50": 40.765,
+        "L_p75": 50.889,
+        "L_p95": 83.771,
+        "near_white": 0.0,
+        "clipped_channel": 0.0,
+        "near_black": 0.0,
+        "mean_a": 11.252,
+        "mean_b": 26.256,
+        "highlight_a": -1.809,
+        "highlight_b": -1.003,
+        "shadow_a": 17.276,
+        "shadow_b": 22.079,
+        "centre_L": 51.388,
+        "corner_L": 43.355,
+        "flat_noise": 0.37
+      },
+      "delta": {},
+      "id": "aged-01",
+      "status": "ok"
+    },
+    {
+      "file": "aged-02.jpg",
+      "sha256": "959c8c2c7dd49508f87aa797084b868646ab909a28008101130be695d590cf6b",
+      "size": [
+        2560,
+        1920
+      ],
+      "family": "daylight-aged",
+      "preset": null,
+      "recipe": null,
+      "strength": null,
+      "reference": true,
+      "flat_probe_fraction": 0.25,
+      "warnings": [
+        "输入未嵌入 ICC；按 sRGB 假设处理，原始色彩空间未知。"
+      ],
+      "before": {
+        "L_p5": 12.588,
+        "L_p25": 34.662,
+        "L_p50": 60.428,
+        "L_p75": 76.336,
+        "L_p95": 82.379,
+        "near_white": 0.00025,
+        "clipped_channel": 9e-05,
+        "near_black": 0.0,
+        "mean_a": -1.562,
+        "mean_b": -3.578,
+        "highlight_a": -1.178,
+        "highlight_b": -2.873,
+        "shadow_a": -0.747,
+        "shadow_b": -2.617,
+        "centre_L": 48.923,
+        "corner_L": 58.155,
+        "flat_noise": 0.273
+      },
+      "after": {
+        "L_p5": 12.588,
+        "L_p25": 34.662,
+        "L_p50": 60.428,
+        "L_p75": 76.336,
+        "L_p95": 82.379,
+        "near_white": 0.00025,
+        "clipped_channel": 9e-05,
+        "near_black": 0.0,
+        "mean_a": -1.562,
+        "mean_b": -3.578,
+        "highlight_a": -1.178,
+        "highlight_b": -2.873,
+        "shadow_a": -0.747,
+        "shadow_b": -2.617,
+        "centre_L": 48.923,
+        "corner_L": 58.155,
+        "flat_noise": 0.273
+      },
+      "delta": {},
+      "id": "aged-02",
+      "status": "ok"
+    },
+    {
+      "file": "aged-03.jpg",
+      "sha256": "47f6e400e50fc1c711cafdb0ec757d8b1714148bb19ae5fd4b708fadc72c1d00",
+      "size": [
+        2560,
+        1920
+      ],
+      "family": "daylight-aged",
+      "preset": null,
+      "recipe": null,
+      "strength": null,
+      "reference": true,
+      "flat_probe_fraction": 0.25,
+      "warnings": [
+        "输入未嵌入 ICC；按 sRGB 假设处理，原始色彩空间未知。"
+      ],
+      "before": {
+        "L_p5": 4.369,
+        "L_p25": 19.964,
+        "L_p50": 56.518,
+        "L_p75": 86.875,
+        "L_p95": 90.017,
+        "near_white": 2e-05,
+        "clipped_channel": 0.0,
+        "near_black": 0.00512,
+        "mean_a": -0.196,
+        "mean_b": -3.939,
+        "highlight_a": -0.639,
+        "highlight_b": -3.616,
+        "shadow_a": 1.061,
+        "shadow_b": -1.864,
+        "centre_L": 41.823,
+        "corner_L": 56.404,
+        "flat_noise": 0.161
+      },
+      "after": {
+        "L_p5": 4.369,
+        "L_p25": 19.964,
+        "L_p50": 56.518,
+        "L_p75": 86.875,
+        "L_p95": 90.017,
+        "near_white": 2e-05,
+        "clipped_channel": 0.0,
+        "near_black": 0.00512,
+        "mean_a": -0.196,
+        "mean_b": -3.939,
+        "highlight_a": -0.639,
+        "highlight_b": -3.616,
+        "shadow_a": 1.061,
+        "shadow_b": -1.864,
+        "centre_L": 41.823,
+        "corner_L": 56.404,
+        "flat_noise": 0.161
+      },
+      "delta": {},
+      "id": "aged-03",
+      "status": "ok"
+    },
+    {
+      "file": "aged-04.jpg",
+      "sha256": "bdfb6e2a186b66d60f5c30b5d15ed11384103fe1de26c430aca9be7fc1272bca",
+      "size": [
+        2048,
+        1536
+      ],
+      "family": "daylight-aged",
+      "preset": null,
+      "recipe": null,
+      "strength": null,
+      "reference": true,
+      "flat_probe_fraction": 0.25,
+      "warnings": [
+        "输入未嵌入 ICC；按 sRGB 假设处理，原始色彩空间未知。"
+      ],
+      "before": {
+        "L_p5": 4.217,
+        "L_p25": 10.954,
+        "L_p50": 32.356,
+        "L_p75": 65.753,
+        "L_p95": 88.144,
+        "near_white": 0.00173,
+        "clipped_channel": 0.0002,
+        "near_black": 0.00687,
+        "mean_a": -1.859,
+        "mean_b": 0.61,
+        "highlight_a": 0.007,
+        "highlight_b": -1.896,
+        "shadow_a": -2.198,
+        "shadow_b": 2.219,
+        "centre_L": 51.724,
+        "corner_L": 27.56,
+        "flat_noise": 0.433
+      },
+      "after": {
+        "L_p5": 4.217,
+        "L_p25": 10.954,
+        "L_p50": 32.356,
+        "L_p75": 65.753,
+        "L_p95": 88.144,
+        "near_white": 0.00173,
+        "clipped_channel": 0.0002,
+        "near_black": 0.00687,
+        "mean_a": -1.859,
+        "mean_b": 0.61,
+        "highlight_a": 0.007,
+        "highlight_b": -1.896,
+        "shadow_a": -2.198,
+        "shadow_b": 2.219,
+        "centre_L": 51.724,
+        "corner_L": 27.56,
+        "flat_noise": 0.433
+      },
+      "delta": {},
+      "id": "aged-04",
+      "status": "ok"
+    },
+    {
+      "file": "aged-05.jpg",
+      "sha256": "cb42fd8028f676c7ced6a0b90b06e70c428572949c7c7a2abacbf9c872260480",
+      "size": [
+        2048,
+        1536
+      ],
+      "family": "daylight-aged",
+      "preset": null,
+      "recipe": null,
+      "strength": null,
+      "reference": true,
+      "flat_probe_fraction": 0.25,
+      "warnings": [
+        "输入未嵌入 ICC；按 sRGB 假设处理，原始色彩空间未知。"
+      ],
+      "before": {
+        "L_p5": 8.808,
+        "L_p25": 21.226,
+        "L_p50": 45.791,
+        "L_p75": 66.945,
+        "L_p95": 99.286,
+        "near_white": 0.05964,
+        "clipped_channel": 0.02314,
+        "near_black": 0.00057,
+        "mean_a": 3.508,
+        "mean_b": 5.13,
+        "highlight_a": 1.081,
+        "highlight_b": -1.312,
+        "shadow_a": -1.416,
+        "shadow_b": 1.815,
+        "centre_L": 33.082,
+        "corner_L": 57.068,
+        "flat_noise": 0.512
+      },
+      "after": {
+        "L_p5": 8.808,
+        "L_p25": 21.226,
+        "L_p50": 45.791,
+        "L_p75": 66.945,
+        "L_p95": 99.286,
+        "near_white": 0.05964,
+        "clipped_channel": 0.02314,
+        "near_black": 0.00057,
+        "mean_a": 3.508,
+        "mean_b": 5.13,
+        "highlight_a": 1.081,
+        "highlight_b": -1.312,
+        "shadow_a": -1.416,
+        "shadow_b": 1.815,
+        "centre_L": 33.082,
+        "corner_L": 57.068,
+        "flat_noise": 0.512
+      },
+      "delta": {},
+      "id": "aged-05",
+      "status": "ok"
+    },
+    {
+      "file": "aged-06.jpg",
+      "sha256": "febf46ad308d2447cf87c1c25ca7f2134c253b1710e17125e0cc631b3653f001",
+      "size": [
+        2048,
+        1536
+      ],
+      "family": "daylight-aged",
+      "preset": null,
+      "recipe": null,
+      "strength": null,
+      "reference": true,
+      "flat_probe_fraction": 0.25,
+      "warnings": [
+        "输入未嵌入 ICC；按 sRGB 假设处理，原始色彩空间未知。"
+      ],
+      "before": {
+        "L_p5": 23.265,
+        "L_p25": 43.308,
+        "L_p50": 57.231,
+        "L_p75": 78.717,
+        "L_p95": 93.099,
+        "near_white": 8e-05,
+        "clipped_channel": 0.00017,
+        "near_black": 0.0,
+        "mean_a": 7.982,
+        "mean_b": -2.908,
+        "highlight_a": -0.702,
+        "highlight_b": -0.342,
+        "shadow_a": 5.983,
+        "shadow_b": -6.375,
+        "centre_L": 48.022,
+        "corner_L": 68.253,
+        "flat_noise": 0.292
+      },
+      "after": {
+        "L_p5": 23.265,
+        "L_p25": 43.308,
+        "L_p50": 57.231,
+        "L_p75": 78.717,
+        "L_p95": 93.099,
+        "near_white": 8e-05,
+        "clipped_channel": 0.00017,
+        "near_black": 0.0,
+        "mean_a": 7.982,
+        "mean_b": -2.908,
+        "highlight_a": -0.702,
+        "highlight_b": -0.342,
+        "shadow_a": 5.983,
+        "shadow_b": -6.375,
+        "centre_L": 48.022,
+        "corner_L": 68.253,
+        "flat_noise": 0.292
+      },
+      "delta": {},
+      "id": "aged-06",
+      "status": "ok"
+    },
+    {
+      "file": "aged-07.jpg",
+      "sha256": "e3776360ff4043d7a27b8deeee0a999c8299a87de61fc7731ee410281f462f5c",
+      "size": [
+        2048,
+        1536
+      ],
+      "family": "daylight-aged",
+      "preset": null,
+      "recipe": null,
+      "strength": null,
+      "reference": true,
+      "flat_probe_fraction": 0.25,
+      "warnings": [
+        "输入未嵌入 ICC；按 sRGB 假设处理，原始色彩空间未知。"
+      ],
+      "before": {
+        "L_p5": 20.319,
+        "L_p25": 54.125,
+        "L_p50": 65.695,
+        "L_p75": 70.888,
+        "L_p95": 80.417,
+        "near_white": 0.0025,
+        "clipped_channel": 0.00106,
+        "near_black": 0.0,
+        "mean_a": -2.151,
+        "mean_b": 5.495,
+        "highlight_a": -1.403,
+        "highlight_b": -2.453,
+        "shadow_a": -0.711,
+        "shadow_b": 1.484,
+        "centre_L": 69.689,
+        "corner_L": 49.445,
+        "flat_noise": 0.568
+      },
+      "after": {
+        "L_p5": 20.319,
+        "L_p25": 54.125,
+        "L_p50": 65.695,
+        "L_p75": 70.888,
+        "L_p95": 80.417,
+        "near_white": 0.0025,
+        "clipped_channel": 0.00106,
+        "near_black": 0.0,
+        "mean_a": -2.151,
+        "mean_b": 5.495,
+        "highlight_a": -1.403,
+        "highlight_b": -2.453,
+        "shadow_a": -0.711,
+        "shadow_b": 1.484,
+        "centre_L": 69.689,
+        "corner_L": 49.445,
+        "flat_noise": 0.568
+      },
+      "delta": {},
+      "id": "aged-07",
+      "status": "ok"
+    },
+    {
+      "file": "iflash-01.jpg",
+      "sha256": "590610e0681ccfbe8397efafa78bdfdb1a42687e10ddeb46e0434242734a19ae",
+      "size": [
+        2048,
+        1536
+      ],
+      "family": "indoor-flash",
+      "preset": null,
+      "recipe": null,
+      "strength": null,
+      "reference": true,
+      "flat_probe_fraction": 0.25,
+      "warnings": [
+        "输入未嵌入 ICC；按 sRGB 假设处理，原始色彩空间未知。"
+      ],
+      "before": {
+        "L_p5": 4.575,
+        "L_p25": 23.429,
+        "L_p50": 39.929,
+        "L_p75": 51.947,
+        "L_p95": 73.951,
+        "near_white": 0.00207,
+        "clipped_channel": 0.00114,
+        "near_black": 0.00836,
+        "mean_a": 4.716,
+        "mean_b": 13.361,
+        "highlight_a": -1.425,
+        "highlight_b": 5.553,
+        "shadow_a": 3.142,
+        "shadow_b": 6.52,
+        "centre_L": 55.35,
+        "corner_L": 28.757,
+        "flat_noise": 0.476
+      },
+      "after": {
+        "L_p5": 4.575,
+        "L_p25": 23.429,
+        "L_p50": 39.929,
+        "L_p75": 51.947,
+        "L_p95": 73.951,
+        "near_white": 0.00207,
+        "clipped_channel": 0.00114,
+        "near_black": 0.00836,
+        "mean_a": 4.716,
+        "mean_b": 13.361,
+        "highlight_a": -1.425,
+        "highlight_b": 5.553,
+        "shadow_a": 3.142,
+        "shadow_b": 6.52,
+        "centre_L": 55.35,
+        "corner_L": 28.757,
+        "flat_noise": 0.476
+      },
+      "delta": {},
+      "id": "iflash-01",
+      "status": "ok"
+    }
+  ],
+  "families": {
+    "daylight-aged": {
+      "n": 7,
+      "insufficient_n": false,
+      "after": {
+        "L_p25": {
+          "n": 7,
+          "min": 10.954,
+          "p25": 20.595,
+          "median": 33.535,
+          "p75": 38.985,
+          "max": 54.125
+        },
+        "L_p5": {
+          "n": 7,
+          "min": 4.217,
+          "p25": 6.5885,
+          "median": 12.588,
+          "p75": 21.792,
+          "max": 23.934
+        },
+        "L_p50": {
+          "n": 7,
+          "min": 32.356,
+          "p25": 43.278,
+          "median": 56.518,
+          "p75": 58.8295,
+          "max": 65.695
+        },
+        "L_p75": {
+          "n": 7,
+          "min": 50.889,
+          "p25": 66.349,
+          "median": 70.888,
+          "p75": 77.5265,
+          "max": 86.875
+        },
+        "L_p95": {
+          "n": 7,
+          "min": 80.417,
+          "p25": 83.075,
+          "median": 88.144,
+          "p75": 91.558,
+          "max": 99.286
+        },
+        "centre_L": {
+          "n": 7,
+          "min": 33.082,
+          "p25": 44.9225,
+          "median": 48.923,
+          "p75": 51.556,
+          "max": 69.689
+        },
+        "clipped_channel": {
+          "n": 7,
+          "min": 0.0,
+          "p25": 0.0,
+          "median": 0.0002,
+          "p75": 0.0006,
+          "max": 0.0231
+        },
+        "corner_L": {
+          "n": 7,
+          "min": 27.56,
+          "p25": 46.4,
+          "median": 56.404,
+          "p75": 57.6115,
+          "max": 68.253
+        },
+        "flat_noise": {
+          "n": 7,
+          "min": 0.161,
+          "p25": 0.2825,
+          "median": 0.37,
+          "p75": 0.4725,
+          "max": 0.568
+        },
+        "highlight_a": {
+          "n": 7,
+          "min": -1.809,
+          "p25": -1.2905,
+          "median": -0.702,
+          "p75": -0.316,
+          "max": 1.081
+        },
+        "highlight_b": {
+          "n": 7,
+          "min": -3.616,
+          "p25": -2.663,
+          "median": -1.896,
+          "p75": -1.1575,
+          "max": -0.342
+        },
+        "mean_a": {
+          "n": 7,
+          "min": -2.151,
+          "p25": -1.7105,
+          "median": -0.196,
+          "p75": 5.745,
+          "max": 11.252
+        },
+        "mean_b": {
+          "n": 7,
+          "min": -3.939,
+          "p25": -3.243,
+          "median": 0.61,
+          "p75": 5.3125,
+          "max": 26.256
+        },
+        "near_black": {
+          "n": 7,
+          "min": 0.0,
+          "p25": 0.0,
+          "median": 0.0,
+          "p75": 0.0028,
+          "max": 0.0069
+        },
+        "near_white": {
+          "n": 7,
+          "min": 0.0,
+          "p25": 0.0001,
+          "median": 0.0003,
+          "p75": 0.0021,
+          "max": 0.0596
+        },
+        "shadow_a": {
+          "n": 7,
+          "min": -2.198,
+          "p25": -1.0815,
+          "median": -0.711,
+          "p75": 3.522,
+          "max": 17.276
+        },
+        "shadow_b": {
+          "n": 7,
+          "min": -6.375,
+          "p25": -2.2405,
+          "median": 1.484,
+          "p75": 2.017,
+          "max": 22.079
+        }
+      },
+      "delta": {}
+    },
+    "daylight-clean": {
+      "n": 7,
+      "insufficient_n": false,
+      "after": {
+        "L_p25": {
+          "n": 7,
+          "min": 12.124,
+          "p25": 21.525,
+          "median": 22.833,
+          "p75": 27.7755,
+          "max": 48.559
+        },
+        "L_p5": {
+          "n": 7,
+          "min": 2.233,
+          "p25": 3.122,
+          "median": 4.453,
+          "p75": 9.4515,
+          "max": 21.968
+        },
+        "L_p50": {
+          "n": 7,
+          "min": 30.944,
+          "p25": 39.0515,
+          "median": 45.0,
+          "p75": 47.799,
+          "max": 59.118
+        },
+        "L_p75": {
+          "n": 7,
+          "min": 46.899,
+          "p25": 53.2815,
+          "median": 59.573,
+          "p75": 64.4705,
+          "max": 71.823
+        },
+        "L_p95": {
+          "n": 7,
+          "min": 73.432,
+          "p25": 78.1225,
+          "median": 80.231,
+          "p75": 84.506,
+          "max": 100.0
+        },
+        "centre_L": {
+          "n": 7,
+          "min": 35.506,
+          "p25": 42.3725,
+          "median": 50.316,
+          "p75": 56.589,
+          "max": 62.401
+        },
+        "clipped_channel": {
+          "n": 7,
+          "min": 0.0,
+          "p25": 0.0001,
+          "median": 0.0019,
+          "p75": 0.0032,
+          "max": 0.1217
+        },
+        "corner_L": {
+          "n": 7,
+          "min": 25.17,
+          "p25": 37.452,
+          "median": 40.279,
+          "p75": 45.408,
+          "max": 56.835
+        },
+        "flat_noise": {
+          "n": 7,
+          "min": 0.039,
+          "p25": 0.3415,
+          "median": 0.392,
+          "p75": 0.4865,
+          "max": 0.513
+        },
+        "highlight_a": {
+          "n": 7,
+          "min": -8.398,
+          "p25": -1.2275,
+          "median": -0.652,
+          "p75": 0.151,
+          "max": 4.998
+        },
+        "highlight_b": {
+          "n": 7,
+          "min": -4.931,
+          "p25": -0.447,
+          "median": -0.375,
+          "p75": 3.2285,
+          "max": 8.175
+        },
+        "mean_a": {
+          "n": 7,
+          "min": -11.209,
+          "p25": -2.8375,
+          "median": 1.717,
+          "p75": 4.748,
+          "max": 7.546
+        },
+        "mean_b": {
+          "n": 7,
+          "min": -3.697,
+          "p25": 0.2605,
+          "median": 2.604,
+          "p75": 4.5255,
+          "max": 6.735
+        },
+        "near_black": {
+          "n": 7,
+          "min": 0.0,
+          "p25": 0.0001,
+          "median": 0.0053,
+          "p75": 0.0196,
+          "max": 0.0442
+        },
+        "near_white": {
+          "n": 7,
+          "min": 0.0001,
+          "p25": 0.0004,
+          "median": 0.0007,
+          "p75": 0.0068,
+          "max": 0.1386
+        },
+        "shadow_a": {
+          "n": 7,
+          "min": -7.298,
+          "p25": -0.907,
+          "median": 0.72,
+          "p75": 2.9875,
+          "max": 4.481
+        },
+        "shadow_b": {
+          "n": 7,
+          "min": -4.392,
+          "p25": -1.4465,
+          "median": 0.744,
+          "p75": 3.7965,
+          "max": 5.192
+        }
+      },
+      "delta": {}
+    },
+    "indoor-flash": {
+      "n": 1,
+      "insufficient_n": true,
+      "after": {
+        "L_p25": {
+          "n": 1,
+          "min": 23.429,
+          "p25": 23.429,
+          "median": 23.429,
+          "p75": 23.429,
+          "max": 23.429
+        },
+        "L_p5": {
+          "n": 1,
+          "min": 4.575,
+          "p25": 4.575,
+          "median": 4.575,
+          "p75": 4.575,
+          "max": 4.575
+        },
+        "L_p50": {
+          "n": 1,
+          "min": 39.929,
+          "p25": 39.929,
+          "median": 39.929,
+          "p75": 39.929,
+          "max": 39.929
+        },
+        "L_p75": {
+          "n": 1,
+          "min": 51.947,
+          "p25": 51.947,
+          "median": 51.947,
+          "p75": 51.947,
+          "max": 51.947
+        },
+        "L_p95": {
+          "n": 1,
+          "min": 73.951,
+          "p25": 73.951,
+          "median": 73.951,
+          "p75": 73.951,
+          "max": 73.951
+        },
+        "centre_L": {
+          "n": 1,
+          "min": 55.35,
+          "p25": 55.35,
+          "median": 55.35,
+          "p75": 55.35,
+          "max": 55.35
+        },
+        "clipped_channel": {
+          "n": 1,
+          "min": 0.0011,
+          "p25": 0.0011,
+          "median": 0.0011,
+          "p75": 0.0011,
+          "max": 0.0011
+        },
+        "corner_L": {
+          "n": 1,
+          "min": 28.757,
+          "p25": 28.757,
+          "median": 28.757,
+          "p75": 28.757,
+          "max": 28.757
+        },
+        "flat_noise": {
+          "n": 1,
+          "min": 0.476,
+          "p25": 0.476,
+          "median": 0.476,
+          "p75": 0.476,
+          "max": 0.476
+        },
+        "highlight_a": {
+          "n": 1,
+          "min": -1.425,
+          "p25": -1.425,
+          "median": -1.425,
+          "p75": -1.425,
+          "max": -1.425
+        },
+        "highlight_b": {
+          "n": 1,
+          "min": 5.553,
+          "p25": 5.553,
+          "median": 5.553,
+          "p75": 5.553,
+          "max": 5.553
+        },
+        "mean_a": {
+          "n": 1,
+          "min": 4.716,
+          "p25": 4.716,
+          "median": 4.716,
+          "p75": 4.716,
+          "max": 4.716
+        },
+        "mean_b": {
+          "n": 1,
+          "min": 13.361,
+          "p25": 13.361,
+          "median": 13.361,
+          "p75": 13.361,
+          "max": 13.361
+        },
+        "near_black": {
+          "n": 1,
+          "min": 0.0084,
+          "p25": 0.0084,
+          "median": 0.0084,
+          "p75": 0.0084,
+          "max": 0.0084
+        },
+        "near_white": {
+          "n": 1,
+          "min": 0.0021,
+          "p25": 0.0021,
+          "median": 0.0021,
+          "p75": 0.0021,
+          "max": 0.0021
+        },
+        "shadow_a": {
+          "n": 1,
+          "min": 3.142,
+          "p25": 3.142,
+          "median": 3.142,
+          "p75": 3.142,
+          "max": 3.142
+        },
+        "shadow_b": {
+          "n": 1,
+          "min": 6.52,
+          "p25": 6.52,
+          "median": 6.52,
+          "p75": 6.52,
+          "max": 6.52
+        }
+      },
+      "delta": {}
+    }
+  }
+}

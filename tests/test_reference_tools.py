@@ -290,6 +290,129 @@ class ReferenceToolsTests(unittest.TestCase):
         self.assertEqual(verify_reference_set.main([str(broken), "--root", str(ROOT)]), 1)
 
 
+class ReferenceModeTests(unittest.TestCase):
+    """--reference measures the camera's own pixels and must not pose as the pipeline."""
+
+    def test_reference_skips_recipe_and_reports_no_delta(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="ccd-ref-") as tmp:
+            path = Path(tmp) / "src.png"
+            Image.new("RGB", (48, 32), (118, 120, 122)).save(path)
+            record = ccd_profile.profile_image(
+                path, None, 50, 7, reference=True, family="daylight-clean"
+            )
+        self.assertTrue(record["reference"])
+        self.assertEqual(record["delta"], {})
+        self.assertIsNone(record["recipe"])
+        self.assertIsNone(record["strength"])
+        self.assertEqual(record["family"], "daylight-clean")
+        self.assertEqual(record["before"], record["after"])
+
+    def test_reference_report_drops_guardrails_and_carries_coverage(self) -> None:
+        coverage = {"daylight-clean": {"calibration": 1, "holdout": 0, "status": "pilot"}}
+        with tempfile.TemporaryDirectory(prefix="ccd-ref-") as tmp:
+            path = Path(tmp) / "src.png"
+            Image.new("RGB", (48, 32), (118, 120, 122)).save(path)
+            report = ccd_profile.build_report(
+                [{"id": "r1", "path": path, "preset": None, "family": "daylight-clean", "strength": 50}],
+                7,
+                "m:test",
+                "manifest",
+                reference=True,
+                coverage=coverage,
+            )
+        self.assertEqual(report["title"], ccd_profile.REFERENCE_TITLE)
+        self.assertTrue(report["reference"])
+        self.assertIsNone(report["guardrails"])
+        self.assertIsNone(report["ablation"])
+        self.assertEqual(report["coverage"], coverage)
+        self.assertIn("daylight-clean", report["families"])
+        self.assertIn("不是四族完整基线", report["note"])
+
+
+class PartialManifestTests(unittest.TestCase):
+    """A partial set may be small, but it must never hide which families are missing."""
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        super().setUpClass()
+        cls.workdir = Path(tempfile.mkdtemp(prefix="ccd-partial-"))
+        tagged = cls.workdir / "tagged.jpg"
+        exif = Image.Exif()
+        exif[271] = "NIKON"
+        exif[272] = "COOLPIX 990"
+        exif[34855] = 100
+        exif[37385] = 0  # flash did not fire: still real provenance
+        Image.new("RGB", (16, 16), (90, 90, 90)).save(tagged, "JPEG", exif=exif)
+        cls.entry = _entry(
+            local_path=str(tagged),
+            source_sha256=hashlib.sha256(tagged.read_bytes()).hexdigest(),
+            camera_make="NIKON",
+            camera_model="COOLPIX 990",
+            iso=100,
+            flash=0,
+            source="review sample",
+            license="analysis only",
+        )
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        shutil.rmtree(cls.workdir, ignore_errors=True)
+        super().tearDownClass()
+
+    def _coverage(self) -> dict:
+        return {
+            "daylight-clean": {"calibration": 0, "holdout": 0, "status": "missing"},
+            "daylight-aged": {"calibration": 0, "holdout": 0, "status": "missing"},
+            "indoor-flash": {"calibration": 1, "holdout": 0, "status": "insufficient"},
+            "night-flash": {"calibration": 0, "holdout": 0, "status": "missing"},
+        }
+
+    def test_flash_zero_counts_as_present(self) -> None:
+        manifest = _manifest("partial", [self.entry]) | {"coverage": self._coverage()}
+        report = verify_reference_set.validate(manifest, ROOT)
+        self.assertEqual(report["entries"][0]["status"], "verified", report["entries"][0]["reasons"])
+        self.assertTrue(report["partial"])
+        self.assertEqual(report["result"], "pass", report["errors"])
+
+    def test_partial_requires_coverage(self) -> None:
+        report = verify_reference_set.validate(_manifest("partial", [self.entry]), ROOT)
+        reasons = " ".join(item["reason"] for item in report["errors"])
+        self.assertIn("must declare per-family coverage", reasons)
+
+    def test_partial_coverage_must_match_entries(self) -> None:
+        coverage = self._coverage()
+        coverage["indoor-flash"]["calibration"] = 4
+        manifest = _manifest("partial", [self.entry]) | {"coverage": coverage}
+        report = verify_reference_set.validate(manifest, ROOT)
+        reasons = " ".join(item["reason"] for item in report["errors"])
+        self.assertIn("does not match entries", reasons)
+
+
+class ShippedDaylightPilotTests(unittest.TestCase):
+    """The committed Tier C pilot must stay coherent with whatever originals are present."""
+
+    MANIFEST = ROOT / "reference_set" / "manifest.daylight.json"
+    ORIGINALS = ROOT / "reference_set" / "originals"
+
+    @unittest.skipUnless(ORIGINALS.is_dir(), "reference originals are local-only and gitignored")
+    def test_shipped_daylight_manifest_validates(self) -> None:
+        report = verify_reference_set.validate(
+            json.loads(self.MANIFEST.read_text(encoding="utf-8")), self.MANIFEST.parent
+        )
+        self.assertTrue(report["partial"])
+        self.assertEqual(report["result"], "pass", report["errors"])
+        self.assertEqual(report["counts"]["entries"], 15)
+        self.assertEqual(report["counts"]["unverified"], 0)
+
+    def test_shipped_daylight_manifest_declares_its_gaps(self) -> None:
+        manifest = json.loads(self.MANIFEST.read_text(encoding="utf-8"))
+        coverage = manifest["coverage"]
+        self.assertEqual(manifest["status"], "partial")
+        self.assertEqual(coverage["night-flash"]["status"], "missing")
+        self.assertEqual(coverage["indoor-flash"]["status"], "insufficient")
+        self.assertEqual(coverage["daylight-clean"]["status"], "pilot")
+
+
 class AblationTests(unittest.TestCase):
     """Ablation must switch off exactly one stage and never pose as production."""
 

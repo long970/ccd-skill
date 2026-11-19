@@ -12,3 +12,6 @@ dist/
 
 # agent scratch state
 .workbuddy/
+
+# downloaded CCD reference originals (never redistributed)
+reference_set/originals/
