@@ -39,7 +39,7 @@ Measure it without running the recipe:
 python tests/ccd_profile.py --manifest reference_set/manifest.daylight.json --reference --out docs/samples/ccd-reference-daylight.json
 ```
 
-What this pilot supports: that the reference path works end to end; that these daylight CCD frames sit at L\* medians around 45 (`daylight-clean`) and 57 (`daylight-aged`), with near-white reaching 14% and 6% respectively; and that the `daylight-clean` frames lose roughly 20% of centre luminance in the corners, which is direct evidence for a real in-camera vignette rather than an invented one.
+What this pilot supports: that the reference path works end to end; that these daylight CCD frames sit at L\* medians around 45 (`daylight-clean`) and 57 (`daylight-aged`), with near-white reaching 14% and 6% respectively; and that the `daylight-clean` frames lose roughly 20% of centre luminance in the corners. That deficit is consistent with a real in-camera falloff, but scene composition contributes to it as much as optics — the `daylight-aged` frames measure corners *brighter* than centre because their sky is at the edges — so it is not a per-body measurement and cannot be read as "this camera vignettes by 20%".
 
 What it cannot support: any statement about flash behaviour, night behaviour, a specific camera body, or a population of CCD output. One reviewer's daylight shoot with unknown in-camera settings is a sample of convenience. Because of that, the presets stay untuned until Tier A frames arrive, and no result measured here may be described as "matching CCD".
 
