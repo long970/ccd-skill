@@ -177,6 +177,14 @@ python tests/ccd_profile.py --manifest tests/real-photo-manifest.json --out docs
 
 The generated [report](docs/samples/pipeline-self-check.json) is titled `管线自检，非 CCD 基线` and carries `baseline: false`. Its inputs are licensed stock photographs, not verified CCD output, so it describes what the pipeline does — not what a CCD camera does. Guardrails only flag what the step made worse: an increase in near-white or clipped channels, or a corner drop above 45%. A frame that arrives 22% blown and leaves 19% blown is reported, not condemned.
 
+`--ablate <stage>` switches off exactly one stage (`s-curve`, `black-point`, `vignette`, `flash-falloff`, `halation`, `grain`, `sharpness`) so a difference can be attributed instead of guessed; the report records what was zeroed and is marked as an ablation, so it can never pass as the production recipe.
+
+```text
+python tests/ccd_profile.py --manifest tests/real-photo-manifest.json --ablate vignette
+```
+
+The recipe currently has four visible defects — a fused top end, `indoor-flash` dimming the centre, a median shift at restrained strength, and grain crushing dark patches. They are documented with measurements in [tests/KNOWN_ISSUES.md](tests/KNOWN_ISSUES.md) and pinned by `tests/test_known_issues.py`, which is written to fail on purpose (four expected failures) until reference intervals exist. When a fix lands, the test turns red as an unexpected success and the entry is retired.
+
 `tests/verify_reference_set.py` validates the reference-set manifest before anyone treats its numbers as evidence. It checks the declarative fields, recorded SHA-256 values against local files, and EXIF provenance (`Make`, `Model`, `ISO`, `Flash`, read from IFD0 and the Exif sub-IFD). Missing provenance marks an entry `unverified` rather than failing, but a `filled` manifest must be fully verified, with at least four entries and one holdout per family.
 
 ```text
@@ -226,7 +234,7 @@ The JSON report records the parameters, seed, dependency versions, orientation-c
 python -m unittest discover -s tests -v
 ```
 
-- 59 automated tests cover orientation and EXIF removal, alpha preservation, deterministic output, clipping bounds, preset separation, batch safety, skip wording, empty folders and CLI failure reporting, plus the fingerprint instrument and the manifest validator.
+- 67 automated tests cover orientation and EXIF removal, alpha preservation, deterministic output, clipping bounds, preset separation, batch safety, skip wording, empty folders and CLI failure reporting, plus the fingerprint instrument, the single-stage ablation and the manifest validator. Four of them are deliberate expected failures pinned to the open defects in `tests/KNOWN_ISSUES.md`.
 - GitHub Actions runs the suite on Ubuntu and Windows with Python 3.12.
 - Release 1.5.2 was installed into the DSH skill directory and checked file by file: the installed copy reports `script_version` 1.5.2 and all four batch statuses and three exit codes behave as documented. The previous 1.4.1 install is preserved as `ccd-photo-enhancer.bak-1.4.1` for rollback.
 
@@ -240,8 +248,11 @@ skills/ccd-photo-enhancer/
   references/              Presets, pipeline rules, artistic routes and tests
 tests/
   test_apply_ccd.py        Automated unit tests
-  test_reference_tools.py  Fingerprint and validator tests
+  test_reference_tools.py  Fingerprint, ablation and validator tests
+  test_known_issues.py     Deliberate failures for the open recipe defects
+  KNOWN_ISSUES.md          The four open defects, measurements and gate
   ccd_profile.py           Pipeline fingerprint (not a CCD baseline)
+  ccd_ablate.py            Single-stage ablation helper
   verify_reference_set.py  Reference-set manifest validator
   real_photo_eval.py       Offline real-photo evaluation
   real-photo-manifest.json Evaluation sources and licensing

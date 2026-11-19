@@ -9,7 +9,10 @@ This project follows Semantic Versioning.
 - Add `tests/verify_reference_set.py`, which validates a manifest's fields, SHA-256 values and EXIF provenance (`Make`, `Model`, `ISO`, `Flash`, read from IFD0 and the Exif sub-IFD). Missing provenance marks an entry `unverified`; a `filled` manifest with unverified entries, missing files, hash mismatches, fewer than four entries per family or no holdout fails.
 - Add `reference_set/` with the tier rules (Tier A straight-out-of-camera CCD files only; B and C never enter an interval) and a 16-entry template: four families, three calibration frames and one holdout each. Every fact field is `null` until a real sample replaces it.
 - Generate `docs/samples/pipeline-self-check.json` from the existing 15 licensed photographs to prove the tooling runs end to end. It is a pipeline self-check, not a CCD baseline, and the note in the report says so.
-- Suite grows from 45 to 59 tests.
+- Add `tests/ccd_ablate.py` and `python tests/ccd_profile.py --ablate <stage>`, which switch off exactly one stage (`s-curve`, `black-point`, `vignette`, `flash-falloff`, `halation`, `grain`, `sharpness`) and record what was zeroed. Ablation changes nothing in the bundle and cannot be mistaken for the production recipe. It is the instrument the gated tone work will use, so a difference is attributed rather than guessed.
+- Add `tests/KNOWN_ISSUES.md` and `tests/test_known_issues.py`: four visible defects of the current recipe (fused top end, `indoor-flash` dimming the centre, median shift at restrained strength, grain crushing dark patches), each measured on synthetic fixtures and pinned by an expected failure. The suite stays green; a fix turns the test into an unexpected success, which is the prompt to retire the entry.
+- Record one correction to the earlier diagnosis: the dark-patch crush is grain-driven, not the black point. With grain ablated the same patch stays at 0% near-black, so the fix belongs in the noise envelope.
+- Suite grows from 45 to 59 tests, then to 67 with the ablation and known-issue regressions.
 
 ## 1.5.2 — 2026-11-19
 

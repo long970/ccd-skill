@@ -27,6 +27,7 @@ if str(BUNDLE_SCRIPTS) not in sys.path:
     sys.path.insert(0, str(BUNDLE_SCRIPTS))
 
 import apply_ccd  # noqa: E402  (path set above on purpose)
+import ccd_ablate  # noqa: E402  (same directory)
 
 TITLE = "管线自检，非 CCD 基线"
 NOTE = (
@@ -221,6 +222,7 @@ def profile_image(
     strength: int,
     seed: int,
     max_pixels: int = MEASURE_MAX_PIXELS,
+    preset: apply_ccd.Preset | None = None,
 ) -> dict[str, Any]:
     """Measure one image before and after the production recipe, in memory."""
     digest = hashlib.sha256(path.read_bytes()).hexdigest()
@@ -236,12 +238,13 @@ def profile_image(
             "指纹测量不需要这么大，请导出较小副本后再测。"
         )
 
+    recipe = preset if preset is not None else apply_ccd.PRESETS[preset_name]
     before = np.asarray(rgb_image, dtype=np.uint8).copy()
     lab_before = srgb_to_lab(before)
     mask = _flat_mask(lab_before[..., 0])
     after = apply_ccd._apply_pixel_recipe(
         before,
-        apply_ccd.PRESETS[preset_name],
+        recipe,
         strength,
         seed,
         None,
@@ -256,6 +259,7 @@ def profile_image(
         "size": [width, height],
         "family": preset_name,
         "preset": preset_name,
+        "recipe": recipe.name,
         "strength": strength,
         "flat_probe_fraction": None if mask is None else round(float(mask.mean()), 4),
         "warnings": warnings,
@@ -392,7 +396,9 @@ def build_report(
     source_label: str,
     origin: str,
     max_pixels: int = MEASURE_MAX_PIXELS,
+    ablation_stage: str | None = None,
 ) -> dict[str, Any]:
+    ablation_records: dict[str, Any] = {}
     records: list[dict[str, Any]] = []
     for case in cases:
         path = Path(case["path"])
@@ -408,7 +414,16 @@ def build_report(
                 }
             )
             continue
-        record = profile_image(path, case["preset"], int(case["strength"]), seed, max_pixels)
+
+        recipe: apply_ccd.Preset | None = None
+        if ablation_stage:
+            try:
+                recipe, changes = ccd_ablate.ablate(apply_ccd.PRESETS[case["preset"]], ablation_stage)
+                ablation_records[case["id"]] = {"status": "ablated", "zeroed_fields": changes}
+            except ValueError as exc:
+                ablation_records[case["id"]] = {"status": "already_off", "reason": str(exc)}
+
+        record = profile_image(path, case["preset"], int(case["strength"]), seed, max_pixels, recipe)
         record["id"] = case["id"]
         record["status"] = "ok"
         records.append(record)
@@ -423,6 +438,13 @@ def build_report(
         "generated_by": "tests/ccd_profile.py",
         "script_version": apply_ccd.SCRIPT_VERSION,
         "seed": seed,
+        "ablation": None
+        if not ablation_stage
+        else {
+            "stage": ablation_stage,
+            "per_image": ablation_records,
+            "note": "消融测量：该阶段被置零，结果不是生产配方，也不能当作基线。",
+        },
         "source_label": source_label,
         "sources": {
             "origin": origin,
@@ -495,6 +517,11 @@ def main(argv: list[str] | None = None) -> int:
         default=MEASURE_MAX_PIXELS,
         help=f"测量上限（默认 {MEASURE_MAX_PIXELS}）；超过时请导出较小副本",
     )
+    parser.add_argument(
+        "--ablate",
+        choices=sorted(ccd_ablate.STAGES),
+        help="把单个阶段置零后测量（消融），一次只能关闭一个阶段",
+    )
     parser.add_argument("--out", type=Path, help="写入 JSON；省略时打印到 stdout")
     parser.add_argument("--quiet", action="store_true")
     args = parser.parse_args(argv)
@@ -506,7 +533,7 @@ def main(argv: list[str] | None = None) -> int:
 
     cases, label = _load_cases(args)
     origin = "manifest" if args.manifest else "folder"
-    report = build_report(cases, args.seed, label, origin, args.max_pixels)
+    report = build_report(cases, args.seed, label, origin, args.max_pixels, args.ablate)
     if not args.quiet:
         _print_summary(report)
 

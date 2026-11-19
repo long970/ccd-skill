@@ -25,6 +25,8 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tests"))
 
 import ccd_profile  # noqa: E402
+import ccd_ablate  # noqa: E402
+import apply_ccd  # noqa: E402
 import verify_reference_set  # noqa: E402
 
 FAMILIES = verify_reference_set.FAMILIES
@@ -286,6 +288,56 @@ class ReferenceToolsTests(unittest.TestCase):
         broken = self.workdir / "broken.json"
         broken.write_text(json.dumps(_manifest("template", [_entry(family="sepia")])), encoding="utf-8")
         self.assertEqual(verify_reference_set.main([str(broken), "--root", str(ROOT)]), 1)
+
+
+class AblationTests(unittest.TestCase):
+    """Ablation must switch off exactly one stage and never pose as production."""
+
+    def test_ablate_zeroes_exactly_one_stage(self) -> None:
+        base = apply_ccd.PRESETS["daylight-aged"]
+        ablated, changes = ccd_ablate.ablate(base, "grain")
+
+        self.assertEqual(changes, {"grain_sigma": 0.0})
+        self.assertEqual(ablated.grain_sigma, 0.0)
+        self.assertEqual(ablated.name, base.name)
+        for field in ("contrast_delta", "vignette_amount", "halation", "black_point", "flash_falloff"):
+            self.assertEqual(getattr(ablated, field), getattr(base, field), field)
+
+    def test_ablate_rejects_unknown_and_already_off_stages(self) -> None:
+        with self.assertRaises(ValueError):
+            ccd_ablate.ablate(apply_ccd.PRESETS["night-flash"], "sepia")
+
+        # daylight-clean has flash_falloff == 0.0, so there is nothing to switch off.
+        with self.assertRaises(ValueError):
+            ccd_ablate.ablate(apply_ccd.PRESETS["daylight-clean"], "flash-falloff")
+
+    def test_ablate_attributes_corner_drop(self) -> None:
+        field = np.full((160, 200, 3), 110, dtype=np.uint8)
+        base = apply_ccd.PRESETS["indoor-flash"]
+
+        def corner_drop(preset: apply_ccd.Preset) -> float:
+            after = apply_ccd._apply_pixel_recipe(field, preset, 100, 7, None, None, None)
+            corner, _centre = ccd_profile._corner_and_centre(ccd_profile.srgb_to_lab(after)[..., 0])
+            before, _ = ccd_profile._corner_and_centre(ccd_profile.srgb_to_lab(field)[..., 0])
+            return (before - corner) / before
+
+        ablated, _changes = ccd_ablate.ablate(base, "vignette")
+        self.assertLess(corner_drop(ablated), corner_drop(base))
+        self.assertGreater(corner_drop(ablated), -0.02)
+
+    def test_build_report_records_ablation_and_source_state(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            path = Path(raw) / "flat.png"
+            Image.fromarray(np.full((48, 64, 3), 120, dtype=np.uint8)).save(path)
+            cases = [{"id": "case-1", "path": str(path), "preset": "night-flash", "strength": 50}]
+
+            plain = ccd_profile.build_report(cases, 7, "synthetic", "fixture")
+            ablated = ccd_profile.build_report(cases, 7, "synthetic", "fixture", ablation_stage="grain")
+
+        self.assertIsNone(plain["ablation"])
+        self.assertEqual(ablated["ablation"]["stage"], "grain")
+        self.assertEqual(ablated["ablation"]["per_image"]["case-1"]["status"], "ablated")
+        self.assertIn("消融", ablated["ablation"]["note"])
 
 
 if __name__ == "__main__":
