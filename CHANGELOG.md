@@ -20,6 +20,9 @@ This project follows Semantic Versioning.
 - Suite grows to 74 tests (reference mode, partial-manifest coverage, flash-zero provenance, and a guard that the shipped Tier C pilot still validates).
 - Narrow the claims (P3). `SKILL.md` now forbids describing the result as restoring a specific camera, matching a real CCD sensor, or reaching camera-level accuracy, and states that the recipe has not been blind-tested against Tier A originals; `README.md` gains a "What this is not" block. No pixel, CLI or report change, so `VERSION` stays 1.5.2 and the published 1.5.2 asset still carries the earlier wording until the next release.
 
+- Add `CCD_STRICT=1`, which removes the `expectedFailure` protection from the four known-issue regressions so they fail as ordinary tests; `tests/test_strict_switch.py` asserts both directions, so a green suite can no longer be read as "the look is validated while four defects are open". Suite grows to 76 tests.
+- State the scope of the evidence where it can be read: `tests/KNOWN_ISSUES.md` now carries a per-preset table of reference frames (7 / 7 / 1 / 0 for `daylight-clean`, `daylight-aged`, `indoor-flash`, `night-flash`), and both it and `README.md` say plainly that a green suite means the pipeline and its contract are intact, not that any preset matches a family interval. No pixel, CLI or bundle change.
+
 ## 1.5.2 — 2026-11-19
 
 - Make skip and no-output wording explicit, uniform and testable. A skipped file reads `已跳过：<原因>；未生成输出文件。…`; no code path describes a skip as success.

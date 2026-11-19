@@ -7,7 +7,7 @@ that fails on purpose in `tests/test_known_issues.py`.
 
 `unittest` reports these as *expected failures*, so the suite stays green. When one of
 them starts passing, the suite turns red with an **unexpected success** — that is the
-prompt to delete the `@unittest.expectedFailure` decorator and the row below.
+prompt to delete the `@known_issue` decorator and the row below.
 
 All numbers are from VERSION 1.5.2, measured on synthetic fixtures so they can be
 re-derived without any external photo. `L*` is CIELAB lightness; `near_black` is the
@@ -30,6 +30,36 @@ python tests/ccd_profile.py --manifest tests/real-photo-manifest.json --ablate g
 `--ablate` switches off exactly one stage (`s-curve`, `black-point`, `vignette`,
 `flash-falloff`, `halation`, `grain`, `sharpness`) and records what it zeroed in the
 report, so an ablated run can never be mistaken for the production recipe.
+
+## What a green suite does and does not mean
+
+`python -m unittest discover -s tests` passing means the pipeline runs, the output
+contract holds, and the four defects below are pinned and unchanged. It does **not** mean
+the look is correct, and it does not mean all four presets were validated against real
+frames:
+
+| preset | reference frames | what exists |
+| --- | --- | --- |
+| `daylight-clean` | 7 (5 calibration + 2 holdout) | Tier C pilot interval only |
+| `daylight-aged` | 7 (5 calibration + 2 holdout) | Tier C pilot interval only |
+| `indoor-flash` | 1 | `insufficient` — no interval, no validation |
+| `night-flash` | 0 | `missing` — never measured against a CCD frame |
+
+The Tier C samples are daylight seaside and street scenes; exactly one frame records the
+flash firing and none is a night scene. So nothing in this repository validates the two
+flash presets against real frames, and no test compares any preset against a family
+interval.
+
+The strict switch removes the ability to read green as validated. `CCD_STRICT=1` turns
+the four expected failures into ordinary failures, so a run cannot succeed while the
+defects are present:
+
+```bash
+CCD_STRICT=1 python tests/test_known_issues.py -q    # 4 failures, exit 1
+CCD_STRICT=1 python -m unittest discover -s tests    # suite fails
+```
+
+`tests/test_strict_switch.py` asserts both directions, so the switch itself cannot rot.
 
 ## Attribution notes
 

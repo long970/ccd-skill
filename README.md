@@ -195,6 +195,8 @@ That manifest is a **Tier C pilot**: 15 web samples from retro reviews of CCD-er
 
 The recipe currently has four visible defects — a fused top end, `indoor-flash` dimming the centre, a median shift at restrained strength, and grain crushing dark patches. They are documented with measurements in [tests/KNOWN_ISSUES.md](tests/KNOWN_ISSUES.md) and pinned by `tests/test_known_issues.py`, which is written to fail on purpose (four expected failures) until reference intervals exist. When a fix lands, the test turns red as an unexpected success and the entry is retired.
 
+A green suite therefore means the pipeline and its output contract are intact, **not** that the look is correct: no preset is compared against a family interval, `indoor-flash` has one reference frame and `night-flash` has none. `CCD_STRICT=1` converts the four expected failures into ordinary failures, so an unfixed defect cannot be reported as a passing suite (see [tests/KNOWN_ISSUES.md](tests/KNOWN_ISSUES.md#what-a-green-suite-does-and-does-not-mean)).
+
 `tests/verify_reference_set.py` validates the reference-set manifest before anyone treats its numbers as evidence. It checks the declarative fields, recorded SHA-256 values against local files, and EXIF provenance (`Make`, `Model`, `ISO`, `Flash`, read from IFD0 and the Exif sub-IFD). Missing provenance marks an entry `unverified` rather than failing, but a `filled` manifest must be fully verified, with at least four entries and one holdout per family.
 
 ```text
@@ -242,9 +244,10 @@ The JSON report records the parameters, seed, dependency versions, orientation-c
 
 ```text
 python -m unittest discover -s tests -v
+CCD_STRICT=1 python -m unittest discover -s tests   # must fail while the four defects exist
 ```
 
-- 74 automated tests cover orientation and EXIF removal, alpha preservation, deterministic output, clipping bounds, preset separation, batch safety, skip wording, empty folders and CLI failure reporting, plus the fingerprint instrument in both pipeline and reference modes, the single-stage ablation, and the manifest validator with partial-coverage rules. Four of them are deliberate expected failures pinned to the open defects in `tests/KNOWN_ISSUES.md`.
+- 76 automated tests cover orientation and EXIF removal, alpha preservation, deterministic output, clipping bounds, preset separation, batch safety, skip wording, empty folders and CLI failure reporting, plus the fingerprint instrument in both pipeline and reference modes, the single-stage ablation, and the manifest validator with partial-coverage rules. Four of them are deliberate expected failures pinned to the open defects in `tests/KNOWN_ISSUES.md`; `tests/test_strict_switch.py` asserts that `CCD_STRICT=1` turns those four into hard failures, so the strict switch cannot rot.
 - GitHub Actions runs the suite on Ubuntu and Windows with Python 3.12.
 - Release 1.5.2 was installed into the DSH skill directory and checked file by file: the installed copy reports `script_version` 1.5.2 and all four batch statuses and three exit codes behave as documented. The previous 1.4.1 install is preserved as `ccd-photo-enhancer.bak-1.4.1` for rollback.
 

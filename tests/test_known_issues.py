@@ -1,6 +1,7 @@
 """Regressions for the four known visual defects of the current recipe.
 
-Every test here is decorated with ``expectedFailure`` on purpose. The pixel recipe is
+Every test here is decorated with ``known_issue`` on purpose: ``unittest.expectedFailure``
+by default, a plain test under ``CCD_STRICT=1``. The pixel recipe is
 frozen until reference intervals exist (see ``tests/KNOWN_ISSUES.md``), so the suite has
 to stay green *while the defect is visible and measured*. When a test starts passing,
 unittest reports an unexpected success and the suite turns red: that is the signal to
@@ -13,6 +14,7 @@ be re-derived without any external photo.
 from __future__ import annotations
 
 import dataclasses
+import os
 import sys
 import unittest
 from pathlib import Path
@@ -27,6 +29,15 @@ import apply_ccd  # noqa: E402
 import ccd_profile  # noqa: E402
 
 SEED = 7
+
+STRICT = os.environ.get("CCD_STRICT") == "1"
+
+
+def known_issue(func):
+    """Pin a defect: an expected failure by default, a hard failure under CCD_STRICT=1."""
+    if STRICT:
+        return func
+    return unittest.expectedFailure(func)
 
 
 def _run(strip: np.ndarray, preset: apply_ccd.Preset, strength: int) -> np.ndarray:
@@ -53,7 +64,7 @@ def _longest_equal_run(values: list[int]) -> int:
 class KnownIssueTests(unittest.TestCase):
     """Each failure is documented, attributable and waiting on reference intervals."""
 
-    @unittest.expectedFailure
+    @known_issue
     def test_ki01_top_end_fuses_adjacent_levels(self) -> None:
         """KI-01: inputs 247..255 all print as 254 (longest run 9, 20/31 levels survive).
 
@@ -69,7 +80,7 @@ class KnownIssueTests(unittest.TestCase):
         run = _longest_equal_run(printed)
         self.assertLessEqual(run, 2, f"{run} adjacent top-end levels print as one value: {printed}")
 
-    @unittest.expectedFailure
+    @known_issue
     def test_ki02_indoor_flash_dims_the_centre(self) -> None:
         """KI-02: indoor-flash darkens the centre of a mid-grey field by 0.94% L*.
 
@@ -88,7 +99,7 @@ class KnownIssueTests(unittest.TestCase):
         centre_delta = (centre_after - centre_before) / centre_before
         self.assertGreaterEqual(centre_delta, 0.0, f"centre moves {centre_delta:+.4f} L*")
 
-    @unittest.expectedFailure
+    @known_issue
     def test_ki03_restrained_strength_shifts_the_median(self) -> None:
         """KI-03: at strength 50 the median of a mid-grey patch moves -2.06 L* (aged) / -2.25 L* (night).
 
@@ -102,7 +113,7 @@ class KnownIssueTests(unittest.TestCase):
             after = ccd_profile.measure(_run(neutral, _tone_only(preset_name), 50))["L_p50"]
             self.assertLessEqual(abs(after - before), 1.5, f"{preset_name} moves {after - before:+.2f} L*")
 
-    @unittest.expectedFailure
+    @known_issue
     def test_ki04_grain_crushes_dark_patches_to_black(self) -> None:
         """KI-04: at strength 50 a flat level-18 patch goes from 0% to 13-20% pure black.
 
