@@ -20,7 +20,7 @@ CCD Photo Enhancer is a local-first Agent Skill for CCD, Y2K and retro digicam s
 
 | | |
 |---|---|
-| **Current release** | [v1.5.0](https://github.com/long970/ccd-skill/releases/tag/v1.5.0) |
+| **Current release** | [v1.5.1](https://github.com/long970/ccd-skill/releases/tag/v1.5.1) |
 | **Input** | Static JPEG, PNG and WebP |
 | **Output** | New JPEG, PNG or WebP; orientation and dimensions preserved |
 | **Presets** | `daylight-clean`, `daylight-aged`, `indoor-flash`, `night-flash` |
@@ -200,7 +200,7 @@ python -m unittest discover -s tests -v
 
 - 41 automated tests cover orientation and EXIF removal, alpha preservation, deterministic output, clipping bounds, preset separation, batch safety, skip semantics and CLI failure reporting.
 - GitHub Actions runs the suite on Ubuntu and Windows with Python 3.12.
-- Release 1.5.1 was installed into the DSH skill directory and checked file by file: the installed copy reports `script_version` 1.5.1 and all four batch exit codes behave as documented. The previous 1.4.1 install is preserved as `ccd-photo-enhancer.bak-1.4.1` for rollback.
+- Release 1.5.1 was installed into the DSH skill directory and checked file by file: the installed copy reports `script_version` 1.5.1 and all four batch statuses and three exit codes behave as documented. The previous 1.4.1 install is preserved as `ccd-photo-enhancer.bak-1.4.1` for rollback.
 
 ## Repository Layout
 
