@@ -30,11 +30,11 @@
 ## 文件夹批处理
 
 - 命令形式：`apply_ccd.py <输入目录> --batch --out <另一个已存在目录> --preset <预设> --strength <强度> --seed <seed> [--skip-unsupported]`。批处理必须显式提供 `--out`，且输出目录不得与输入目录相同；不自动创建目录，不递归子目录。
-- 只枚举输入目录第一层的 JPEG、PNG、WebP、HEIC、HEIF 文件；HEIC/HEIF 默认逐张记为失败（`not_processed`，错误写明缺少解码器），加 `--skip-unsupported` 后改为 `skipped` 并写 `reason`，不计入失败也不生成输出；其他普通文件计入 `ignored_non_photo_files`。排序按文件名进行，报告保留每个输入的绝对路径。
+- 只枚举输入目录第一层的 JPEG、PNG、WebP、HEIC、HEIF 文件；HEIC/HEIF 默认逐张记为失败（`not_processed`，错误写明当前环境不支持该格式），加 `--skip-unsupported` 后改为 `skipped` 并写 `reason`。`reason` 固定以「已跳过：」开头并包含「未生成输出文件」，不得改写成成功；跳过不计入失败，也不生成输出。其他普通文件计入 `ignored_non_photo_files`；目录里没有任何候选照片时不抛错，而是返回 `nothing_processed` 与「目录中没有可处理照片。」。排序按文件名进行，报告保留每个输入的绝对路径。
 - 每张图沿用单张管线的格式、方向、ICC、alpha、像素上限和输出校验规则。默认文件名仍为 `<stem>_ccd-<preset>-<strength>.<ext>`，冲突时添加序号；重复运行不会覆盖先前输出。
 - 所有输入使用同一个显式 seed 和参数，报告中的 `seed_policy` 为 `same-explicit-seed-for-each-source-image`。同尺寸图片因此可能共享颗粒随机场，这不等于跨分辨率视觉一致。
 - 批量 `--preview` 当前明确拒绝；先对单张代表照片使用预览。批处理输出一个汇总 JSON，`status` 为 `processed`、`processed_with_skips`、`partially_processed` 或 `nothing_processed`，并在 `results` 中保留逐张完整报告、跳过原因或错误。
-- CLI 退出码：`processed` 与 `processed_with_skips` 为 0；`partially_processed` 为 1，同时向 stderr 写部分失败摘要、向 stdout 写完整汇总；`nothing_processed` 为 2，完整汇总写 stderr。跳过不计入失败，但也不等于成功——报告必须保留 `skipped_files` 与 `notice`。部分结果会保留，已成功的输出不回滚，但不能把部分成功或含跳过的批次描述成整组完成。
+- CLI 退出码：`processed` 与 `processed_with_skips` 为 0；`partially_processed` 为 1，同时向 stderr 写部分失败摘要、向 stdout 写完整汇总；`nothing_processed` 为 2，完整汇总写 stderr。跳过不计入失败，但也不等于成功——报告必须保留 `skipped_files` 与 `notice`（`已跳过 N 个文件：当前环境不支持这些格式；未生成对应输出文件。`），单张跳过则以「已跳过：」开头提示并退出 2。`nothing_processed` 必须按场景区分措辞：空目录 →「目录中没有可处理照片。」；全部跳过 →「未生成输出：N 个文件均因格式不受支持而被跳过。」；全部失败 →「未生成输出：N 个文件均处理失败；…」；混合 → 同时给出跳过与失败数量。「跳过」不是「失败」，但没有输出就不能报告成功。部分结果会保留，已成功的输出不回滚，但不能把部分成功或含跳过的批次描述成整组完成。
 
 ## 指标与解释
 
@@ -44,6 +44,6 @@
 
 ## 失败回退
 
-- 输入打不开、HEIC、超限、损坏、ICC 无法转换或输出无法写入：单张处理返回非零状态，错误写入 stderr，不能留下“已处理”的结论；单张 HEIC 加 `--skip-unsupported` 时报告 `status=skipped`、`image_written=false`，仍返回 2 因为没有任何输出。批处理逐张记录失败或跳过，按四种状态返回 0/0/1/2；已成功文件保留，失败与跳过的文件都不生成输出。
+- 输入打不开、HEIC、超限、损坏、ICC 无法转换或输出无法写入：单张处理返回非零状态，错误写入 stderr，不能留下“已处理”的结论；单张 HEIC 加 `--skip-unsupported` 时报告 `status=skipped`、`image_written=false`，提示以「已跳过：」开头并包含「未生成输出文件」，仍返回 2 因为没有任何输出。批处理逐张记录失败或跳过，按四种状态返回 0/0/1/2；已成功文件保留，失败与跳过的文件都不生成输出。
 - 本地处理失败时可选择 L3 给提示词；只有用户授权且存在合适 L1 后端时才调用生成式服务。L2 未成功不得静默转 L1 上传。
 - 用户请求修复划痕、扩图、去除物体、改造光线/背景、准确复原某款机型、保护身份保证等超出像素滤镜能力的任务时，向用户说明边界并选择 L1/L3。

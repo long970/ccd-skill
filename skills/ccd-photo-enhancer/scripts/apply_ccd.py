@@ -41,7 +41,16 @@ class ProcessingError(Exception):
 
 
 class UnsupportedFormatError(ProcessingError):
-    """Format this environment cannot decode; --skip-unsupported may skip it."""
+    """Format this environment cannot decode; --skip-unsupported may skip it.
+
+    ``skip_reason`` is the user-facing sentence used when the caller asked to skip
+    rather than fail. Skipping is not success: it always states that no file was
+    written.
+    """
+
+    def __init__(self, message: str, skip_reason: str | None = None) -> None:
+        super().__init__(message)
+        self.skip_reason = skip_reason or f"已跳过：{message.rstrip('。')}；未生成输出文件。"
 
 
 @dataclass(frozen=True)
@@ -458,7 +467,10 @@ def _run_single(args: argparse.Namespace) -> dict[str, Any]:
         if not explicit_output.parent.exists() or not explicit_output.parent.is_dir():
             raise ProcessingError(f"输出目录不存在或不是目录：{explicit_output.parent}")
     if source_path.suffix.lower() in {".heic", ".heif"}:
-        raise UnsupportedFormatError("当前没有 HEIC/HEIF 解码器。请在本机导出 JPEG/PNG 后重试；图片不会被上传。")
+        raise UnsupportedFormatError(
+            "当前环境不支持 HEIC/HEIF 解码；请先在本机导出为 JPEG/PNG 再重试；图片不会被上传。",
+            "已跳过：当前环境不支持 HEIC/HEIF；未生成输出文件。请先在本机导出为 JPEG/PNG 后重试。",
+        )
 
     warnings: list[str] = []
     try:
@@ -640,8 +652,6 @@ def _run_batch(args: argparse.Namespace) -> dict[str, Any]:
         (path for path in entries if path.is_file() and path.suffix.lower() in BATCH_INPUT_SUFFIXES),
         key=lambda path: (path.name.casefold(), path.name),
     )
-    if not candidates:
-        raise ProcessingError("输入目录第一层没有 JPEG、PNG、WebP、HEIC 或 HEIF 文件；批处理不递归子目录。")
     regular_files = sum(1 for path in entries if path.is_file())
 
     results: list[dict[str, Any]] = []
@@ -661,7 +671,7 @@ def _run_batch(args: argparse.Namespace) -> dict[str, Any]:
                     "capability_layer": "L2-local-deterministic-pixel-processing",
                     "input_path": str(source_path),
                     "output_path": None,
-                    "reason": str(exc),
+                    "reason": exc.skip_reason,
                     "error": None,
                 })
             else:
@@ -694,7 +704,17 @@ def _run_batch(args: argparse.Namespace) -> dict[str, Any]:
     skipped = [item for item in results if item["status"] == "skipped"]
     if not processed:
         status = "nothing_processed"
-        error = "没有处理任何图片；逐张原因见 results。"
+        if not candidates:
+            error = "目录中没有可处理照片。"
+        elif not failed:
+            error = f"未生成输出：{len(skipped)} 个文件均因格式不受支持而被跳过。"
+        elif not skipped:
+            error = f"未生成输出：{len(failed)} 个文件均处理失败；逐张原因见 results。"
+        else:
+            error = (
+                f"未生成输出：{len(results)} 个文件均未生成图片"
+                f"（{len(skipped)} 个跳过，{len(failed)} 个失败）；逐张原因见 results。"
+            )
     elif failed:
         status = "partially_processed"
         error = "部分照片处理失败；逐张原因见 results。"
@@ -706,7 +726,7 @@ def _run_batch(args: argparse.Namespace) -> dict[str, Any]:
         "capability_layer": "L2-local-deterministic-batch-pixel-processing",
         "error": error,
         "notice": (
-            f"{len(skipped)} 张因格式不受支持被跳过；不计入失败，也未生成输出。"
+            f"已跳过 {len(skipped)} 个文件：当前环境不支持这些格式；未生成对应输出文件。"
             if skipped else None
         ),
         "batch": True,
@@ -746,7 +766,7 @@ def main(argv: list[str] | None = None) -> int:
             "status": "skipped" if skipped else "not_processed",
             "capability_layer": "L2-local-deterministic-pixel-processing",
             "image_written": False,
-            "reason": str(exc) if skipped else None,
+            "reason": exc.skip_reason if skipped else None,
             "error": None if skipped else str(exc),
         }, ensure_ascii=False), file=sys.stderr)
         return 2

@@ -41,7 +41,7 @@ For an existing photo, route CCD looks to the local deterministic Pillow/NumPy s
 
 调用前只问确实影响结果的问题。对“复古一点”可直接使用 `daylight-aged` / `strength=50`；用户希望第一眼看出 CCD 风格、或用于快速上手演示时，使用 `strength=75` 并复核肤色和暗部。对明确的室内闪光、白天、夜景意图分别选择对应预设。若用户要求不同子效果强度，可用 grain / color / vignette / sharpness 覆盖值，而非增加五个必答问题。用户想先查看指标时可加 `--preview`；它只计算内存结果，不写文件，报告的剪切指标在 JPEG 编码前统计，不等于最终 JPEG 像素。预览不得称为已处理图片，且不能与 `--out` 一起使用。
 
-整组照片使用 `<输入目录> --batch --out <另一个已存在目录>`。只处理输入目录第一层，不递归；输出目录不得等于输入目录，避免生成图回流为输入。逐张沿用相同预设、强度和显式 seed。批次状态只有四种：`processed`（全部成功，退出码 0）、`processed_with_skips`（只有显式跳过、没有失败，退出码 0）、`partially_processed`（至少一张失败，退出码 1）、`nothing_processed`（没有生成任何图片，退出码 2）。当前环境无法解码的文件（HEIC/HEIF）默认记为失败；加 `--skip-unsupported` 后记为 `skipped` 并写 `reason`，不计入失败、但也不等于成功，必须原样报告 `skipped_files`。不支持批量 `--preview`，先用一张代表照片预览。不得把部分成功或含跳过的批次称为整组已完成。
+整组照片使用 `<输入目录> --batch --out <另一个已存在目录>`。只处理输入目录第一层，不递归；输出目录不得等于输入目录，避免生成图回流为输入。逐张沿用相同预设、强度和显式 seed。批次状态只有四种：`processed`（全部成功，退出码 0）、`processed_with_skips`（只有显式跳过、没有失败，退出码 0）、`partially_processed`（至少一张失败，退出码 1）、`nothing_processed`（没有生成任何图片，退出码 2）。当前环境无法解码的文件（HEIC/HEIF）默认记为失败；加 `--skip-unsupported` 后记为 `skipped` 并写 `reason`，不计入失败、但也不等于成功，必须原样报告 `skipped_files`。不支持批量 `--preview`，先用一张代表照片预览。不得把部分成功或含跳过的批次称为整组已完成。跳过不是失败，但没有输出就不是成功：单张跳过报「已跳过：…；未生成输出文件。」并退出 2；目录里只有跳过项时报「未生成输出：N 个文件均因格式不受支持而被跳过。」；空目录报「目录中没有可处理照片。」且状态为 `nothing_processed`（退出 2，不是「全部失败」）；只有真正处理失败的文件才使用「失败」一词。
 
 ## 输出状态契约（每次回复必须包含）
 
@@ -53,7 +53,7 @@ For an existing photo, route CCD looks to the local deterministic Pillow/NumPy s
 
 L2 处理完成时交付文件或可点击路径；批处理还要给出输出目录、成功/失败数量，部分失败时列出对应文件及原因。L2 preview 只报告指标、输出文件写“无”，图片没有实际修改；L3 时说明图片未改变并提供提示词。脚本失败时状态必须是“未处理”，保留错误原因，不得把 preview、部分批处理成功或 L3 提示词描述成全部处理完成。
 
-六个状态与脚本字段一一对应：`processed` → 已处理；`processed_with_skips` → 已处理（含明确跳过），必须同时报出 `skipped_files` 的数量与原因；`partially_processed` → 部分已处理，必须列出失败文件及原因；`nothing_processed` → 未处理（无任何输出），不得写成“部分完成”或“已跳过即完成”；单张 `skipped` 或不支持格式 → 未处理（有错误原因）。
+六个状态与脚本字段一一对应：`processed` → 已处理；`processed_with_skips` → 已处理（含明确跳过），必须同时报出 `skipped_files` 的数量与原因；`partially_processed` → 部分已处理，必须列出失败文件及原因；`nothing_processed` → 未处理（无任何输出），并写明是空目录、全部跳过还是全部失败，不得写成“部分完成”或“已跳过即完成”；单张 `skipped` → 未处理（无任何输出），说明跳过原因，不得称为失败；单张 `not_processed` → 未处理（有错误原因）。
 
 ## 质量检查
 

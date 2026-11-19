@@ -210,7 +210,7 @@ class ApplyCcdTests(unittest.TestCase):
     def test_invalid_input_and_heic_are_actionable(self) -> None:
         fake_heic = self.root / "photo.heic"
         fake_heic.write_bytes(b"not an image")
-        with self.assertRaisesRegex(apply_ccd.ProcessingError, "没有 HEIC/HEIF"):
+        with self.assertRaisesRegex(apply_ccd.ProcessingError, "不支持 HEIC/HEIF"):
             apply_ccd.run(self.args(fake_heic))
 
         broken = self.root / "broken.jpg"
@@ -713,6 +713,82 @@ class ApplyCcdTests(unittest.TestCase):
         self.assertFalse(report["image_written"])
         self.assertIsNone(report["error"])
         self.assertIn("HEIC/HEIF", report["reason"])
+    def test_batch_empty_directory_reports_nothing_processed(self) -> None:
+        sources = self.root / "empty-sources"
+        outputs = self.root / "empty-output"
+        sources.mkdir()
+        outputs.mkdir()
+        (sources / "notes.txt").write_text("not a photo", encoding="utf-8")
+        stdout = StringIO()
+        stderr = StringIO()
+        with redirect_stdout(stdout), redirect_stderr(stderr):
+            code = apply_ccd.main([str(sources), "--batch", "--out", str(outputs)])
+        self.assertEqual(code, 2)
+        self.assertEqual(stdout.getvalue(), "")
+        report = json.loads(stderr.getvalue())
+        self.assertEqual(report["status"], "nothing_processed")
+        self.assertEqual(report["total_files"], 0)
+        self.assertEqual(report["processed_files"], 0)
+        self.assertEqual(report["failed_files"], 0)
+        self.assertEqual(report["skipped_files"], 0)
+        self.assertEqual(report["ignored_non_photo_files"], 1)
+        self.assertFalse(report["image_written"])
+        self.assertIn("目录中没有可处理照片", report["error"])
+        self.assertNotIn("失败", report["error"])
+
+    def test_batch_all_skipped_error_says_no_output_not_failure(self) -> None:
+        sources = self.root / "all-skip-wording"
+        outputs = self.root / "all-skip-wording-output"
+        sources.mkdir()
+        outputs.mkdir()
+        (sources / "a.heic").write_bytes(b"not a decodable HEIC")
+        (sources / "b.heif").write_bytes(b"not a decodable HEIF")
+        stderr = StringIO()
+        with redirect_stdout(StringIO()), redirect_stderr(stderr):
+            code = apply_ccd.main(
+                [str(sources), "--batch", "--out", str(outputs), "--skip-unsupported"]
+            )
+        self.assertEqual(code, 2)
+        report = json.loads(stderr.getvalue())
+        self.assertEqual(report["status"], "nothing_processed")
+        self.assertEqual(report["skipped_files"], 2)
+        self.assertIn("未生成输出", report["error"])
+        self.assertIn("2 个文件均因格式不受支持而被跳过", report["error"])
+        self.assertNotIn("处理失败", report["error"])
+        self.assertFalse(report["image_written"])
+        self.assertIn("未生成对应输出文件", report["notice"])
+
+    def test_single_skip_reason_states_skipped_and_no_output(self) -> None:
+        photo = self.root / "wording.heic"
+        photo.write_bytes(b"not a decodable HEIC")
+        stderr = StringIO()
+        with redirect_stderr(stderr):
+            code = apply_ccd.main([str(photo), "--skip-unsupported"])
+        self.assertEqual(code, 2)
+        report = json.loads(stderr.getvalue())
+        self.assertEqual(report["status"], "skipped")
+        self.assertFalse(report["image_written"])
+        self.assertIsNone(report["error"])
+        self.assertTrue(report["reason"].startswith("已跳过"))
+        self.assertIn("未生成输出文件", report["reason"])
+        self.assertNotIn("处理成功", report["reason"])
+
+    def test_batch_partial_skip_notice_counts_files_without_calling_them_failures(self) -> None:
+        sources = self.root / "notice-sources"
+        outputs = self.root / "notice-output"
+        sources.mkdir()
+        outputs.mkdir()
+        Image.new("RGB", (8, 6), (90, 110, 130)).save(sources / "good.png")
+        (sources / "phone.heic").write_bytes(b"not a decodable HEIC")
+        report = apply_ccd.run(
+            apply_ccd._parse_args(
+                [str(sources), "--batch", "--out", str(outputs), "--skip-unsupported"]
+            )
+        )
+        self.assertEqual(report["status"], "processed_with_skips")
+        self.assertIn("已跳过 1 个文件", report["notice"])
+        self.assertIn("未生成对应输出文件", report["notice"])
+        self.assertNotIn("失败", report["notice"])
 
 
 if __name__ == "__main__":

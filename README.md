@@ -20,7 +20,7 @@ CCD Photo Enhancer is a local-first Agent Skill for CCD, Y2K and retro digicam s
 
 | | |
 |---|---|
-| **Current release** | [v1.5.1](https://github.com/long970/ccd-skill/releases/tag/v1.5.1) |
+| **Current release** | [v1.5.2](https://github.com/long970/ccd-skill/releases/tag/v1.5.2) |
 | **Input** | Static JPEG, PNG and WebP |
 | **Output** | New JPEG, PNG or WebP; orientation and dimensions preserved |
 | **Presets** | `daylight-clean`, `daylight-aged`, `indoor-flash`, `night-flash` |
@@ -101,9 +101,17 @@ Batch mode:
 | `0` | `processed` | Every photo was processed |
 | `0` | `processed_with_skips` | Photos were processed; some files were explicitly skipped |
 | `1` | `partially_processed` | At least one photo failed; per-image reasons are listed |
-| `2` | `nothing_processed` | No photo was produced at all |
+| `2` | `nothing_processed` | No output was produced: the folder was empty, every file was skipped, or every file failed |
 
 Pass `--skip-unsupported` to record undecodable files (HEIC/HEIF) as `skipped` with a `reason` instead of failing the batch. Skips are counted in `skipped_files` and reported in `notice`; they are not successes, and an all-HEIC folder still exits 2.
+
+Wording is part of the contract, because "no output" is not "failure" and a skip is not a success:
+
+- single file skipped: `已跳过：当前环境不支持 HEIC/HEIF；未生成输出文件。…`, exit 2;
+- folder with only skipped files: `未生成输出：N 个文件均因格式不受支持而被跳过。`, exit 2;
+- empty folder: `目录中没有可处理照片。`, `nothing_processed`, exit 2;
+- folder with real failures: counts and reasons are reported, and only then is the word 失败 used.
+
 
 Batch mode does not support `--preview`. Preview one representative image first.
 
@@ -198,9 +206,9 @@ The JSON report records the parameters, seed, dependency versions, orientation-c
 python -m unittest discover -s tests -v
 ```
 
-- 41 automated tests cover orientation and EXIF removal, alpha preservation, deterministic output, clipping bounds, preset separation, batch safety, skip semantics and CLI failure reporting.
+- 45 automated tests cover orientation and EXIF removal, alpha preservation, deterministic output, clipping bounds, preset separation, batch safety, skip wording, empty folders and CLI failure reporting.
 - GitHub Actions runs the suite on Ubuntu and Windows with Python 3.12.
-- Release 1.5.1 was installed into the DSH skill directory and checked file by file: the installed copy reports `script_version` 1.5.1 and all four batch statuses and three exit codes behave as documented. The previous 1.4.1 install is preserved as `ccd-photo-enhancer.bak-1.4.1` for rollback.
+- Release 1.5.2 was installed into the DSH skill directory and checked file by file: the installed copy reports `script_version` 1.5.2 and all four batch statuses and three exit codes behave as documented. The previous 1.4.1 install is preserved as `ccd-photo-enhancer.bak-1.4.1` for rollback.
 
 ## Repository Layout
 

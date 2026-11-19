@@ -2,6 +2,14 @@
 
 This project follows Semantic Versioning.
 
+## 1.5.2 — 2026-11-19
+
+- Make skip and no-output wording explicit, uniform and testable. A skipped file reads `已跳过：<原因>；未生成输出文件。…`; no code path describes a skip as success.
+- An empty folder, or one holding only non-photo files, now reports `nothing_processed` with `目录中没有可处理照片。` instead of raising a generic "no files" error, so the four batch statuses cover every outcome.
+- An all-skipped folder reports `未生成输出：N 个文件均因格式不受支持而被跳过。`; a folder with no output but mixed skips and failures reports both counts. Failure wording stays reserved for files that actually failed.
+- The batch `notice` with skips reads `已跳过 N 个文件：当前环境不支持这些格式；未生成对应输出文件。`
+- Align `SKILL.md`, `references/image-pipeline.md` and `README.md` with the wording rules; the suite grows from 41 to 45 tests (empty folder, all-skipped wording, single skip reason, partial-skip notice).
+
 ## 1.5.1 — 2026-11-19
 
 - Close the batch status model. `processed` means every file succeeded (exit 0), `processed_with_skips` means explicit skips but no failures (exit 0), `partially_processed` means at least one failure (exit 1), and `nothing_processed` means no image was produced at all (exit 2). Skips are therefore neither failures nor silent successes, and an all-HEIC folder can no longer report success.
