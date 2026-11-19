@@ -33,6 +33,8 @@ Only one frame carries "flash fired" and none is a night scene, so the two flash
 
 Licensing: the sample files are the publisher's, so they are analysis-only. The originals live under `reference_set/originals/` (gitignored), the manifest records the source URL and the SHA-256 of the exact bytes measured, and nothing is redistributed.
 
+Because the bytes are not redistributed, nobody can recompute these numbers from the repository alone: they would have to re-download from the recorded URLs and verify the hashes, and if a publisher later replaces or removes an image the pilot stops being reproducible. That is acceptable only because the pilot is descriptive — no claim, preset or release depends on it. If it ever becomes a calibration target, the frames need a licence that allows redistribution, or a Tier A replacement.
+
 Measure it without running the recipe:
 
 ```text
