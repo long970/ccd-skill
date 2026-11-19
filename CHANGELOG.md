@@ -2,6 +2,15 @@
 
 This project follows Semantic Versioning.
 
+## Unreleased — tooling and evidence only, bundle unchanged
+
+- Add `tests/ccd_profile.py`, a CIELAB fingerprint of the shipped pipeline. It reports L\* percentiles, near-white, clipped channels, near-black, highlight and shadow a\*/b\*, centre and corner levels with their relative changes, and grain, grouped into per-family intervals. It never emits a composite score, and it refuses to call its output a baseline: every report carries `baseline: false` and the title `管线自检，非 CCD 基线`.
+- Fix two instrument defects found while wiring it up. The grain probe now derives one mask from the source and reuses it for both phases; deriving a mask per phase compared different regions and produced changes no viewer could see. Guardrails now judge only what the step made worse: a source frame that arrives 22% blown and leaves 19% blown is reported, not condemned, while an increase in near-white or clipped channels still fails.
+- Add `tests/verify_reference_set.py`, which validates a manifest's fields, SHA-256 values and EXIF provenance (`Make`, `Model`, `ISO`, `Flash`, read from IFD0 and the Exif sub-IFD). Missing provenance marks an entry `unverified`; a `filled` manifest with unverified entries, missing files, hash mismatches, fewer than four entries per family or no holdout fails.
+- Add `reference_set/` with the tier rules (Tier A straight-out-of-camera CCD files only; B and C never enter an interval) and a 16-entry template: four families, three calibration frames and one holdout each. Every fact field is `null` until a real sample replaces it.
+- Generate `docs/samples/pipeline-self-check.json` from the existing 15 licensed photographs to prove the tooling runs end to end. It is a pipeline self-check, not a CCD baseline, and the note in the report says so.
+- Suite grows from 45 to 59 tests.
+
 ## 1.5.2 — 2026-11-19
 
 - Make skip and no-output wording explicit, uniform and testable. A skipped file reads `已跳过：<原因>；未生成输出文件。…`; no code path describes a skip as success.

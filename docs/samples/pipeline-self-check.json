@@ -1,0 +1,2365 @@
+{
+  "title": "管线自检，非 CCD 基线",
+  "baseline": false,
+  "note": "这些数字描述本仓库像素管线在同一批图库照片上的行为；样本不是已验证的 CCD 直出原图，没有与真实机型对照，也没有盲测。任何结论都不能当作“CCD 基线”。",
+  "generated_by": "tests/ccd_profile.py",
+  "script_version": "1.5.2",
+  "seed": 7,
+  "source_label": "manifest:real-photo-manifest.json",
+  "sources": {
+    "origin": "manifest",
+    "count": 15,
+    "measured": 15,
+    "redistributed": false,
+    "note": "源图来自图库（Pexels License），不随仓库分发；只保留文件名与 SHA-256。"
+  },
+  "metric_definitions": {
+    "L_p*": "CIELAB L* 的百分位（D65，按 sRGB 解释；已由脚本转成 sRGB）",
+    "near_white": "L* ≥ 97 的像素比例",
+    "clipped_channel": "8-bit 通道值等于 255 的比例",
+    "near_black": "L* ≤ 2 的像素比例",
+    "highlight_a/_b": "L* ≥ 80 像素的平均 a*/b*",
+    "shadow_a/_b": "L* ≤ 25 像素的平均 a*/b*",
+    "corner_drop_ratio": "(处理前四角均值 − 处理后四角均值) / 处理前四角均值",
+    "centre_delta_ratio": "(处理后中心均值 − 处理前中心均值) / 处理前中心均值",
+    "flat_noise": "在源图最平滑四分位区域上测得的 L* 残差稳健标准差（1.4826×MAD）；前后两相使用同一掩膜",
+    "flat_probe_fraction": "颗粒探针覆盖的像素比例；为 null 表示画面太平滑区域不足，未测颗粒"
+  },
+  "guardrails": {
+    "limits": {
+      "near_white_increase_max": 0.01,
+      "clipped_channel_increase_max": 0.005,
+      "corner_drop_ratio_max": 0.45
+    },
+    "policy": "只判罚管线新增的近白、通道剪切与四角压暗；绝对过曝/欠曝属于源图，只报告。",
+    "violations": []
+  },
+  "images": [
+    {
+      "file": "src-220453.jpg",
+      "sha256": "6d13b560c58e82e167db78f73a8e7bfea6af486d0885261fb15cfe355ea38d11",
+      "size": [
+        1600,
+        2400
+      ],
+      "family": "indoor-flash",
+      "preset": "indoor-flash",
+      "strength": 50,
+      "flat_probe_fraction": 0.25,
+      "warnings": [
+        "输入未嵌入 ICC；按 sRGB 假设处理，原始色彩空间未知。"
+      ],
+      "before": {
+        "L_p5": 13.695,
+        "L_p25": 57.407,
+        "L_p50": 72.969,
+        "L_p75": 79.785,
+        "L_p95": 90.765,
+        "near_white": 0.01089,
+        "clipped_channel": 0.00112,
+        "near_black": 3e-05,
+        "mean_a": 1.477,
+        "mean_b": 0.683,
+        "highlight_a": 0.776,
+        "highlight_b": 0.621,
+        "shadow_a": 2.141,
+        "shadow_b": 1.966,
+        "centre_L": 45.744,
+        "corner_L": 73.451,
+        "flat_noise": 0.295
+      },
+      "after": {
+        "L_p5": 12.27,
+        "L_p25": 54.621,
+        "L_p50": 70.507,
+        "L_p75": 79.392,
+        "L_p95": 89.883,
+        "near_white": 0.00612,
+        "clipped_channel": 0.0022,
+        "near_black": 0.00172,
+        "mean_a": 1.649,
+        "mean_b": 1.636,
+        "highlight_a": 0.923,
+        "highlight_b": 2.247,
+        "shadow_a": 2.288,
+        "shadow_b": 1.969,
+        "centre_L": 45.712,
+        "corner_L": 68.119,
+        "flat_noise": 2.515
+      },
+      "delta": {
+        "L_p5": -1.425,
+        "L_p25": -2.786,
+        "L_p50": -2.462,
+        "L_p75": -0.393,
+        "L_p95": -0.882,
+        "near_white": -0.0048,
+        "clipped_channel": 0.0011,
+        "near_black": 0.0017,
+        "mean_a": 0.172,
+        "mean_b": 0.953,
+        "highlight_a": 0.147,
+        "highlight_b": 1.626,
+        "shadow_a": 0.147,
+        "shadow_b": 0.003,
+        "centre_L": -0.032,
+        "corner_L": -5.332,
+        "flat_noise": 2.22,
+        "corner_drop_ratio": 0.07259,
+        "centre_delta_ratio": -0.0007
+      },
+      "id": "indoor-portrait-220453",
+      "status": "ok"
+    },
+    {
+      "file": "portrait-natural-34943686.jpg",
+      "sha256": "ef0ffe85a5045c2aaa17d000a7134b19c1746bd07f18b5c568d60bfe93105280",
+      "size": [
+        1600,
+        1856
+      ],
+      "family": "indoor-flash",
+      "preset": "indoor-flash",
+      "strength": 50,
+      "flat_probe_fraction": 0.25,
+      "warnings": [
+        "输入未嵌入 ICC；按 sRGB 假设处理，原始色彩空间未知。"
+      ],
+      "before": {
+        "L_p5": 0.274,
+        "L_p25": 2.296,
+        "L_p50": 6.003,
+        "L_p75": 18.182,
+        "L_p95": 44.272,
+        "near_white": 5e-05,
+        "clipped_channel": 2e-05,
+        "near_black": 0.22519,
+        "mean_a": 0.235,
+        "mean_b": 1.047,
+        "highlight_a": 3.161,
+        "highlight_b": -4.386,
+        "shadow_a": -0.35,
+        "shadow_b": 0.56,
+        "centre_L": 10.731,
+        "corner_L": 18.61,
+        "flat_noise": 0.163
+      },
+      "after": {
+        "L_p5": 0.02,
+        "L_p25": 2.412,
+        "L_p50": 5.539,
+        "L_p75": 15.305,
+        "L_p95": 40.042,
+        "near_white": 4e-05,
+        "clipped_channel": 2e-05,
+        "near_black": 0.20944,
+        "mean_a": 0.409,
+        "mean_b": 0.859,
+        "highlight_a": 6.982,
+        "highlight_b": -4.873,
+        "shadow_a": -0.069,
+        "shadow_b": 0.534,
+        "centre_L": 10.511,
+        "corner_L": 15.221,
+        "flat_noise": 1.966
+      },
+      "delta": {
+        "L_p5": -0.254,
+        "L_p25": 0.116,
+        "L_p50": -0.464,
+        "L_p75": -2.877,
+        "L_p95": -4.23,
+        "near_white": -0.0,
+        "clipped_channel": 0.0,
+        "near_black": -0.0158,
+        "mean_a": 0.174,
+        "mean_b": -0.188,
+        "highlight_a": 3.821,
+        "highlight_b": -0.487,
+        "shadow_a": 0.281,
+        "shadow_b": -0.026,
+        "centre_L": -0.22,
+        "corner_L": -3.389,
+        "flat_noise": 1.803,
+        "corner_drop_ratio": 0.18211,
+        "centre_delta_ratio": -0.0205
+      },
+      "id": "portrait-natural-34943686",
+      "status": "ok"
+    },
+    {
+      "file": "portrait-studio-2474257.jpg",
+      "sha256": "35e5dcdb460e68c63284e139478093a6777c710b5c122d98ae6cae28f31628c7",
+      "size": [
+        1600,
+        2399
+      ],
+      "family": "daylight-clean",
+      "preset": "daylight-clean",
+      "strength": 50,
+      "flat_probe_fraction": 0.2521,
+      "warnings": [
+        "输入未嵌入 ICC；按 sRGB 假设处理，原始色彩空间未知。"
+      ],
+      "before": {
+        "L_p5": 23.205,
+        "L_p25": 76.644,
+        "L_p50": 87.332,
+        "L_p75": 95.544,
+        "L_p95": 100.0,
+        "near_white": 0.21841,
+        "clipped_channel": 0.11611,
+        "near_black": 0.00878,
+        "mean_a": 3.95,
+        "mean_b": 2.133,
+        "highlight_a": 1.121,
+        "highlight_b": -1.457,
+        "shadow_a": 5.492,
+        "shadow_b": 3.838,
+        "centre_L": 53.931,
+        "corner_L": 91.689,
+        "flat_noise": 0.0
+      },
+      "after": {
+        "L_p5": 21.497,
+        "L_p25": 76.719,
+        "L_p50": 87.788,
+        "L_p75": 95.617,
+        "L_p95": 98.89,
+        "near_white": 0.18797,
+        "clipped_channel": 0.00949,
+        "near_black": 0.01023,
+        "mean_a": 4.396,
+        "mean_b": 3.665,
+        "highlight_a": 1.168,
+        "highlight_b": 0.029,
+        "shadow_a": 6.128,
+        "shadow_b": 4.597,
+        "centre_L": 53.735,
+        "corner_L": 90.566,
+        "flat_noise": 0.879
+      },
+      "delta": {
+        "L_p5": -1.708,
+        "L_p25": 0.075,
+        "L_p50": 0.456,
+        "L_p75": 0.073,
+        "L_p95": -1.11,
+        "near_white": -0.0304,
+        "clipped_channel": -0.1066,
+        "near_black": 0.0014,
+        "mean_a": 0.446,
+        "mean_b": 1.532,
+        "highlight_a": 0.047,
+        "highlight_b": 1.486,
+        "shadow_a": 0.636,
+        "shadow_b": 0.759,
+        "centre_L": -0.196,
+        "corner_L": -1.123,
+        "flat_noise": 0.879,
+        "corner_drop_ratio": 0.01225,
+        "centre_delta_ratio": -0.00363
+      },
+      "id": "portrait-studio-2474257",
+      "status": "ok"
+    },
+    {
+      "file": "portrait-outdoor-2905873.jpg",
+      "sha256": "6a4fe9a3ce5ef720d02fe0ea3991ec130faaf0f3e69a5e183185435ce4298276",
+      "size": [
+        1600,
+        2400
+      ],
+      "family": "daylight-aged",
+      "preset": "daylight-aged",
+      "strength": 50,
+      "flat_probe_fraction": 0.25,
+      "warnings": [
+        "输入未嵌入 ICC；按 sRGB 假设处理，原始色彩空间未知。"
+      ],
+      "before": {
+        "L_p5": 7.013,
+        "L_p25": 12.375,
+        "L_p50": 19.718,
+        "L_p75": 54.993,
+        "L_p95": 82.776,
+        "near_white": 0.00048,
+        "clipped_channel": 0.01507,
+        "near_black": 0.0,
+        "mean_a": 13.986,
+        "mean_b": 15.239,
+        "highlight_a": 11.682,
+        "highlight_b": 32.667,
+        "shadow_a": 6.8,
+        "shadow_b": 4.528,
+        "centre_L": 34.376,
+        "corner_L": 37.676,
+        "flat_noise": 0.275
+      },
+      "after": {
+        "L_p5": 3.55,
+        "L_p25": 9.177,
+        "L_p50": 17.587,
+        "L_p75": 53.46,
+        "L_p95": 80.147,
+        "near_white": 0.00017,
+        "clipped_channel": 0.00334,
+        "near_black": 0.01672,
+        "mean_a": 14.653,
+        "mean_b": 16.653,
+        "highlight_a": 7.948,
+        "highlight_b": 32.984,
+        "shadow_a": 7.358,
+        "shadow_b": 4.715,
+        "centre_L": 32.616,
+        "corner_L": 34.128,
+        "flat_noise": 3.248
+      },
+      "delta": {
+        "L_p5": -3.463,
+        "L_p25": -3.198,
+        "L_p50": -2.131,
+        "L_p75": -1.533,
+        "L_p95": -2.629,
+        "near_white": -0.0003,
+        "clipped_channel": -0.0117,
+        "near_black": 0.0167,
+        "mean_a": 0.667,
+        "mean_b": 1.414,
+        "highlight_a": -3.734,
+        "highlight_b": 0.317,
+        "shadow_a": 0.558,
+        "shadow_b": 0.187,
+        "centre_L": -1.76,
+        "corner_L": -3.548,
+        "flat_noise": 2.973,
+        "corner_drop_ratio": 0.09417,
+        "centre_delta_ratio": -0.0512
+      },
+      "id": "portrait-outdoor-2905873",
+      "status": "ok"
+    },
+    {
+      "file": "portrait-park-3616939.jpg",
+      "sha256": "8c338f5324ea52b429f52d2bb860f07c5b7354b7bbfa769fefe395dd0b74b8f9",
+      "size": [
+        1600,
+        1067
+      ],
+      "family": "daylight-aged",
+      "preset": "daylight-aged",
+      "strength": 50,
+      "flat_probe_fraction": 0.25,
+      "warnings": [
+        "输入未嵌入 ICC；按 sRGB 假设处理，原始色彩空间未知。"
+      ],
+      "before": {
+        "L_p5": 17.92,
+        "L_p25": 24.313,
+        "L_p50": 35.387,
+        "L_p75": 47.375,
+        "L_p95": 67.832,
+        "near_white": 0.0,
+        "clipped_channel": 0.0054,
+        "near_black": 0.0,
+        "mean_a": 1.668,
+        "mean_b": 5.417,
+        "highlight_a": 9.164,
+        "highlight_b": 38.327,
+        "shadow_a": -2.074,
+        "shadow_b": -4.983,
+        "centre_L": 41.437,
+        "corner_L": 29.481,
+        "flat_noise": 0.12
+      },
+      "after": {
+        "L_p5": 12.428,
+        "L_p25": 20.516,
+        "L_p50": 31.578,
+        "L_p75": 44.921,
+        "L_p95": 66.674,
+        "near_white": 0.0,
+        "clipped_channel": 0.0036,
+        "near_black": 2e-05,
+        "mean_a": 2.175,
+        "mean_b": 6.187,
+        "highlight_a": 6.941,
+        "highlight_b": 43.55,
+        "shadow_a": -1.84,
+        "shadow_b": -4.763,
+        "centre_L": 39.455,
+        "corner_L": 24.498,
+        "flat_noise": 3.358
+      },
+      "delta": {
+        "L_p5": -5.492,
+        "L_p25": -3.797,
+        "L_p50": -3.809,
+        "L_p75": -2.454,
+        "L_p95": -1.158,
+        "near_white": 0.0,
+        "clipped_channel": -0.0018,
+        "near_black": 0.0,
+        "mean_a": 0.507,
+        "mean_b": 0.77,
+        "highlight_a": -2.223,
+        "highlight_b": 5.223,
+        "shadow_a": 0.234,
+        "shadow_b": 0.22,
+        "centre_L": -1.982,
+        "corner_L": -4.983,
+        "flat_noise": 3.238,
+        "corner_drop_ratio": 0.16902,
+        "centre_delta_ratio": -0.04783
+      },
+      "id": "portrait-park-3616939",
+      "status": "ok"
+    },
+    {
+      "file": "portrait-group-7325563.jpg",
+      "sha256": "e4b96727231d749b74f709a88dffc3b8fdc6e4608b1b4e9c0d8282848c6749e3",
+      "size": [
+        1600,
+        2400
+      ],
+      "family": "indoor-flash",
+      "preset": "indoor-flash",
+      "strength": 50,
+      "flat_probe_fraction": 0.25,
+      "warnings": [
+        "输入未嵌入 ICC；按 sRGB 假设处理，原始色彩空间未知。"
+      ],
+      "before": {
+        "L_p5": 2.473,
+        "L_p25": 14.626,
+        "L_p50": 49.754,
+        "L_p75": 73.817,
+        "L_p95": 79.902,
+        "near_white": 0.0,
+        "clipped_channel": 0.0,
+        "near_black": 0.03244,
+        "mean_a": 4.28,
+        "mean_b": 5.68,
+        "highlight_a": -2.649,
+        "highlight_b": -1.364,
+        "shadow_a": 3.596,
+        "shadow_b": 0.33,
+        "centre_L": 28.701,
+        "corner_L": 65.52,
+        "flat_noise": 0.0
+      },
+      "after": {
+        "L_p5": 2.1,
+        "L_p25": 12.602,
+        "L_p50": 46.865,
+        "L_p75": 69.337,
+        "L_p95": 78.776,
+        "near_white": 0.0,
+        "clipped_channel": 0.0,
+        "near_black": 0.04739,
+        "mean_a": 4.798,
+        "mean_b": 6.542,
+        "highlight_a": -2.249,
+        "highlight_b": 0.911,
+        "shadow_a": 4.033,
+        "shadow_b": 0.334,
+        "centre_L": 28.561,
+        "corner_L": 60.239,
+        "flat_noise": 2.531
+      },
+      "delta": {
+        "L_p5": -0.373,
+        "L_p25": -2.024,
+        "L_p50": -2.889,
+        "L_p75": -4.48,
+        "L_p95": -1.126,
+        "near_white": 0.0,
+        "clipped_channel": 0.0,
+        "near_black": 0.015,
+        "mean_a": 0.518,
+        "mean_b": 0.862,
+        "highlight_a": 0.4,
+        "highlight_b": 2.275,
+        "shadow_a": 0.437,
+        "shadow_b": 0.004,
+        "centre_L": -0.14,
+        "corner_L": -5.281,
+        "flat_noise": 2.531,
+        "corner_drop_ratio": 0.0806,
+        "centre_delta_ratio": -0.00488
+      },
+      "id": "portrait-group-7325563",
+      "status": "ok"
+    },
+    {
+      "file": "portrait-indoor-8892333.jpg",
+      "sha256": "bd59b5a6015f5a14e2e86cfc7c6f63a0068357eaffcb433c2cb631d7cd10a792",
+      "size": [
+        1600,
+        2400
+      ],
+      "family": "indoor-flash",
+      "preset": "indoor-flash",
+      "strength": 50,
+      "flat_probe_fraction": 0.25,
+      "warnings": [
+        "输入未嵌入 ICC；按 sRGB 假设处理，原始色彩空间未知。"
+      ],
+      "before": {
+        "L_p5": 16.328,
+        "L_p25": 26.242,
+        "L_p50": 34.792,
+        "L_p75": 47.773,
+        "L_p95": 73.763,
+        "near_white": 0.00207,
+        "clipped_channel": 0.00024,
+        "near_black": 0.0,
+        "mean_a": 1.123,
+        "mean_b": 12.876,
+        "highlight_a": -1.987,
+        "highlight_b": 6.784,
+        "shadow_a": -1.023,
+        "shadow_b": 8.903,
+        "centre_L": 43.35,
+        "corner_L": 41.176,
+        "flat_noise": 0.78
+      },
+      "after": {
+        "L_p5": 12.297,
+        "L_p25": 22.103,
+        "L_p50": 31.746,
+        "L_p75": 45.329,
+        "L_p95": 72.844,
+        "near_white": 0.00174,
+        "clipped_channel": 0.00118,
+        "near_black": 0.00011,
+        "mean_a": 1.312,
+        "mean_b": 13.648,
+        "highlight_a": -1.146,
+        "highlight_b": 10.613,
+        "shadow_a": -0.654,
+        "shadow_b": 9.091,
+        "centre_L": 42.884,
+        "corner_L": 35.662,
+        "flat_noise": 3.015
+      },
+      "delta": {
+        "L_p5": -4.031,
+        "L_p25": -4.139,
+        "L_p50": -3.046,
+        "L_p75": -2.444,
+        "L_p95": -0.919,
+        "near_white": -0.0003,
+        "clipped_channel": 0.0009,
+        "near_black": 0.0001,
+        "mean_a": 0.189,
+        "mean_b": 0.772,
+        "highlight_a": 0.841,
+        "highlight_b": 3.829,
+        "shadow_a": 0.369,
+        "shadow_b": 0.188,
+        "centre_L": -0.466,
+        "corner_L": -5.514,
+        "flat_noise": 2.235,
+        "corner_drop_ratio": 0.13391,
+        "centre_delta_ratio": -0.01075
+      },
+      "id": "portrait-indoor-8892333",
+      "status": "ok"
+    },
+    {
+      "file": "indoor-friends-7856018.jpg",
+      "sha256": "aa707e1afcc4a1c36b7185fb565e5939d9d2d2afada3f78dbecb7d07bd5bfee1",
+      "size": [
+        1600,
+        1067
+      ],
+      "family": "indoor-flash",
+      "preset": "indoor-flash",
+      "strength": 50,
+      "flat_probe_fraction": 0.25,
+      "warnings": [
+        "输入未嵌入 ICC；按 sRGB 假设处理，原始色彩空间未知。"
+      ],
+      "before": {
+        "L_p5": 9.226,
+        "L_p25": 36.827,
+        "L_p50": 62.889,
+        "L_p75": 76.336,
+        "L_p95": 81.414,
+        "near_white": 1e-05,
+        "clipped_channel": 4e-05,
+        "near_black": 0.01177,
+        "mean_a": 3.103,
+        "mean_b": 5.028,
+        "highlight_a": -0.647,
+        "highlight_b": -2.318,
+        "shadow_a": 4.005,
+        "shadow_b": 5.208,
+        "centre_L": 56.596,
+        "corner_L": 55.217,
+        "flat_noise": 0.0
+      },
+      "after": {
+        "L_p5": 6.79,
+        "L_p25": 33.876,
+        "L_p50": 60.385,
+        "L_p75": 74.812,
+        "L_p95": 83.259,
+        "near_white": 1e-05,
+        "clipped_channel": 0.0,
+        "near_black": 0.01384,
+        "mean_a": 3.42,
+        "mean_b": 5.841,
+        "highlight_a": -0.222,
+        "highlight_b": 0.658,
+        "shadow_a": 4.478,
+        "shadow_b": 5.297,
+        "centre_L": 57.589,
+        "corner_L": 50.313,
+        "flat_noise": 2.511
+      },
+      "delta": {
+        "L_p5": -2.436,
+        "L_p25": -2.951,
+        "L_p50": -2.504,
+        "L_p75": -1.524,
+        "L_p95": 1.845,
+        "near_white": 0.0,
+        "clipped_channel": -0.0,
+        "near_black": 0.0021,
+        "mean_a": 0.317,
+        "mean_b": 0.813,
+        "highlight_a": 0.425,
+        "highlight_b": 2.976,
+        "shadow_a": 0.473,
+        "shadow_b": 0.089,
+        "centre_L": 0.993,
+        "corner_L": -4.904,
+        "flat_noise": 2.511,
+        "corner_drop_ratio": 0.08881,
+        "centre_delta_ratio": 0.01755
+      },
+      "id": "indoor-friends-7856018",
+      "status": "ok"
+    },
+    {
+      "file": "indoor-party-6519096.jpg",
+      "sha256": "6bce11b7883d78e6da2a3bfce7001d359267d834f5cf341ecac9f3bc93ba43f8",
+      "size": [
+        1600,
+        2400
+      ],
+      "family": "indoor-flash",
+      "preset": "indoor-flash",
+      "strength": 50,
+      "flat_probe_fraction": 0.25,
+      "warnings": [
+        "输入未嵌入 ICC；按 sRGB 假设处理，原始色彩空间未知。"
+      ],
+      "before": {
+        "L_p5": 7.895,
+        "L_p25": 58.247,
+        "L_p50": 71.811,
+        "L_p75": 83.255,
+        "L_p95": 94.149,
+        "near_white": 2e-05,
+        "clipped_channel": 0.0,
+        "near_black": 0.00045,
+        "mean_a": 1.768,
+        "mean_b": 6.864,
+        "highlight_a": 0.339,
+        "highlight_b": -1.247,
+        "shadow_a": -0.705,
+        "shadow_b": 5.787,
+        "centre_L": 44.217,
+        "corner_L": 70.723,
+        "flat_noise": 0.0
+      },
+      "after": {
+        "L_p5": 7.194,
+        "L_p25": 55.289,
+        "L_p50": 69.583,
+        "L_p75": 83.38,
+        "L_p95": 92.973,
+        "near_white": 0.00536,
+        "clipped_channel": 0.00046,
+        "near_black": 0.00858,
+        "mean_a": 2.038,
+        "mean_b": 8.292,
+        "highlight_a": 0.505,
+        "highlight_b": 0.958,
+        "shadow_a": 0.122,
+        "shadow_b": 5.988,
+        "centre_L": 44.785,
+        "corner_L": 65.036,
+        "flat_noise": 2.488
+      },
+      "delta": {
+        "L_p5": -0.701,
+        "L_p25": -2.958,
+        "L_p50": -2.228,
+        "L_p75": 0.125,
+        "L_p95": -1.176,
+        "near_white": 0.0053,
+        "clipped_channel": 0.0005,
+        "near_black": 0.0081,
+        "mean_a": 0.27,
+        "mean_b": 1.428,
+        "highlight_a": 0.166,
+        "highlight_b": 2.205,
+        "shadow_a": 0.827,
+        "shadow_b": 0.201,
+        "centre_L": 0.568,
+        "corner_L": -5.687,
+        "flat_noise": 2.488,
+        "corner_drop_ratio": 0.08041,
+        "centre_delta_ratio": 0.01285
+      },
+      "id": "indoor-party-6519096",
+      "status": "ok"
+    },
+    {
+      "file": "backlit-cafe-7186854.jpg",
+      "sha256": "38e5a40b8b8000b34aec115b2ac8bfba424998a0ab9b3ad8e1dc3423dc3ab734",
+      "size": [
+        1600,
+        2131
+      ],
+      "family": "daylight-clean",
+      "preset": "daylight-clean",
+      "strength": 50,
+      "flat_probe_fraction": 0.25,
+      "warnings": [
+        "输入未嵌入 ICC；按 sRGB 假设处理，原始色彩空间未知。"
+      ],
+      "before": {
+        "L_p5": 12.43,
+        "L_p25": 48.889,
+        "L_p50": 67.537,
+        "L_p75": 86.047,
+        "L_p95": 98.841,
+        "near_white": 0.16813,
+        "clipped_channel": 0.04492,
+        "near_black": 5e-05,
+        "mean_a": 4.286,
+        "mean_b": 10.511,
+        "highlight_a": 0.251,
+        "highlight_b": 7.302,
+        "shadow_a": 4.422,
+        "shadow_b": -0.213,
+        "centre_L": 60.14,
+        "corner_L": 61.078,
+        "flat_noise": 0.018
+      },
+      "after": {
+        "L_p5": 10.576,
+        "L_p25": 47.967,
+        "L_p50": 67.571,
+        "L_p75": 86.39,
+        "L_p95": 98.693,
+        "near_white": 0.14108,
+        "clipped_channel": 0.01688,
+        "near_black": 0.00174,
+        "mean_a": 4.742,
+        "mean_b": 12.217,
+        "highlight_a": -0.108,
+        "highlight_b": 8.953,
+        "shadow_a": 4.74,
+        "shadow_b": 0.548,
+        "centre_L": 59.988,
+        "corner_L": 59.907,
+        "flat_noise": 0.893
+      },
+      "delta": {
+        "L_p5": -1.854,
+        "L_p25": -0.922,
+        "L_p50": 0.034,
+        "L_p75": 0.343,
+        "L_p95": -0.148,
+        "near_white": -0.027,
+        "clipped_channel": -0.028,
+        "near_black": 0.0017,
+        "mean_a": 0.456,
+        "mean_b": 1.706,
+        "highlight_a": -0.359,
+        "highlight_b": 1.651,
+        "shadow_a": 0.318,
+        "shadow_b": 0.761,
+        "centre_L": -0.152,
+        "corner_L": -1.171,
+        "flat_noise": 0.875,
+        "corner_drop_ratio": 0.01917,
+        "centre_delta_ratio": -0.00253
+      },
+      "id": "backlit-cafe-7186854",
+      "status": "ok"
+    },
+    {
+      "file": "src-1366909.jpg",
+      "sha256": "1b8fa63e0628b1efb9b1c95dbe356eab4bd51c1345188fdb02156b580307c92a",
+      "size": [
+        1600,
+        2400
+      ],
+      "family": "daylight-aged",
+      "preset": "daylight-aged",
+      "strength": 50,
+      "flat_probe_fraction": 0.25,
+      "warnings": [
+        "输入未嵌入 ICC；按 sRGB 假设处理，原始色彩空间未知。"
+      ],
+      "before": {
+        "L_p5": 15.335,
+        "L_p25": 31.655,
+        "L_p50": 57.638,
+        "L_p75": 72.355,
+        "L_p95": 75.339,
+        "near_white": 0.0,
+        "clipped_channel": 0.0,
+        "near_black": 0.0,
+        "mean_a": 3.686,
+        "mean_b": 5.454,
+        "highlight_a": 8.277,
+        "highlight_b": 7.003,
+        "shadow_a": -1.368,
+        "shadow_b": 5.089,
+        "centre_L": 42.464,
+        "corner_L": 59.668,
+        "flat_noise": 0.109
+      },
+      "after": {
+        "L_p5": 11.236,
+        "L_p25": 27.985,
+        "L_p50": 55.795,
+        "L_p75": 69.248,
+        "L_p95": 75.749,
+        "near_white": 0.0,
+        "clipped_channel": 0.0,
+        "near_black": 0.00045,
+        "mean_a": 4.143,
+        "mean_b": 6.443,
+        "highlight_a": 8.934,
+        "highlight_b": 8.625,
+        "shadow_a": -1.23,
+        "shadow_b": 5.056,
+        "centre_L": 40.455,
+        "corner_L": 55.364,
+        "flat_noise": 2.81
+      },
+      "delta": {
+        "L_p5": -4.099,
+        "L_p25": -3.67,
+        "L_p50": -1.843,
+        "L_p75": -3.107,
+        "L_p95": 0.41,
+        "near_white": 0.0,
+        "clipped_channel": 0.0,
+        "near_black": 0.0004,
+        "mean_a": 0.457,
+        "mean_b": 0.989,
+        "highlight_a": 0.657,
+        "highlight_b": 1.622,
+        "shadow_a": 0.138,
+        "shadow_b": -0.033,
+        "centre_L": -2.009,
+        "corner_L": -4.304,
+        "flat_noise": 2.701,
+        "corner_drop_ratio": 0.07213,
+        "centre_delta_ratio": -0.04731
+      },
+      "id": "daylight-landscape-1366909",
+      "status": "ok"
+    },
+    {
+      "file": "landscape-lake-1525085.jpg",
+      "sha256": "3705b42065c7a3b1cfecb37ceb0587d31e7af0d496b9ac29e559bac53d8a75a4",
+      "size": [
+        1600,
+        1067
+      ],
+      "family": "daylight-aged",
+      "preset": "daylight-aged",
+      "strength": 50,
+      "flat_probe_fraction": 0.25,
+      "warnings": [
+        "输入未嵌入 ICC；按 sRGB 假设处理，原始色彩空间未知。"
+      ],
+      "before": {
+        "L_p5": 3.7,
+        "L_p25": 23.138,
+        "L_p50": 57.86,
+        "L_p75": 84.795,
+        "L_p95": 98.566,
+        "near_white": 0.09564,
+        "clipped_channel": 0.02782,
+        "near_black": 0.01911,
+        "mean_a": -15.186,
+        "mean_b": -7.252,
+        "highlight_a": -17.67,
+        "highlight_b": -9.844,
+        "shadow_a": -9.872,
+        "shadow_b": 1.632,
+        "centre_L": 72.723,
+        "corner_L": 48.952,
+        "flat_noise": 0.057
+      },
+      "after": {
+        "L_p5": 2.796,
+        "L_p25": 19.429,
+        "L_p50": 56.515,
+        "L_p75": 83.082,
+        "L_p95": 95.563,
+        "near_white": 0.02931,
+        "clipped_channel": 0.00749,
+        "near_black": 0.0353,
+        "mean_a": -14.793,
+        "mean_b": -6.526,
+        "highlight_a": -16.742,
+        "highlight_b": -6.357,
+        "shadow_a": -8.688,
+        "shadow_b": 0.544,
+        "centre_L": 71.85,
+        "corner_L": 44.811,
+        "flat_noise": 2.605
+      },
+      "delta": {
+        "L_p5": -0.904,
+        "L_p25": -3.709,
+        "L_p50": -1.345,
+        "L_p75": -1.713,
+        "L_p95": -3.003,
+        "near_white": -0.0663,
+        "clipped_channel": -0.0203,
+        "near_black": 0.0162,
+        "mean_a": 0.393,
+        "mean_b": 0.726,
+        "highlight_a": 0.928,
+        "highlight_b": 3.487,
+        "shadow_a": 1.184,
+        "shadow_b": -1.088,
+        "centre_L": -0.873,
+        "corner_L": -4.141,
+        "flat_noise": 2.548,
+        "corner_drop_ratio": 0.08459,
+        "centre_delta_ratio": -0.012
+      },
+      "id": "landscape-lake-1525085",
+      "status": "ok"
+    },
+    {
+      "file": "src-1699031.jpg",
+      "sha256": "5010ebf13cc7a887a64ed1dbb2fbbea6cdcbc5a1c35c29effa8153b50c3816f4",
+      "size": [
+        1600,
+        2400
+      ],
+      "family": "night-flash",
+      "preset": "night-flash",
+      "strength": 50,
+      "flat_probe_fraction": 0.25,
+      "warnings": [
+        "输入未嵌入 ICC；按 sRGB 假设处理，原始色彩空间未知。"
+      ],
+      "before": {
+        "L_p5": 10.74,
+        "L_p25": 14.046,
+        "L_p50": 17.852,
+        "L_p75": 26.701,
+        "L_p95": 57.915,
+        "near_white": 0.0,
+        "clipped_channel": 0.00102,
+        "near_black": 2e-05,
+        "mean_a": 3.907,
+        "mean_b": 5.93,
+        "highlight_a": 6.924,
+        "highlight_b": 15.259,
+        "shadow_a": 1.935,
+        "shadow_b": 3.764,
+        "centre_L": 21.918,
+        "corner_L": 26.326,
+        "flat_noise": 0.459
+      },
+      "after": {
+        "L_p5": 4.132,
+        "L_p25": 9.617,
+        "L_p50": 14.749,
+        "L_p75": 22.632,
+        "L_p95": 53.947,
+        "near_white": 1e-05,
+        "clipped_channel": 0.00053,
+        "near_black": 0.01186,
+        "mean_a": 3.482,
+        "mean_b": 3.913,
+        "highlight_a": 7.035,
+        "highlight_b": 21.805,
+        "shadow_a": 1.516,
+        "shadow_b": 1.528,
+        "centre_L": 19.441,
+        "corner_L": 20.029,
+        "flat_noise": 4.6
+      },
+      "delta": {
+        "L_p5": -6.608,
+        "L_p25": -4.429,
+        "L_p50": -3.103,
+        "L_p75": -4.069,
+        "L_p95": -3.968,
+        "near_white": 0.0,
+        "clipped_channel": -0.0005,
+        "near_black": 0.0118,
+        "mean_a": -0.425,
+        "mean_b": -2.017,
+        "highlight_a": 0.111,
+        "highlight_b": 6.546,
+        "shadow_a": -0.419,
+        "shadow_b": -2.236,
+        "centre_L": -2.477,
+        "corner_L": -6.297,
+        "flat_noise": 4.141,
+        "corner_drop_ratio": 0.23919,
+        "centre_delta_ratio": -0.11301
+      },
+      "id": "night-texture-1699031",
+      "status": "ok"
+    },
+    {
+      "file": "night-tokyo-32070841.jpg",
+      "sha256": "82600e51ca08d67cf59c150a1c1986f62d7ff3475cc0169a818c0f9ff979801a",
+      "size": [
+        1600,
+        2000
+      ],
+      "family": "night-flash",
+      "preset": "night-flash",
+      "strength": 50,
+      "flat_probe_fraction": 0.25,
+      "warnings": [
+        "输入未嵌入 ICC；按 sRGB 假设处理，原始色彩空间未知。"
+      ],
+      "before": {
+        "L_p5": 4.636,
+        "L_p25": 8.78,
+        "L_p50": 20.973,
+        "L_p75": 59.767,
+        "L_p95": 89.536,
+        "near_white": 0.00039,
+        "clipped_channel": 0.00361,
+        "near_black": 0.00023,
+        "mean_a": 1.212,
+        "mean_b": 9.895,
+        "highlight_a": -2.466,
+        "highlight_b": -4.803,
+        "shadow_a": -2.758,
+        "shadow_b": 9.557,
+        "centre_L": 52.066,
+        "corner_L": 16.54,
+        "flat_noise": 0.012
+      },
+      "after": {
+        "L_p5": 1.722,
+        "L_p25": 7.228,
+        "L_p50": 17.683,
+        "L_p75": 58.09,
+        "L_p95": 89.095,
+        "near_white": 0.00316,
+        "clipped_channel": 0.00318,
+        "near_black": 0.05976,
+        "mean_a": 1.495,
+        "mean_b": 8.717,
+        "highlight_a": -2.517,
+        "highlight_b": -0.657,
+        "shadow_a": -1.786,
+        "shadow_b": 7.069,
+        "centre_L": 51.41,
+        "corner_L": 13.643,
+        "flat_noise": 3.428
+      },
+      "delta": {
+        "L_p5": -2.914,
+        "L_p25": -1.552,
+        "L_p50": -3.29,
+        "L_p75": -1.677,
+        "L_p95": -0.441,
+        "near_white": 0.0028,
+        "clipped_channel": -0.0004,
+        "near_black": 0.0595,
+        "mean_a": 0.283,
+        "mean_b": -1.178,
+        "highlight_a": -0.051,
+        "highlight_b": 4.146,
+        "shadow_a": 0.972,
+        "shadow_b": -2.488,
+        "centre_L": -0.656,
+        "corner_L": -2.897,
+        "flat_noise": 3.416,
+        "corner_drop_ratio": 0.17515,
+        "centre_delta_ratio": -0.0126
+      },
+      "id": "night-tokyo-32070841",
+      "status": "ok"
+    },
+    {
+      "file": "night-rain-36675526.jpg",
+      "sha256": "3c8361ab4b4bebaa70e72bcd356fb84cd621218933eab8438f978b43b9f03ad2",
+      "size": [
+        1600,
+        2844
+      ],
+      "family": "night-flash",
+      "preset": "night-flash",
+      "strength": 50,
+      "flat_probe_fraction": 0.2501,
+      "warnings": [
+        "输入未嵌入 ICC；按 sRGB 假设处理，原始色彩空间未知。"
+      ],
+      "before": {
+        "L_p5": 5.53,
+        "L_p25": 7.592,
+        "L_p50": 11.524,
+        "L_p75": 21.421,
+        "L_p95": 59.272,
+        "near_white": 9e-05,
+        "clipped_channel": 0.00033,
+        "near_black": 0.0,
+        "mean_a": -7.303,
+        "mean_b": 3.297,
+        "highlight_a": -0.832,
+        "highlight_b": 16.298,
+        "shadow_a": -8.079,
+        "shadow_b": 0.977,
+        "centre_L": 24.063,
+        "corner_L": 11.087,
+        "flat_noise": 0.0
+      },
+      "after": {
+        "L_p5": 1.747,
+        "L_p25": 5.472,
+        "L_p50": 10.469,
+        "L_p75": 18.579,
+        "L_p95": 57.871,
+        "near_white": 0.00071,
+        "clipped_channel": 0.00079,
+        "near_black": 0.0608,
+        "mean_a": -5.236,
+        "mean_b": 2.136,
+        "highlight_a": -1.179,
+        "highlight_b": 18.464,
+        "shadow_a": -5.527,
+        "shadow_b": -0.238,
+        "centre_L": 22.536,
+        "corner_L": 8.465,
+        "flat_noise": 3.65
+      },
+      "delta": {
+        "L_p5": -3.783,
+        "L_p25": -2.12,
+        "L_p50": -1.055,
+        "L_p75": -2.842,
+        "L_p95": -1.401,
+        "near_white": 0.0006,
+        "clipped_channel": 0.0005,
+        "near_black": 0.0608,
+        "mean_a": 2.067,
+        "mean_b": -1.161,
+        "highlight_a": -0.347,
+        "highlight_b": 2.166,
+        "shadow_a": 2.552,
+        "shadow_b": -1.215,
+        "centre_L": -1.527,
+        "corner_L": -2.622,
+        "flat_noise": 3.65,
+        "corner_drop_ratio": 0.23649,
+        "centre_delta_ratio": -0.06346
+      },
+      "id": "night-rain-36675526",
+      "status": "ok"
+    }
+  ],
+  "families": {
+    "daylight-aged": {
+      "n": 4,
+      "insufficient_n": false,
+      "after": {
+        "L_p25": {
+          "n": 4,
+          "min": 9.177,
+          "p25": 16.866,
+          "median": 19.9725,
+          "p75": 22.3832,
+          "max": 27.985
+        },
+        "L_p5": {
+          "n": 4,
+          "min": 2.796,
+          "p25": 3.3615,
+          "median": 7.393,
+          "p75": 11.534,
+          "max": 12.428
+        },
+        "L_p50": {
+          "n": 4,
+          "min": 17.587,
+          "p25": 28.0802,
+          "median": 43.6865,
+          "p75": 55.975,
+          "max": 56.515
+        },
+        "L_p75": {
+          "n": 4,
+          "min": 44.921,
+          "p25": 51.3252,
+          "median": 61.354,
+          "p75": 72.7065,
+          "max": 83.082
+        },
+        "L_p95": {
+          "n": 4,
+          "min": 66.674,
+          "p25": 73.4802,
+          "median": 77.948,
+          "p75": 84.001,
+          "max": 95.563
+        },
+        "centre_L": {
+          "n": 4,
+          "min": 32.616,
+          "p25": 37.7452,
+          "median": 39.955,
+          "p75": 48.3037,
+          "max": 71.85
+        },
+        "clipped_channel": {
+          "n": 4,
+          "min": 0.0,
+          "p25": 0.0025,
+          "median": 0.0035,
+          "p75": 0.0046,
+          "max": 0.0075
+        },
+        "corner_L": {
+          "n": 4,
+          "min": 24.498,
+          "p25": 31.7205,
+          "median": 39.4695,
+          "p75": 47.4492,
+          "max": 55.364
+        },
+        "flat_noise": {
+          "n": 4,
+          "min": 2.605,
+          "p25": 2.7588,
+          "median": 3.029,
+          "p75": 3.2755,
+          "max": 3.358
+        },
+        "highlight_a": {
+          "n": 4,
+          "min": -16.742,
+          "p25": 1.0202,
+          "median": 7.4445,
+          "p75": 8.1945,
+          "max": 8.934
+        },
+        "highlight_b": {
+          "n": 4,
+          "min": -6.357,
+          "p25": 4.8795,
+          "median": 20.8045,
+          "p75": 35.6255,
+          "max": 43.55
+        },
+        "mean_a": {
+          "n": 4,
+          "min": -14.793,
+          "p25": -2.067,
+          "median": 3.159,
+          "p75": 6.7705,
+          "max": 14.653
+        },
+        "mean_b": {
+          "n": 4,
+          "min": -6.526,
+          "p25": 3.0088,
+          "median": 6.315,
+          "p75": 8.9955,
+          "max": 16.653
+        },
+        "near_black": {
+          "n": 4,
+          "min": 0.0,
+          "p25": 0.0003,
+          "median": 0.0086,
+          "p75": 0.0214,
+          "max": 0.0353
+        },
+        "near_white": {
+          "n": 4,
+          "min": 0.0,
+          "p25": 0.0,
+          "median": 0.0001,
+          "p75": 0.0075,
+          "max": 0.0293
+        },
+        "shadow_a": {
+          "n": 4,
+          "min": -8.688,
+          "p25": -3.552,
+          "median": -1.535,
+          "p75": 0.917,
+          "max": 7.358
+        },
+        "shadow_b": {
+          "n": 4,
+          "min": -4.763,
+          "p25": -0.7828,
+          "median": 2.6295,
+          "p75": 4.8003,
+          "max": 5.056
+        }
+      },
+      "delta": {
+        "L_p25": {
+          "n": 4,
+          "min": -3.797,
+          "p25": -3.731,
+          "median": -3.6895,
+          "p75": -3.552,
+          "max": -3.198
+        },
+        "L_p5": {
+          "n": 4,
+          "min": -5.492,
+          "p25": -4.4473,
+          "median": -3.781,
+          "p75": -2.8232,
+          "max": -0.904
+        },
+        "L_p50": {
+          "n": 4,
+          "min": -3.809,
+          "p25": -2.5505,
+          "median": -1.987,
+          "p75": -1.7185,
+          "max": -1.345
+        },
+        "L_p75": {
+          "n": 4,
+          "min": -3.107,
+          "p25": -2.6173,
+          "median": -2.0835,
+          "p75": -1.668,
+          "max": -1.533
+        },
+        "L_p95": {
+          "n": 4,
+          "min": -3.003,
+          "p25": -2.7225,
+          "median": -1.8935,
+          "p75": -0.766,
+          "max": 0.41
+        },
+        "centre_L": {
+          "n": 4,
+          "min": -2.009,
+          "p25": -1.9888,
+          "median": -1.871,
+          "p75": -1.5383,
+          "max": -0.873
+        },
+        "centre_delta_ratio": {
+          "n": 4,
+          "min": -0.0512,
+          "p25": -0.0487,
+          "median": -0.0476,
+          "p75": -0.0385,
+          "max": -0.012
+        },
+        "clipped_channel": {
+          "n": 4,
+          "min": -0.0203,
+          "p25": -0.0138,
+          "median": -0.0068,
+          "p75": -0.0014,
+          "max": 0.0
+        },
+        "corner_L": {
+          "n": 4,
+          "min": -4.983,
+          "p25": -4.4737,
+          "median": -4.2225,
+          "p75": -3.9928,
+          "max": -3.548
+        },
+        "corner_drop_ratio": {
+          "n": 4,
+          "min": 0.0721,
+          "p25": 0.0815,
+          "median": 0.0894,
+          "p75": 0.1129,
+          "max": 0.169
+        },
+        "flat_noise": {
+          "n": 4,
+          "min": 2.548,
+          "p25": 2.6627,
+          "median": 2.837,
+          "p75": 3.0393,
+          "max": 3.238
+        },
+        "highlight_a": {
+          "n": 4,
+          "min": -3.734,
+          "p25": -2.6007,
+          "median": -0.783,
+          "p75": 0.7248,
+          "max": 0.928
+        },
+        "highlight_b": {
+          "n": 4,
+          "min": 0.317,
+          "p25": 1.2957,
+          "median": 2.5545,
+          "p75": 3.921,
+          "max": 5.223
+        },
+        "mean_a": {
+          "n": 4,
+          "min": 0.393,
+          "p25": 0.441,
+          "median": 0.482,
+          "p75": 0.547,
+          "max": 0.667
+        },
+        "mean_b": {
+          "n": 4,
+          "min": 0.726,
+          "p25": 0.759,
+          "median": 0.8795,
+          "p75": 1.0953,
+          "max": 1.414
+        },
+        "near_black": {
+          "n": 4,
+          "min": 0.0,
+          "p25": 0.0003,
+          "median": 0.0083,
+          "p75": 0.0163,
+          "max": 0.0167
+        },
+        "near_white": {
+          "n": 4,
+          "min": -0.0663,
+          "p25": -0.0168,
+          "median": -0.0001,
+          "p75": 0.0,
+          "max": 0.0
+        },
+        "shadow_a": {
+          "n": 4,
+          "min": 0.138,
+          "p25": 0.21,
+          "median": 0.396,
+          "p75": 0.7145,
+          "max": 1.184
+        },
+        "shadow_b": {
+          "n": 4,
+          "min": -1.088,
+          "p25": -0.2968,
+          "median": 0.077,
+          "p75": 0.1953,
+          "max": 0.22
+        }
+      }
+    },
+    "daylight-clean": {
+      "n": 2,
+      "insufficient_n": true,
+      "after": {
+        "L_p25": {
+          "n": 2,
+          "min": 47.967,
+          "p25": 55.155,
+          "median": 62.343,
+          "p75": 69.531,
+          "max": 76.719
+        },
+        "L_p5": {
+          "n": 2,
+          "min": 10.576,
+          "p25": 13.3063,
+          "median": 16.0365,
+          "p75": 18.7668,
+          "max": 21.497
+        },
+        "L_p50": {
+          "n": 2,
+          "min": 67.571,
+          "p25": 72.6252,
+          "median": 77.6795,
+          "p75": 82.7338,
+          "max": 87.788
+        },
+        "L_p75": {
+          "n": 2,
+          "min": 86.39,
+          "p25": 88.6968,
+          "median": 91.0035,
+          "p75": 93.3102,
+          "max": 95.617
+        },
+        "L_p95": {
+          "n": 2,
+          "min": 98.693,
+          "p25": 98.7422,
+          "median": 98.7915,
+          "p75": 98.8407,
+          "max": 98.89
+        },
+        "centre_L": {
+          "n": 2,
+          "min": 53.735,
+          "p25": 55.2982,
+          "median": 56.8615,
+          "p75": 58.4248,
+          "max": 59.988
+        },
+        "clipped_channel": {
+          "n": 2,
+          "min": 0.0095,
+          "p25": 0.0113,
+          "median": 0.0132,
+          "p75": 0.015,
+          "max": 0.0169
+        },
+        "corner_L": {
+          "n": 2,
+          "min": 59.907,
+          "p25": 67.5717,
+          "median": 75.2365,
+          "p75": 82.9013,
+          "max": 90.566
+        },
+        "flat_noise": {
+          "n": 2,
+          "min": 0.879,
+          "p25": 0.8825,
+          "median": 0.886,
+          "p75": 0.8895,
+          "max": 0.893
+        },
+        "highlight_a": {
+          "n": 2,
+          "min": -0.108,
+          "p25": 0.211,
+          "median": 0.53,
+          "p75": 0.849,
+          "max": 1.168
+        },
+        "highlight_b": {
+          "n": 2,
+          "min": 0.029,
+          "p25": 2.26,
+          "median": 4.491,
+          "p75": 6.722,
+          "max": 8.953
+        },
+        "mean_a": {
+          "n": 2,
+          "min": 4.396,
+          "p25": 4.4825,
+          "median": 4.569,
+          "p75": 4.6555,
+          "max": 4.742
+        },
+        "mean_b": {
+          "n": 2,
+          "min": 3.665,
+          "p25": 5.803,
+          "median": 7.941,
+          "p75": 10.079,
+          "max": 12.217
+        },
+        "near_black": {
+          "n": 2,
+          "min": 0.0017,
+          "p25": 0.0039,
+          "median": 0.006,
+          "p75": 0.0081,
+          "max": 0.0102
+        },
+        "near_white": {
+          "n": 2,
+          "min": 0.1411,
+          "p25": 0.1528,
+          "median": 0.1645,
+          "p75": 0.1762,
+          "max": 0.188
+        },
+        "shadow_a": {
+          "n": 2,
+          "min": 4.74,
+          "p25": 5.087,
+          "median": 5.434,
+          "p75": 5.781,
+          "max": 6.128
+        },
+        "shadow_b": {
+          "n": 2,
+          "min": 0.548,
+          "p25": 1.5603,
+          "median": 2.5725,
+          "p75": 3.5848,
+          "max": 4.597
+        }
+      },
+      "delta": {
+        "L_p25": {
+          "n": 2,
+          "min": -0.922,
+          "p25": -0.6728,
+          "median": -0.4235,
+          "p75": -0.1743,
+          "max": 0.075
+        },
+        "L_p5": {
+          "n": 2,
+          "min": -1.854,
+          "p25": -1.8175,
+          "median": -1.781,
+          "p75": -1.7445,
+          "max": -1.708
+        },
+        "L_p50": {
+          "n": 2,
+          "min": 0.034,
+          "p25": 0.1395,
+          "median": 0.245,
+          "p75": 0.3505,
+          "max": 0.456
+        },
+        "L_p75": {
+          "n": 2,
+          "min": 0.073,
+          "p25": 0.1405,
+          "median": 0.208,
+          "p75": 0.2755,
+          "max": 0.343
+        },
+        "L_p95": {
+          "n": 2,
+          "min": -1.11,
+          "p25": -0.8695,
+          "median": -0.629,
+          "p75": -0.3885,
+          "max": -0.148
+        },
+        "centre_L": {
+          "n": 2,
+          "min": -0.196,
+          "p25": -0.185,
+          "median": -0.174,
+          "p75": -0.163,
+          "max": -0.152
+        },
+        "centre_delta_ratio": {
+          "n": 2,
+          "min": -0.0036,
+          "p25": -0.0034,
+          "median": -0.0031,
+          "p75": -0.0028,
+          "max": -0.0025
+        },
+        "clipped_channel": {
+          "n": 2,
+          "min": -0.1066,
+          "p25": -0.0869,
+          "median": -0.0673,
+          "p75": -0.0476,
+          "max": -0.028
+        },
+        "corner_L": {
+          "n": 2,
+          "min": -1.171,
+          "p25": -1.159,
+          "median": -1.147,
+          "p75": -1.135,
+          "max": -1.123
+        },
+        "corner_drop_ratio": {
+          "n": 2,
+          "min": 0.0123,
+          "p25": 0.014,
+          "median": 0.0157,
+          "p75": 0.0174,
+          "max": 0.0192
+        },
+        "flat_noise": {
+          "n": 2,
+          "min": 0.875,
+          "p25": 0.876,
+          "median": 0.877,
+          "p75": 0.878,
+          "max": 0.879
+        },
+        "highlight_a": {
+          "n": 2,
+          "min": -0.359,
+          "p25": -0.2575,
+          "median": -0.156,
+          "p75": -0.0545,
+          "max": 0.047
+        },
+        "highlight_b": {
+          "n": 2,
+          "min": 1.486,
+          "p25": 1.5272,
+          "median": 1.5685,
+          "p75": 1.6098,
+          "max": 1.651
+        },
+        "mean_a": {
+          "n": 2,
+          "min": 0.446,
+          "p25": 0.4485,
+          "median": 0.451,
+          "p75": 0.4535,
+          "max": 0.456
+        },
+        "mean_b": {
+          "n": 2,
+          "min": 1.532,
+          "p25": 1.5755,
+          "median": 1.619,
+          "p75": 1.6625,
+          "max": 1.706
+        },
+        "near_black": {
+          "n": 2,
+          "min": 0.0014,
+          "p25": 0.0015,
+          "median": 0.0015,
+          "p75": 0.0016,
+          "max": 0.0017
+        },
+        "near_white": {
+          "n": 2,
+          "min": -0.0304,
+          "p25": -0.0295,
+          "median": -0.0287,
+          "p75": -0.0278,
+          "max": -0.027
+        },
+        "shadow_a": {
+          "n": 2,
+          "min": 0.318,
+          "p25": 0.3975,
+          "median": 0.477,
+          "p75": 0.5565,
+          "max": 0.636
+        },
+        "shadow_b": {
+          "n": 2,
+          "min": 0.759,
+          "p25": 0.7595,
+          "median": 0.76,
+          "p75": 0.7605,
+          "max": 0.761
+        }
+      }
+    },
+    "indoor-flash": {
+      "n": 6,
+      "insufficient_n": false,
+      "after": {
+        "L_p25": {
+          "n": 6,
+          "min": 2.412,
+          "p25": 14.9773,
+          "median": 27.9895,
+          "p75": 49.4348,
+          "max": 55.289
+        },
+        "L_p5": {
+          "n": 6,
+          "min": 0.02,
+          "p25": 3.2725,
+          "median": 6.992,
+          "p75": 11.001,
+          "max": 12.297
+        },
+        "L_p50": {
+          "n": 6,
+          "min": 5.539,
+          "p25": 35.5258,
+          "median": 53.625,
+          "p75": 67.2835,
+          "max": 70.507
+        },
+        "L_p75": {
+          "n": 6,
+          "min": 15.305,
+          "p25": 51.331,
+          "median": 72.0745,
+          "p75": 78.247,
+          "max": 83.38
+        },
+        "L_p95": {
+          "n": 6,
+          "min": 40.042,
+          "p25": 74.327,
+          "median": 81.0175,
+          "p75": 88.227,
+          "max": 92.973
+        },
+        "centre_L": {
+          "n": 6,
+          "min": 10.511,
+          "p25": 32.1418,
+          "median": 43.8345,
+          "p75": 45.4802,
+          "max": 57.589
+        },
+        "clipped_channel": {
+          "n": 6,
+          "min": 0.0,
+          "p25": 0.0,
+          "median": 0.0002,
+          "p75": 0.001,
+          "max": 0.0022
+        },
+        "corner_L": {
+          "n": 6,
+          "min": 15.221,
+          "p25": 39.3248,
+          "median": 55.276,
+          "p75": 63.8368,
+          "max": 68.119
+        },
+        "flat_noise": {
+          "n": 6,
+          "min": 1.966,
+          "p25": 2.4937,
+          "median": 2.513,
+          "p75": 2.527,
+          "max": 3.015
+        },
+        "highlight_a": {
+          "n": 6,
+          "min": -2.249,
+          "p25": -0.915,
+          "median": 0.1415,
+          "p75": 0.8185,
+          "max": 6.982
+        },
+        "highlight_b": {
+          "n": 6,
+          "min": -4.873,
+          "p25": 0.7213,
+          "median": 0.9345,
+          "p75": 1.9247,
+          "max": 10.613
+        },
+        "mean_a": {
+          "n": 6,
+          "min": 0.409,
+          "p25": 1.3962,
+          "median": 1.8435,
+          "p75": 3.0745,
+          "max": 4.798
+        },
+        "mean_b": {
+          "n": 6,
+          "min": 0.859,
+          "p25": 2.6872,
+          "median": 6.1915,
+          "p75": 7.8545,
+          "max": 13.648
+        },
+        "near_black": {
+          "n": 6,
+          "min": 0.0001,
+          "p25": 0.0034,
+          "median": 0.0112,
+          "p75": 0.039,
+          "max": 0.2094
+        },
+        "near_white": {
+          "n": 6,
+          "min": 0.0,
+          "p25": 0.0,
+          "median": 0.0009,
+          "p75": 0.0045,
+          "max": 0.0061
+        },
+        "shadow_a": {
+          "n": 6,
+          "min": -0.654,
+          "p25": -0.0213,
+          "median": 1.205,
+          "p75": 3.5968,
+          "max": 4.478
+        },
+        "shadow_b": {
+          "n": 6,
+          "min": 0.334,
+          "p25": 0.8928,
+          "median": 3.633,
+          "p75": 5.8153,
+          "max": 9.091
+        }
+      },
+      "delta": {
+        "L_p25": {
+          "n": 6,
+          "min": -4.139,
+          "p25": -2.9563,
+          "median": -2.8685,
+          "p75": -2.2145,
+          "max": 0.116
+        },
+        "L_p5": {
+          "n": 6,
+          "min": -4.031,
+          "p25": -2.1833,
+          "median": -1.063,
+          "p75": -0.455,
+          "max": -0.254
+        },
+        "L_p50": {
+          "n": 6,
+          "min": -3.046,
+          "p25": -2.7927,
+          "median": -2.483,
+          "p75": -2.2865,
+          "max": -0.464
+        },
+        "L_p75": {
+          "n": 6,
+          "min": -4.48,
+          "p25": -2.7687,
+          "median": -1.984,
+          "p75": -0.6758,
+          "max": 0.125
+        },
+        "L_p95": {
+          "n": 6,
+          "min": -4.23,
+          "p25": -1.1635,
+          "median": -1.0225,
+          "p75": -0.8912,
+          "max": 1.845
+        },
+        "centre_L": {
+          "n": 6,
+          "min": -0.466,
+          "p25": -0.2,
+          "median": -0.086,
+          "p75": 0.418,
+          "max": 0.993
+        },
+        "centre_delta_ratio": {
+          "n": 6,
+          "min": -0.0205,
+          "p25": -0.0093,
+          "median": -0.0028,
+          "p75": 0.0095,
+          "max": 0.0175
+        },
+        "clipped_channel": {
+          "n": 6,
+          "min": 0.0,
+          "p25": 0.0,
+          "median": 0.0003,
+          "p75": 0.0008,
+          "max": 0.0011
+        },
+        "corner_L": {
+          "n": 6,
+          "min": -5.687,
+          "p25": -5.4685,
+          "median": -5.3065,
+          "p75": -4.9982,
+          "max": -3.389
+        },
+        "corner_drop_ratio": {
+          "n": 6,
+          "min": 0.0726,
+          "p25": 0.0805,
+          "median": 0.0847,
+          "p75": 0.1226,
+          "max": 0.1821
+        },
+        "flat_noise": {
+          "n": 6,
+          "min": 1.803,
+          "p25": 2.2237,
+          "median": 2.3615,
+          "p75": 2.5053,
+          "max": 2.531
+        },
+        "highlight_a": {
+          "n": 6,
+          "min": 0.147,
+          "p25": 0.2245,
+          "median": 0.4125,
+          "p75": 0.737,
+          "max": 3.821
+        },
+        "highlight_b": {
+          "n": 6,
+          "min": -0.487,
+          "p25": 1.7708,
+          "median": 2.24,
+          "p75": 2.8007,
+          "max": 3.829
+        },
+        "mean_a": {
+          "n": 6,
+          "min": 0.172,
+          "p25": 0.1777,
+          "median": 0.2295,
+          "p75": 0.3053,
+          "max": 0.518
+        },
+        "mean_b": {
+          "n": 6,
+          "min": -0.188,
+          "p25": 0.7823,
+          "median": 0.8375,
+          "p75": 0.9303,
+          "max": 1.428
+        },
+        "near_black": {
+          "n": 6,
+          "min": -0.0158,
+          "p25": 0.0005,
+          "median": 0.0019,
+          "p75": 0.0066,
+          "max": 0.015
+        },
+        "near_white": {
+          "n": 6,
+          "min": -0.0048,
+          "p25": -0.0002,
+          "median": 0.0,
+          "p75": 0.0,
+          "max": 0.0053
+        },
+        "shadow_a": {
+          "n": 6,
+          "min": 0.147,
+          "p25": 0.303,
+          "median": 0.403,
+          "p75": 0.464,
+          "max": 0.827
+        },
+        "shadow_b": {
+          "n": 6,
+          "min": -0.026,
+          "p25": 0.0033,
+          "median": 0.0465,
+          "p75": 0.1633,
+          "max": 0.201
+        }
+      }
+    },
+    "night-flash": {
+      "n": 3,
+      "insufficient_n": true,
+      "after": {
+        "L_p25": {
+          "n": 3,
+          "min": 5.472,
+          "p25": 6.35,
+          "median": 7.228,
+          "p75": 8.4225,
+          "max": 9.617
+        },
+        "L_p5": {
+          "n": 3,
+          "min": 1.722,
+          "p25": 1.7345,
+          "median": 1.747,
+          "p75": 2.9395,
+          "max": 4.132
+        },
+        "L_p50": {
+          "n": 3,
+          "min": 10.469,
+          "p25": 12.609,
+          "median": 14.749,
+          "p75": 16.216,
+          "max": 17.683
+        },
+        "L_p75": {
+          "n": 3,
+          "min": 18.579,
+          "p25": 20.6055,
+          "median": 22.632,
+          "p75": 40.361,
+          "max": 58.09
+        },
+        "L_p95": {
+          "n": 3,
+          "min": 53.947,
+          "p25": 55.909,
+          "median": 57.871,
+          "p75": 73.483,
+          "max": 89.095
+        },
+        "centre_L": {
+          "n": 3,
+          "min": 19.441,
+          "p25": 20.9885,
+          "median": 22.536,
+          "p75": 36.973,
+          "max": 51.41
+        },
+        "clipped_channel": {
+          "n": 3,
+          "min": 0.0005,
+          "p25": 0.0007,
+          "median": 0.0008,
+          "p75": 0.002,
+          "max": 0.0032
+        },
+        "corner_L": {
+          "n": 3,
+          "min": 8.465,
+          "p25": 11.054,
+          "median": 13.643,
+          "p75": 16.836,
+          "max": 20.029
+        },
+        "flat_noise": {
+          "n": 3,
+          "min": 3.428,
+          "p25": 3.539,
+          "median": 3.65,
+          "p75": 4.125,
+          "max": 4.6
+        },
+        "highlight_a": {
+          "n": 3,
+          "min": -2.517,
+          "p25": -1.848,
+          "median": -1.179,
+          "p75": 2.928,
+          "max": 7.035
+        },
+        "highlight_b": {
+          "n": 3,
+          "min": -0.657,
+          "p25": 8.9035,
+          "median": 18.464,
+          "p75": 20.1345,
+          "max": 21.805
+        },
+        "mean_a": {
+          "n": 3,
+          "min": -5.236,
+          "p25": -1.8705,
+          "median": 1.495,
+          "p75": 2.4885,
+          "max": 3.482
+        },
+        "mean_b": {
+          "n": 3,
+          "min": 2.136,
+          "p25": 3.0245,
+          "median": 3.913,
+          "p75": 6.315,
+          "max": 8.717
+        },
+        "near_black": {
+          "n": 3,
+          "min": 0.0119,
+          "p25": 0.0358,
+          "median": 0.0598,
+          "p75": 0.0603,
+          "max": 0.0608
+        },
+        "near_white": {
+          "n": 3,
+          "min": 0.0,
+          "p25": 0.0004,
+          "median": 0.0007,
+          "p75": 0.0019,
+          "max": 0.0032
+        },
+        "shadow_a": {
+          "n": 3,
+          "min": -5.527,
+          "p25": -3.6565,
+          "median": -1.786,
+          "p75": -0.135,
+          "max": 1.516
+        },
+        "shadow_b": {
+          "n": 3,
+          "min": -0.238,
+          "p25": 0.645,
+          "median": 1.528,
+          "p75": 4.2985,
+          "max": 7.069
+        }
+      },
+      "delta": {
+        "L_p25": {
+          "n": 3,
+          "min": -4.429,
+          "p25": -3.2745,
+          "median": -2.12,
+          "p75": -1.836,
+          "max": -1.552
+        },
+        "L_p5": {
+          "n": 3,
+          "min": -6.608,
+          "p25": -5.1955,
+          "median": -3.783,
+          "p75": -3.3485,
+          "max": -2.914
+        },
+        "L_p50": {
+          "n": 3,
+          "min": -3.29,
+          "p25": -3.1965,
+          "median": -3.103,
+          "p75": -2.079,
+          "max": -1.055
+        },
+        "L_p75": {
+          "n": 3,
+          "min": -4.069,
+          "p25": -3.4555,
+          "median": -2.842,
+          "p75": -2.2595,
+          "max": -1.677
+        },
+        "L_p95": {
+          "n": 3,
+          "min": -3.968,
+          "p25": -2.6845,
+          "median": -1.401,
+          "p75": -0.921,
+          "max": -0.441
+        },
+        "centre_L": {
+          "n": 3,
+          "min": -2.477,
+          "p25": -2.002,
+          "median": -1.527,
+          "p75": -1.0915,
+          "max": -0.656
+        },
+        "centre_delta_ratio": {
+          "n": 3,
+          "min": -0.113,
+          "p25": -0.0882,
+          "median": -0.0635,
+          "p75": -0.038,
+          "max": -0.0126
+        },
+        "clipped_channel": {
+          "n": 3,
+          "min": -0.0005,
+          "p25": -0.0004,
+          "median": -0.0004,
+          "p75": 0.0001,
+          "max": 0.0005
+        },
+        "corner_L": {
+          "n": 3,
+          "min": -6.297,
+          "p25": -4.597,
+          "median": -2.897,
+          "p75": -2.7595,
+          "max": -2.622
+        },
+        "corner_drop_ratio": {
+          "n": 3,
+          "min": 0.1752,
+          "p25": 0.2058,
+          "median": 0.2365,
+          "p75": 0.2378,
+          "max": 0.2392
+        },
+        "flat_noise": {
+          "n": 3,
+          "min": 3.416,
+          "p25": 3.533,
+          "median": 3.65,
+          "p75": 3.8955,
+          "max": 4.141
+        },
+        "highlight_a": {
+          "n": 3,
+          "min": -0.347,
+          "p25": -0.199,
+          "median": -0.051,
+          "p75": 0.03,
+          "max": 0.111
+        },
+        "highlight_b": {
+          "n": 3,
+          "min": 2.166,
+          "p25": 3.156,
+          "median": 4.146,
+          "p75": 5.346,
+          "max": 6.546
+        },
+        "mean_a": {
+          "n": 3,
+          "min": -0.425,
+          "p25": -0.071,
+          "median": 0.283,
+          "p75": 1.175,
+          "max": 2.067
+        },
+        "mean_b": {
+          "n": 3,
+          "min": -2.017,
+          "p25": -1.5975,
+          "median": -1.178,
+          "p75": -1.1695,
+          "max": -1.161
+        },
+        "near_black": {
+          "n": 3,
+          "min": 0.0118,
+          "p25": 0.0357,
+          "median": 0.0595,
+          "p75": 0.0601,
+          "max": 0.0608
+        },
+        "near_white": {
+          "n": 3,
+          "min": 0.0,
+          "p25": 0.0003,
+          "median": 0.0006,
+          "p75": 0.0017,
+          "max": 0.0028
+        },
+        "shadow_a": {
+          "n": 3,
+          "min": -0.419,
+          "p25": 0.2765,
+          "median": 0.972,
+          "p75": 1.762,
+          "max": 2.552
+        },
+        "shadow_b": {
+          "n": 3,
+          "min": -2.488,
+          "p25": -2.362,
+          "median": -2.236,
+          "p75": -1.7255,
+          "max": -1.215
+        }
+      }
+    }
+  }
+}

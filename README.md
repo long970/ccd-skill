@@ -167,6 +167,26 @@ python tests/real_photo_eval.py
 
 Results are recorded in the [30-run overview](docs/samples/real-evaluation-overview.jpg) and [JSON report](docs/samples/real-evaluation.json). The current mean absolute pixel change is 11.1/255, with a maximum post-processing near-white ratio of 0.12%. These are technical alerts, not proof of CCD authenticity or aesthetic quality.
 
+### Pipeline self-check (not a CCD baseline)
+
+`tests/ccd_profile.py` measures the tone and colour fingerprint of the shipped pipeline in CIELAB: L\* percentiles, near-white, clipped channels, near-black, highlight and shadow a\*/b\*, centre and corner levels with their relative changes, and grain measured on one smooth-region mask reused for both phases. It reports per-family intervals and never collapses them into a score, because a single number would hide the per-family differences (corner/centre balance, highlight handling, black level) that matter.
+
+```text
+python tests/ccd_profile.py --manifest tests/real-photo-manifest.json --out docs/samples/pipeline-self-check.json
+```
+
+The generated [report](docs/samples/pipeline-self-check.json) is titled `管线自检，非 CCD 基线` and carries `baseline: false`. Its inputs are licensed stock photographs, not verified CCD output, so it describes what the pipeline does — not what a CCD camera does. Guardrails only flag what the step made worse: an increase in near-white or clipped channels, or a corner drop above 45%. A frame that arrives 22% blown and leaves 19% blown is reported, not condemned.
+
+`tests/verify_reference_set.py` validates the reference-set manifest before anyone treats its numbers as evidence. It checks the declarative fields, recorded SHA-256 values against local files, and EXIF provenance (`Make`, `Model`, `ISO`, `Flash`, read from IFD0 and the Exif sub-IFD). Missing provenance marks an entry `unverified` rather than failing, but a `filled` manifest must be fully verified, with at least four entries and one holdout per family.
+
+```text
+python tests/verify_reference_set.py                      # validates the template
+python tests/verify_reference_set.py reference_set/manifest.json --root .
+```
+
+The 16-entry [template](reference_set/manifest.template.json) is a plan, not data: every fact field is `null` until a Tier A sample (an original straight-out-of-camera CCD file with intact EXIF) replaces it. See [reference_set/README.md](reference_set/README.md) for the tier rules.
+
+
 ## How It Works
 
 The default path is **L2 local deterministic pixel processing**: colour curves, highlight roll-off, halation, flash falloff, black-point adjustment, vignette, grain and sharpening. The script does not use a generative model, move objects, crop or resize.
@@ -206,7 +226,7 @@ The JSON report records the parameters, seed, dependency versions, orientation-c
 python -m unittest discover -s tests -v
 ```
 
-- 45 automated tests cover orientation and EXIF removal, alpha preservation, deterministic output, clipping bounds, preset separation, batch safety, skip wording, empty folders and CLI failure reporting.
+- 59 automated tests cover orientation and EXIF removal, alpha preservation, deterministic output, clipping bounds, preset separation, batch safety, skip wording, empty folders and CLI failure reporting, plus the fingerprint instrument and the manifest validator.
 - GitHub Actions runs the suite on Ubuntu and Windows with Python 3.12.
 - Release 1.5.2 was installed into the DSH skill directory and checked file by file: the installed copy reports `script_version` 1.5.2 and all four batch statuses and three exit codes behave as documented. The previous 1.4.1 install is preserved as `ccd-photo-enhancer.bak-1.4.1` for rollback.
 
@@ -220,8 +240,12 @@ skills/ccd-photo-enhancer/
   references/              Presets, pipeline rules, artistic routes and tests
 tests/
   test_apply_ccd.py        Automated unit tests
+  test_reference_tools.py  Fingerprint and validator tests
+  ccd_profile.py           Pipeline fingerprint (not a CCD baseline)
+  verify_reference_set.py  Reference-set manifest validator
   real_photo_eval.py       Offline real-photo evaluation
   real-photo-manifest.json Evaluation sources and licensing
+reference_set/             Tier rules and the 16-entry manifest template
 docs/samples/              Before/after examples and evaluation output
 .github/workflows/         Ubuntu and Windows CI
 ```
