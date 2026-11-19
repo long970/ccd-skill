@@ -8,6 +8,8 @@
 
 CCD Photo Enhancer is a local-first Agent Skill for CCD, Y2K and retro digicam styling. It provides four calibrated presets, deterministic Pillow/NumPy processing, single-image and folder workflows, and strict source-file protection. It is a visual approximation, not a physical simulation of a specific CCD sensor.
 
+**What this is not.** Not a profile of a specific camera model, not a sensor simulation, and not a validated match to real CCD output: no Tier A original (a straight-out-of-camera CCD file) has been compared against it yet. The four presets are design choices explained in [references/ccd-presets.md](skills/ccd-photo-enhancer/references/ccd-presets.md), so "CCD look" here means "it reads as an early compact camera", not "it matches camera X". The skill is also not a film-stock emulation, a restoration tool, or a face/skin protector — L2 has no face or skin mask.
+
 ## Why this Skill
 
 - **Private by design.** Photos are processed locally. The CLI makes no network requests and does not upload images.

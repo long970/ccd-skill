@@ -13,6 +13,7 @@ This project follows Semantic Versioning.
 - Add `tests/KNOWN_ISSUES.md` and `tests/test_known_issues.py`: four visible defects of the current recipe (fused top end, `indoor-flash` dimming the centre, median shift at restrained strength, grain crushing dark patches), each measured on synthetic fixtures and pinned by an expected failure. The suite stays green; a fix turns the test into an unexpected success, which is the prompt to retire the entry.
 - Record one correction to the earlier diagnosis: the dark-patch crush is grain-driven, not the black point. With grain ablated the same patch stays at 0% near-black, so the fix belongs in the noise envelope.
 - Suite grows from 45 to 59 tests, then to 67 with the ablation and known-issue regressions.
+- Narrow the claims (P3). `SKILL.md` now forbids describing the result as restoring a specific camera, matching a real CCD sensor, or reaching camera-level accuracy, and states that the recipe has not been blind-tested against Tier A originals; `README.md` gains a "What this is not" block. No pixel, CLI or report change, so `VERSION` stays 1.5.2 and the published 1.5.2 asset still carries the earlier wording until the next release.
 
 ## 1.5.2 — 2026-11-19
 
