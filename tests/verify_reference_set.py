@@ -50,6 +50,27 @@ def _sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def _comparable(value: Any) -> Any:
+    """Normalise a declared value so it can be compared with an EXIF value.
+
+    Text tags differ only by spacing and case between cameras and manifests; numeric
+    tags arrive as int, float or tuple depending on the writer. Comparing the raw
+    values reported every real file as a mismatch.
+    """
+    if isinstance(value, str):
+        text = " ".join(value.split())
+        try:
+            # Manifests store ISO and Flash as JSON strings; EXIF returns numbers.
+            return round(float(text), 3)
+        except ValueError:
+            return text.casefold()
+    if isinstance(value, (list, tuple)):
+        return tuple(_comparable(item) for item in value)
+    if isinstance(value, (int, float)) and not isinstance(value, bool):
+        return round(float(value), 3)
+    return value
+
+
 def _exif_facts(path: Path) -> dict[str, Any]:
     """Read the provenance tags a real camera writes in IFD0 and the Exif sub-IFD."""
     with Image.open(path) as image:
@@ -134,11 +155,28 @@ def validate(manifest: dict[str, Any], root: Path) -> dict[str, Any]:
                     # Flash 0 means "did not fire": present evidence, not a missing tag.
                     if value is None or value == "":
                         reasons.append(f"exif {key} missing")
+                # Declared provenance must match the bytes, or the manifest is a claim
+                # about a file it never saw. Only compared when both sides carry a value.
+                for key in ("camera_make", "camera_model", "iso", "flash"):
+                    declared = entry.get(key)
+                    actual_value = facts.get(key)
+                    if declared in (None, "") or actual_value in (None, ""):
+                        continue
+                    if _comparable(declared) != _comparable(actual_value):
+                        entry_errors.append(
+                            f"exif {key} mismatch: manifest {declared!r} vs file {actual_value!r}"
+                        )
             else:
                 if status == "filled":
                     entry_errors.append(f"local_path not found: {path}")
                 else:
                     reasons.append("local_path not found (template)")
+        elif status == "filled":
+            # Without a path there is nothing to hash or compare, so the entry cannot be
+            # evidence. A template placeholder stays merely unverified.
+            entry_errors.append("local_path is required for a filled manifest")
+        else:
+            reasons.append("local_path missing (template)")
 
         for key in ("camera_make", "camera_model", "iso", "flash", "source", "license"):
             if entry.get(key) in (None, ""):

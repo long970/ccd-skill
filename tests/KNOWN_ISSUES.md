@@ -13,6 +13,11 @@ All numbers are from VERSION 1.5.2, measured on synthetic fixtures so they can b
 re-derived without any external photo. `L*` is CIELAB lightness; `near_black` is the
 fraction of pixels at `L* <= 2`, `near_white` the fraction at `L* >= 97`.
 
+The four readings below come from the pixel recipe alone (`_apply_pixel_recipe`), with
+grain and vignette switched off only where a row says so. They are deliberately *not*
+taken from `tests/ccd_profile.py`: that instrument now also applies the production
+unsharp mask, which would fold a second stage into a number meant to isolate one.
+
 | id | symptom | measured now | target | likely cause |
 | --- | --- | --- | --- | --- |
 | KI-01 | Top-end fuses into one value | inputs 247–255 all print as 254; longest equal run 9; 20 of 31 levels survive a 225–255 ladder | longest equal run ≤ 2 | exposure lift (+10 at 225) plus S-curve steepening, while the ceiling sits below 255 |

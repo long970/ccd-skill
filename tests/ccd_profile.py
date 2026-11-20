@@ -35,12 +35,23 @@ NOTE = (
     "没有与真实机型对照，也没有盲测。任何结论都不能当作“CCD 基线”。"
 )
 
-REFERENCE_TITLE = "CCD 参考区间（网页样张，daylight 子集）"
+GRAIN_REFERENCE_LONG_EDGE = 1600
 REFERENCE_NOTE = (
     "这些数字量的是真实 CCD 相机的直出 JPEG 本身，不经过本仓库的像素管线。"
     "样本来自公开的相机评测样张，只覆盖 daylight 两族；indoor-flash 只有 1 张、night-flash 为 0，"
     "所以它是“分区间的第一步”，不是四族完整基线，也没有与手机同期对照或盲测。"
 )
+
+
+def reference_title(source_label: str) -> str:
+    """Name the report after the source it actually measured.
+
+    A fixed title claimed every ``--reference`` run was the cameralabs daylight pilot,
+    including runs over an unrelated folder. The label is now part of the title, so a
+    reader can tell which source produced the numbers.
+    """
+    return f"源图区间测量：{source_label}"
+
 
 _M_RGB2XYZ = np.array(
     [
@@ -70,6 +81,7 @@ SCALAR_KEYS = (
     "centre_L",
     "corner_L",
     "flat_noise",
+    "flat_noise_scaled",
 )
 
 # Only increases are judged. An absolute near-white ratio condemns the source, not
@@ -166,6 +178,27 @@ def _round(value: float | None) -> float | None:
     return None if value is None else round(float(value), 3)
 
 
+def _display_scale_noise(rgb: np.ndarray, long_edge: int = GRAIN_REFERENCE_LONG_EDGE) -> float | None:
+    """Grain amplitude after area-resampling to a common long edge.
+
+    Native-pixel MAD is not comparable between a 2 MP compact and a 24 MP phone: the
+    same physical grain spans a different number of pixels. Resampling to one display
+    size makes the number mean "what a viewer sees at the same size". Images already
+    smaller than the reference edge return None, because upsampling would invent detail.
+    """
+    height, width = rgb.shape[:2]
+    if max(width, height) <= long_edge:
+        return None
+    scale = long_edge / float(max(width, height))
+    size = (max(1, int(round(width * scale))), max(1, int(round(height * scale))))
+    resized = np.asarray(Image.fromarray(rgb).resize(size, Image.BOX), dtype=np.uint8)
+    lightness = srgb_to_lab(resized)[..., 0]
+    mask = _flat_mask(lightness)
+    if mask is None:
+        return None
+    return _flat_noise(lightness, mask)
+
+
 def measure(rgb: np.ndarray, flat_mask: np.ndarray | None = None, lab: np.ndarray | None = None) -> dict[str, float | None]:
     """Summarise one sRGB raster without reducing it to a single score."""
     if lab is None:
@@ -200,6 +233,7 @@ def measure(rgb: np.ndarray, flat_mask: np.ndarray | None = None, lab: np.ndarra
         "centre_L": round(centre, 3),
         "corner_L": round(corner, 3),
         "flat_noise": _round(_flat_noise(lightness, flat_mask)) if flat_mask is not None else None,
+        "flat_noise_scaled": _round(_display_scale_noise(rgb)),
     }
 
 
@@ -232,6 +266,7 @@ def profile_image(
     preset: apply_ccd.Preset | None = None,
     family: str | None = None,
     reference: bool = False,
+    role: str = "calibration",
 ) -> dict[str, Any]:
     """Measure one image before and after the production recipe, in memory.
 
@@ -263,6 +298,7 @@ def profile_image(
             "sha256": digest,
             "size": [width, height],
             "family": family,
+            "role": role,
             "preset": None,
             "recipe": None,
             "strength": None,
@@ -284,6 +320,9 @@ def profile_image(
         None,
         None,
     )
+    # The file pipeline unsharp-masks after the recipe. Measuring only the recipe
+    # described a pipeline that never ships, and made `--ablate sharpness` a no-op.
+    after = apply_ccd.apply_sharpness(after, recipe, strength, None)
     measured_before = measure(before, mask, lab_before)
     measured_after = measure(after, mask)
     return {
@@ -291,6 +330,7 @@ def profile_image(
         "sha256": digest,
         "size": [width, height],
         "family": family or preset_name,
+        "role": role,
         "preset": preset_name,
         "recipe": recipe.name,
         "strength": strength,
@@ -317,14 +357,22 @@ def _interval(values: list[float]) -> dict[str, float | int]:
 
 
 def aggregate(records: list[dict[str, Any]]) -> dict[str, Any]:
-    """Group by family and describe each metric as an interval, never a score."""
-    families: dict[str, Any] = {}
+    """Group by family, then by role, and describe each metric as an interval.
+
+    Calibration frames are the only ones allowed to justify a tuning decision; holdout
+    frames are acceptance evidence. Pooling them lets a change look justified by the
+    very frames it was tuned on, so the two are never mixed here.
+    """
+    buckets: dict[tuple[str, str], dict[str, Any]] = {}
+    totals: dict[str, int] = {}
     for record in records:
         if record.get("status") != "ok":
             continue
         family = record["family"]
-        bucket = families.setdefault(family, {"n": 0, "after": {}, "delta": {}})
+        role = record.get("role") or "calibration"
+        bucket = buckets.setdefault((family, role), {"n": 0, "after": {}, "delta": {}})
         bucket["n"] += 1
+        totals[family] = totals.get(family, 0) + 1
         for phase in ("after", "delta"):
             source = record[phase]
             for key, value in source.items():
@@ -333,12 +381,21 @@ def aggregate(records: list[dict[str, Any]]) -> dict[str, Any]:
                 bucket[phase].setdefault(key, []).append(float(value))
 
     result: dict[str, Any] = {}
-    for family, bucket in sorted(families.items()):
+    for family in sorted(totals):
+        roles: dict[str, Any] = {}
+        for (name, role), bucket in sorted(buckets.items()):
+            if name != family:
+                continue
+            roles[role] = {
+                "n": bucket["n"],
+                "insufficient_n": bucket["n"] < 4,
+                "after": {key: _interval(values) for key, values in sorted(bucket["after"].items())},
+                "delta": {key: _interval(values) for key, values in sorted(bucket["delta"].items())},
+            }
         result[family] = {
-            "n": bucket["n"],
-            "insufficient_n": bucket["n"] < 4,
-            "after": {key: _interval(values) for key, values in sorted(bucket["after"].items())},
-            "delta": {key: _interval(values) for key, values in sorted(bucket["delta"].items())},
+            "n": totals[family],
+            "insufficient_n": any(block["insufficient_n"] for block in roles.values()),
+            "roles": roles,
         }
     return result
 
@@ -365,6 +422,7 @@ def _load_cases(args: argparse.Namespace) -> tuple[list[dict[str, Any]], str]:
                     "path": source if source.is_absolute() else root / source,
                     "preset": case.get("preset") or args.preset,
                     "family": case.get("family") or case.get("preset") or args.preset,
+                    "role": case.get("role") or "calibration",
                     "strength": args.strength
                     if args.strength is not None
                     else int((case.get("strengths") or [50])[0]),
@@ -384,6 +442,7 @@ def _load_cases(args: argparse.Namespace) -> tuple[list[dict[str, Any]], str]:
                 "path": path,
                 "preset": args.preset,
                 "family": args.preset,
+                "role": "calibration",
                 "strength": args.strength if args.strength is not None else 50,
             }
             for path in paths
@@ -478,6 +537,7 @@ def build_report(
             recipe,
             family=case.get("family"),
             reference=reference,
+            role=case.get("role") or "calibration",
         )
         record["id"] = case["id"]
         record["status"] = "ok"
@@ -491,12 +551,12 @@ def build_report(
     for name in (coverage or {}):
         families.setdefault(
             name,
-            {"n": 0, "insufficient_n": True, "absent": True, "before": {}, "after": {}, "delta": {}},
+            {"n": 0, "insufficient_n": True, "absent": True, "roles": {}},
         )
     families = {name: families[name] for name in sorted(families)}
 
     return {
-        "title": REFERENCE_TITLE if reference else TITLE,
+        "title": reference_title(source_label) if reference else TITLE,
         "baseline": False,
         "reference": reference,
         "note": REFERENCE_NOTE if reference else NOTE,
@@ -532,6 +592,11 @@ def build_report(
             "corner_drop_ratio": "(处理前四角均值 − 处理后四角均值) / 处理前四角均值",
             "centre_delta_ratio": "(处理后中心均值 − 处理前中心均值) / 处理前中心均值",
             "flat_noise": "在源图最平滑四分位区域上测得的 L* 残差稳健标准差（1.4826×MAD）；前后两相使用同一掩膜",
+            "flat_noise_scaled": (
+                f"同上，但先把两相按面积平均重采样到长边 {GRAIN_REFERENCE_LONG_EDGE} 像素，"
+                "用于跨分辨率比较；小于该长边的图不计算（上采样会凭空造细节）"
+            ),
+            "roles": "calibration 可参与调参，holdout 只作验收；两者分开聚合，不合并",
             "flat_probe_fraction": "颗粒探针覆盖的像素比例；为 null 表示画面太平滑区域不足，未测颗粒",
         },
         "guardrails": None
@@ -561,22 +626,27 @@ def _print_summary(report: dict[str, Any]) -> None:
     print(f"  sources: {report['sources']['measured']}/{report['sources']['count']}", file=sys.stderr)
     reference = bool(report.get("reference"))
     for family, data in report["families"].items():
-        after = data["after"]
-        delta = data.get("delta") or {}
-        marker = " (n<4, 不足以看区间)" if data["insufficient_n"] else ""
-        tail = (
-            f" L50={_stat(after, 'L_p50')}"
-            f" L5={_stat(after, 'L_p5')}"
-            f" L95={_stat(after, 'L_p95')}"
-            f" nw_max={_stat(after, 'near_white', 'max')}"
-            f" nb_max={_stat(after, 'near_black', 'max')}"
-            f" corner={_stat(after, 'corner_L')}"
-            f" centre={_stat(after, 'centre_L')}"
-            f" noise={_stat(after, 'flat_noise')}"
-        )
-        if not reference:
-            tail += f" corner_drop={_stat(delta, 'corner_drop_ratio')} centre={_stat(delta, 'centre_delta_ratio')}"
-        print(f"  {family}: n={data['n']}{marker}{tail}", file=sys.stderr)
+        if data.get("absent"):
+            print(f"  {family}: absent（清单声明但没有图）", file=sys.stderr)
+            continue
+        for role, block in data.get("roles", {}).items():
+            after = block["after"]
+            delta = block.get("delta") or {}
+            marker = " (n<4, 不足以看区间)" if block["insufficient_n"] else ""
+            tail = (
+                f" L50={_stat(after, 'L_p50')}"
+                f" L5={_stat(after, 'L_p5')}"
+                f" L95={_stat(after, 'L_p95')}"
+                f" nw_max={_stat(after, 'near_white', 'max')}"
+                f" nb_max={_stat(after, 'near_black', 'max')}"
+                f" corner={_stat(after, 'corner_L')}"
+                f" centre={_stat(after, 'centre_L')}"
+                f" noise={_stat(after, 'flat_noise')}"
+                f" noise@{GRAIN_REFERENCE_LONG_EDGE}={_stat(after, 'flat_noise_scaled')}"
+            )
+            if not reference:
+                tail += f" corner_drop={_stat(delta, 'corner_drop_ratio')} centre={_stat(delta, 'centre_delta_ratio')}"
+            print(f"  {family}/{role}: n={block['n']}{marker}{tail}", file=sys.stderr)
     if reference:
         coverage = report.get("coverage") or {}
         for family, plan in coverage.items():

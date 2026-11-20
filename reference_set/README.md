@@ -73,7 +73,8 @@ When expanding to 30–40 entries, keep whole camera models out of calibration s
 
 - `source` says where the file came from (camera and date, or a URL); `license` says whether it may be committed. Do not commit a file you cannot license.
 - `source_sha256` pins the exact bytes. Update it whenever the file is replaced, otherwise the validator fails, which is the point.
-- `local_path` may live outside the repository. Only commit files whose license allows it; a manifest with external paths and hashes is still reproducible for the person who holds the originals.
+- `local_path` may live outside the repository. Only commit files whose license allows it; a manifest with external paths and hashes is still reproducible for the person who holds the originals. A `filled` entry without a path is an error: there would be nothing to hash or compare.
+- `camera_make`, `camera_model`, `iso` and `flash` must equal the file's EXIF values, not the marketing name. A Cyber-shot that writes `CYBERSHOT` in `Model` must be recorded as `CYBERSHOT`; `COOLPIX 990` was the box name, while the file says `E990`. The validator compares them and fails the entry on a mismatch, because otherwise the manifest describes a file it never saw. Text comparison ignores case and spacing; `ISO`/`Flash` are compared numerically, so `"100"` and `100` agree.
 
 ## Fill and validate
 
@@ -85,9 +86,11 @@ When expanding to 30–40 entries, keep whole camera models out of calibration s
    python tests/verify_reference_set.py reference_set/manifest.json
    ```
 
-   Exit 0 means the structure is coherent. `unverified` entries are reported but do not fail a template; a `filled` manifest with any unverified entry, a missing file, a hash mismatch, fewer than four entries per family or no holdout fails.
+   Exit 0 means the structure is coherent. `unverified` entries are reported but do not fail a template; a `filled` manifest with any unverified entry, a missing file, a missing `local_path`, a hash mismatch, an EXIF value that disagrees with the file, fewer than four entries per family or no holdout fails.
 
 4. Only then measure: `python tests/ccd_profile.py --manifest reference_set/manifest.json`.
+
+Intervals are aggregated per family **and per role**: `calibration` frames are the only ones a change may be justified against, and `holdout` frames are acceptance evidence. The report never pools them, so a preset cannot be tuned on the frames that then certify it. Grain is reported both at native pixels and after area-resampling to a 1600 px long edge, because native-pixel noise is not comparable between a 2 MP compact and a 24 MP phone.
 
 ## What this can and cannot support
 

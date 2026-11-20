@@ -188,12 +188,29 @@ class ReferenceToolsTests(unittest.TestCase):
 
         two = ccd_profile.aggregate([record("indoor-flash", 50.0), record("indoor-flash", 52.0)])
         self.assertTrue(two["indoor-flash"]["insufficient_n"])
-        self.assertEqual(two["indoor-flash"]["after"]["L_p50"]["n"], 2)
+        self.assertEqual(two["indoor-flash"]["roles"]["calibration"]["after"]["L_p50"]["n"], 2)
 
         four = ccd_profile.aggregate([record("night-flash", 10.0 + i) for i in range(4)])
         self.assertFalse(four["night-flash"]["insufficient_n"])
-        interval = four["night-flash"]["after"]["L_p50"]
+        interval = four["night-flash"]["roles"]["calibration"]["after"]["L_p50"]
         self.assertEqual(set(interval), {"n", "min", "p25", "median", "p75", "max"})
+
+    def test_aggregate_never_pools_calibration_with_holdout(self) -> None:
+        def record(role: str, value: float) -> dict:
+            return {
+                "status": "ok",
+                "family": "daylight-aged",
+                "role": role,
+                "after": {"L_p50": value},
+                "delta": {},
+            }
+
+        families = ccd_profile.aggregate([record("calibration", 10.0), record("holdout", 90.0)])
+        roles = families["daylight-aged"]["roles"]
+        self.assertEqual(set(roles), {"calibration", "holdout"})
+        self.assertEqual(roles["calibration"]["after"]["L_p50"]["median"], 10.0)
+        self.assertEqual(roles["holdout"]["after"]["L_p50"]["median"], 90.0)
+        self.assertEqual(families["daylight-aged"]["n"], 2)
 
     # ---- validator ---------------------------------------------------
 
@@ -275,6 +292,39 @@ class ReferenceToolsTests(unittest.TestCase):
         self.assertEqual(report["entries"][0]["status"], "verified")
         self.assertEqual(report["entries"][0]["file_state"], "present")
 
+    def test_manifest_provenance_must_match_the_file(self) -> None:
+        tagged = self.workdir / "mismatch.jpg"
+        exif = Image.Exif()
+        exif[271] = "Canon"
+        exif[272] = "PowerShot A80"
+        exif[34855] = 100
+        exif[37385] = 0
+        Image.new("RGB", (16, 16), (90, 90, 90)).save(tagged, "JPEG", exif=exif)
+
+        entry = _entry(
+            id="indoor-flash-04",
+            local_path=str(tagged),
+            source_sha256=hashlib.sha256(tagged.read_bytes()).hexdigest(),
+            camera_make="Canon",
+            camera_model="PowerShot G2",
+            iso=100,
+            flash=0,
+            source="local camera, 2004",
+            license="own work",
+        )
+        report = verify_reference_set.validate(_manifest("template", [entry]), ROOT)
+        self.assertEqual(report["entries"][0]["status"], "error")
+        self.assertIn("camera_model mismatch", " ".join(item["reason"] for item in report["errors"]))
+
+        entry["camera_model"] = "powershot  a80"
+        report = verify_reference_set.validate(_manifest("template", [entry]), ROOT)
+        self.assertEqual(report["entries"][0]["status"], "verified")
+
+    def test_filled_entry_without_local_path_cannot_be_verified(self) -> None:
+        report = verify_reference_set.validate(_manifest("filled", [_entry()]), ROOT)
+        reasons = " ".join(item["reason"] for item in report["errors"])
+        self.assertIn("local_path is required", reasons)
+
     def test_filled_manifest_requires_four_per_family(self) -> None:
         report = verify_reference_set.validate(_manifest("filled", [_entry()]), ROOT)
         self.assertEqual(report["result"], "fail")
@@ -288,6 +338,48 @@ class ReferenceToolsTests(unittest.TestCase):
         broken = self.workdir / "broken.json"
         broken.write_text(json.dumps(_manifest("template", [_entry(family="sepia")])), encoding="utf-8")
         self.assertEqual(verify_reference_set.main([str(broken), "--root", str(ROOT)]), 1)
+
+
+class ProfilerFidelityTests(unittest.TestCase):
+    """The profiler must measure the pipeline that ships, not a simplified copy."""
+
+    def _noise_fixture(self, directory: Path, size: tuple[int, int] = (360, 240)) -> Path:
+        # A gradient keeps the frame from being a constant field, and the fine grain on
+        # top of it is what the flat probe measures. Pure noise has no flat region at
+        # all, so the probe correctly returns None and the test would prove nothing.
+        rng = np.random.default_rng(11)
+        width, height = size
+        ramp = np.linspace(70.0, 190.0, height)[:, None, None]
+        grain = rng.normal(0, 1.5, (height, width, 3))
+        pixels = np.clip(ramp + grain, 0, 255).astype(np.uint8)
+        path = directory / f"grain-{width}x{height}.png"
+        Image.fromarray(pixels).save(path)
+        return path
+
+    def test_sharpness_ablation_changes_pixels(self) -> None:
+        # Before this was wired in, the profiler skipped the unsharp mask and
+        # `--ablate sharpness` produced identical numbers, so a no-op looked like proof.
+        with tempfile.TemporaryDirectory(prefix="ccd-sharp-") as tmp:
+            path = self._noise_fixture(Path(tmp))
+            shipped = ccd_profile.profile_image(path, "indoor-flash", 100, 7)
+            recipe, _changes = ccd_ablate.ablate(apply_ccd.PRESETS["indoor-flash"], "sharpness")
+            ablated = ccd_profile.profile_image(path, "indoor-flash", 100, 7, preset=recipe)
+        self.assertIsNotNone(shipped["after"]["flat_noise"])
+        self.assertNotEqual(shipped["after"]["flat_noise"], ablated["after"]["flat_noise"])
+
+    def test_grain_is_reported_at_a_common_display_size(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="ccd-grain-") as tmp:
+            small = self._noise_fixture(Path(tmp), (360, 240))
+            record = ccd_profile.profile_image(small, "indoor-flash", 50, 7)
+            self.assertIsNone(record["after"]["flat_noise_scaled"])
+
+            big = self._noise_fixture(Path(tmp), (2000, 1400))
+            record = ccd_profile.profile_image(big, "indoor-flash", 50, 7)
+        native = record["after"]["flat_noise"]
+        scaled = record["after"]["flat_noise_scaled"]
+        self.assertIsNotNone(scaled)
+        # Area-averaging to the reference edge must reduce grain, never amplify it.
+        self.assertLess(scaled, native)
 
 
 class ReferenceModeTests(unittest.TestCase):
@@ -323,7 +415,9 @@ class ReferenceModeTests(unittest.TestCase):
                 reference=True,
                 coverage=coverage,
             )
-        self.assertEqual(report["title"], ccd_profile.REFERENCE_TITLE)
+        self.assertEqual(report["title"], ccd_profile.reference_title("m:test"))
+        self.assertTrue(report["title"].startswith("源图区间测量："))
+        self.assertIn("m:test", report["title"])
         self.assertTrue(report["reference"])
         self.assertIsNone(report["guardrails"])
         self.assertIsNone(report["ablation"])

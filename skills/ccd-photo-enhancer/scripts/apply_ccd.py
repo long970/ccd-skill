@@ -112,10 +112,23 @@ PRESETS: dict[str, Preset] = {
 
 
 def _profile_bytes() -> bytes | None:
+    """Return the sRGB profile with its header timestamp pinned.
+
+    ImageCms stamps the profile with the current date and time, which made every PNG
+    byte-different across runs even when the pixels were identical. The ICC header keeps
+    the creation date at bytes 24..35 (six big-endian uint16 fields); pinning it to a
+    fixed instant keeps output reproducible without touching the colour data.
+    """
     try:
-        return ImageCms.ImageCmsProfile(ImageCms.createProfile("sRGB")).tobytes()
+        data = bytearray(ImageCms.ImageCmsProfile(ImageCms.createProfile("sRGB")).tobytes())
     except Exception:
         return None
+    if len(data) >= 36:
+        pinned = (2020, 1, 1, 0, 0, 0)
+        for index, value in enumerate(pinned):
+            offset = 24 + index * 2
+            data[offset : offset + 2] = value.to_bytes(2, "big")
+    return bytes(data)
 
 
 SRGB_PROFILE_BYTES = _profile_bytes()
@@ -335,6 +348,38 @@ def _apply_pixel_recipe(
     return out
 
 
+def sharpness_parameters(
+    preset: "Preset",
+    strength: int,
+    sharpness_strength: float | None,
+    long_edge: int,
+) -> tuple[int, float]:
+    """Return the unsharp-mask (percent, radius) the pipeline will use for this image."""
+    sharp_mix = _effect_fraction(sharpness_strength, strength)
+    percent = int(round(100 * preset.sharpness_amount * sharp_mix))
+    # Scale radius with the long edge so the sharpening footprint is similar at display size.
+    radius = max(0.5, long_edge / 3000.0)
+    return percent, radius
+
+
+def apply_sharpness(
+    rgb: np.ndarray,
+    preset: "Preset",
+    strength: int,
+    sharpness_strength: float | None,
+) -> np.ndarray:
+    """Apply the production unsharp mask to an RGB uint8 array.
+
+    Exposed as one function so a measurement harness can run exactly what the file
+    pipeline runs instead of re-implementing the filter and drifting from it.
+    """
+    percent, radius = sharpness_parameters(preset, strength, sharpness_strength, max(rgb.shape[1], rgb.shape[0]))
+    if preset.sharpness_amount <= 0 or percent <= 0:
+        return rgb
+    image = Image.fromarray(rgb).filter(ImageFilter.UnsharpMask(radius=radius, percent=percent, threshold=3))
+    return np.asarray(image, dtype=np.uint8)
+
+
 def _clip_stats(rgb: np.ndarray, alpha: np.ndarray | None = None) -> dict[str, float]:
     height, width = rgb.shape[:2]
     counts = {"visible": 0, "near_white": 0, "clipped_channel": 0, "near_black": 0}
@@ -509,15 +554,9 @@ def _run_single(args: argparse.Namespace) -> dict[str, Any]:
                 args.color_strength,
                 args.vignette_strength,
             )
-            output_rgb_image = Image.fromarray(rgb_out)
-            sharp_mix = _effect_fraction(args.sharpness_strength, args.strength)
-            sharpness_percent = int(round(100 * preset.sharpness_amount * sharp_mix))
-            # Scale radius with the long edge so the sharpening footprint is similar at display size.
-            sharpen_radius = max(0.5, max(display_size) / 3000.0)
-            if preset.sharpness_amount > 0 and sharpness_percent > 0:
-                output_rgb_image = output_rgb_image.filter(
-                    ImageFilter.UnsharpMask(radius=sharpen_radius, percent=sharpness_percent, threshold=3)
-                )
+            output_rgb_image = Image.fromarray(
+                apply_sharpness(rgb_out, preset, args.strength, args.sharpness_strength)
+            )
             if alpha_source is not None:
                 output_rgba = output_rgb_image.convert("RGBA")
                 output_rgba.putalpha(Image.fromarray(alpha_source))
@@ -568,6 +607,9 @@ def _run_single(args: argparse.Namespace) -> dict[str, Any]:
         warnings.append("无法创建 sRGB ICC profile；输出未嵌入目标 ICC profile。")
 
     ratio_divisor = math.gcd(display_size[0], display_size[1])
+    sharpness_percent, sharpen_radius = sharpness_parameters(
+        preset, args.strength, args.sharpness_strength, max(display_size)
+    )
     overrides = {
         "grain": args.grain_strength,
         "color": args.color_strength,
@@ -600,8 +642,7 @@ def _run_single(args: argparse.Namespace) -> dict[str, Any]:
             "percent": sharpness_percent,
             "radius_px": round(sharpen_radius, 3),
             "radius_normalization": "max(0.5, long_edge / 3000)",
-        },
-        "seed": args.seed,
+        },        "seed": args.seed,
         "max_pixels": args.max_pixels,
         "size": {"width": display_size[0], "height": display_size[1]},
         "aspect_ratio": f"{display_size[0] // ratio_divisor}:{display_size[1] // ratio_divisor}",
