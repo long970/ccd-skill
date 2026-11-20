@@ -22,7 +22,7 @@ CCD Photo Enhancer is a local-first Agent Skill for CCD, Y2K and retro digicam s
 
 | | |
 |---|---|
-| **Current release** | [v1.5.2](https://github.com/long970/ccd-skill/releases/tag/v1.5.2) |
+| **Current release** | [v1.6.0](https://github.com/long970/ccd-skill/releases/tag/v1.6.0) |
 | **Input** | Static JPEG, PNG and WebP |
 | **Output** | New JPEG, PNG or WebP; orientation and dimensions preserved |
 | **Presets** | `daylight-clean`, `daylight-aged`, `indoor-flash`, `night-flash` |
@@ -249,7 +249,7 @@ CCD_STRICT=1 python -m unittest discover -s tests   # must fail while the four d
 
 - 81 automated tests cover orientation and EXIF removal, alpha preservation, deterministic output, clipping bounds, preset separation, batch safety, skip wording, empty folders and CLI failure reporting, plus the fingerprint instrument in both pipeline and reference modes, the single-stage ablation, the role-split aggregation, the grain-at-display-size metric, and the manifest validator with partial-coverage and EXIF-equality rules. Four of them are deliberate expected failures pinned to the open defects in `tests/KNOWN_ISSUES.md`; `tests/test_strict_switch.py` asserts that `CCD_STRICT=1` turns those four into hard failures, so the strict switch cannot rot.
 - GitHub Actions runs the suite on Ubuntu and Windows with Python 3.12.
-- Release 1.5.2 was installed into the DSH skill directory and checked file by file: the installed copy reports `script_version` 1.5.2 and all four batch statuses and three exit codes behave as documented. The previous 1.4.1 install is preserved as `ccd-photo-enhancer.bak-1.4.1` for rollback.
+- Release 1.6.0 was installed into the DSH skill directory and checked file by file: the installed copy reports `script_version` 1.6.0 and all four batch statuses and three exit codes behave as documented. The previous 1.4.1 install is preserved as `ccd-photo-enhancer.bak-1.4.1` for rollback.
 
 ## Repository Layout
 

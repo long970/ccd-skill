@@ -7,7 +7,7 @@ to stay green *while the defect is visible and measured*. When a test starts pas
 unittest reports an unexpected success and the suite turns red: that is the signal to
 delete the decorator and the matching row in ``KNOWN_ISSUES.md``.
 
-Measurements in the docstrings are from VERSION 1.5.2 on synthetic fixtures, so they can
+Measurements in the docstrings are from VERSION 1.6.0 (recipe unchanged since 1.5.2) on synthetic fixtures, so they can
 be re-derived without any external photo.
 """
 

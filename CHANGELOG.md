@@ -2,7 +2,9 @@
 
 This project follows Semantic Versioning.
 
-## Unreleased — tooling and evidence only, bundle unchanged
+## 1.6.0 — 2026-11-20
+
+Tooling, evidence and wording only. The pixel recipe, the CLI surface and the report schema are unchanged from 1.5.2, so images produced by 1.5.2 and 1.6.0 are identical.
 
 - Add `tests/ccd_profile.py`, a CIELAB fingerprint of the shipped pipeline. It reports L\* percentiles, near-white, clipped channels, near-black, highlight and shadow a\*/b\*, centre and corner levels with their relative changes, and grain, grouped into per-family intervals. It never emits a composite score, and it refuses to call its output a baseline: every report carries `baseline: false` and the title `管线自检，非 CCD 基线`.
 - Fix two instrument defects found while wiring it up. The grain probe now derives one mask from the source and reuses it for both phases; deriving a mask per phase compared different regions and produced changes no viewer could see. Guardrails now judge only what the step made worse: a source frame that arrives 22% blown and leaves 19% blown is reported, not condemned, while an increase in near-white or clipped channels still fails.
@@ -18,7 +20,7 @@ This project follows Semantic Versioning.
 - Record what the pilot actually shows: daylight CCD frames sit at L\* medians near 45 and 57, near-white reaching 14% and 6%, and the `daylight-clean` frames lose about 20% of centre luminance in the corners. The deficit is consistent with real in-camera falloff, but composition contributes as much as optics (`daylight-aged` measures corners brighter than centre), so it is not a per-body figure. It still cannot characterise flash or night, so presets stay gated and the report cannot be cited as a baseline.
 - Allow `status: "partial"` in `tests/verify_reference_set.py`, but only with a per-family `coverage` block that must match the entries exactly and may not contain `unverified` entries. Fix a falsy bug that treated `Flash = 0` ("did not fire") as missing provenance, and default `--root` to the manifest's own directory so manifests under `reference_set/` resolve.
 - Suite grows to 74 tests (reference mode, partial-manifest coverage, flash-zero provenance, and a guard that the shipped Tier C pilot still validates).
-- Narrow the claims (P3). `SKILL.md` now forbids describing the result as restoring a specific camera, matching a real CCD sensor, or reaching camera-level accuracy, and states that the recipe has not been blind-tested against Tier A originals; `README.md` gains a "What this is not" block. No pixel, CLI or report change, so `VERSION` stays 1.5.2 and the published 1.5.2 asset still carries the earlier wording until the next release.
+- Narrow the claims (P3). `SKILL.md` now forbids describing the result as restoring a specific camera, matching a real CCD sensor, or reaching camera-level accuracy, and states that the recipe has not been blind-tested against Tier A originals; `README.md` gains a "What this is not" block. No pixel, CLI or report change, so 1.5.2 kept its wording and the narrowed claims land in this release; the bundle is otherwise unchanged.
 
 - Add `CCD_STRICT=1`, which removes the `expectedFailure` protection from the four known-issue regressions so they fail as ordinary tests; `tests/test_strict_switch.py` asserts both directions, so a green suite can no longer be read as "the look is validated while four defects are open". Suite grows to 76 tests.
 - State the scope of the evidence where it can be read: `tests/KNOWN_ISSUES.md` now carries a per-preset table of reference frames (7 / 7 / 1 / 0 for `daylight-clean`, `daylight-aged`, `indoor-flash`, `night-flash`), and both it and `README.md` say plainly that a green suite means the pipeline and its contract are intact, not that any preset matches a family interval. No pixel, CLI or bundle change.

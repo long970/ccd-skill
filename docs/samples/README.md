@@ -1,6 +1,6 @@
 # Sample before/after images
 
-These five images are the visual evidence for the CCD presets. They are **real photographs**, not synthetic charts, and were produced with the 1.4.1 CLI. The pixel recipe has not changed since 1.4.1 — later releases add batch handling, wording and tooling — so the same settings remain representative of the current 1.5.2 release:
+These five images are the visual evidence for the CCD presets. They are **real photographs**, not synthetic charts, and were produced with the 1.4.1 CLI. The pixel recipe has not changed since 1.4.1 — later releases add batch handling, wording and tooling — so the same settings remain representative of the current 1.6.0 release:
 
 ```text
 python skills/ccd-photo-enhancer/scripts/apply_ccd.py <source> --preset <preset> --strength <n> --seed 7

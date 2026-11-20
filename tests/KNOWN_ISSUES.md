@@ -9,7 +9,7 @@ that fails on purpose in `tests/test_known_issues.py`.
 them starts passing, the suite turns red with an **unexpected success** — that is the
 prompt to delete the `@known_issue` decorator and the row below.
 
-All numbers are from VERSION 1.5.2, measured on synthetic fixtures so they can be
+All numbers are from VERSION 1.6.0 (recipe unchanged since 1.5.2), measured on synthetic fixtures so they can be
 re-derived without any external photo. `L*` is CIELAB lightness; `near_black` is the
 fraction of pixels at `L* <= 2`, `near_white` the fraction at `L* >= 97`.
 
