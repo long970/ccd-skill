@@ -22,7 +22,7 @@ Tier A is the hard requirement. A web image that "looks CCD" is Tier C no matter
 
 Where the frames come from: the retro reviews on cameralabs.com of CCD-era compacts. What survived the EXIF filter is Nikon E990 (8 frames), Sony CYBERSHOT (5) and Sony DSC-F828 (2); the Canon PowerShot samples kept no `Make`/`Model` and the DSC-F717 frames were in-camera ND/mono experiments, so neither entered the pilot. Every sample image in those reviews was downloaded (115 files); only 25 kept `Make`/`Model`, and of those 15 were native-resolution, non-duplicate frames usable here. Coverage is unresolved by construction:
 
-| Family | Calibration | Holdout | Status |
+| Family | Pilot | Holdout preview | Status |
 | --- | --- | --- | --- |
 | `daylight-clean` | 5 | 2 | `pilot` |
 | `daylight-aged` | 5 | 2 | `pilot` |
@@ -90,7 +90,7 @@ When expanding to 30–40 entries, keep whole camera models out of calibration s
 
 4. Only then measure: `python tests/ccd_profile.py --manifest reference_set/manifest.json`.
 
-Intervals are aggregated per family **and per role**: `calibration` frames (Tier A only) are the only ones a change may be justified against, `holdout` frames are acceptance evidence, and Tier C `pilot`/`holdout_preview` frames are descriptive only. The report never pools them, so a preset cannot be tuned on the frames that then certify it. Grain is reported both at native pixels and after area-resampling to a 1600 px long edge, because native-pixel noise is not comparable between a 2 MP compact and a 24 MP phone.
+Intervals are aggregated per family **and per role**: `calibration` frames (Tier A only) are the only ones a change may be justified against, `holdout` frames are acceptance evidence, and Tier C `pilot`/`holdout_preview` frames are descriptive only. The report never pools them, so a preset cannot be tuned on the frames that then certify it. Grain is reported both at native pixels and after area-resampling to a 1600 px long edge, because native-pixel noise is not comparable between a 2 MP compact and a 24 MP phone. The scaled reading resamples each phase from its own pixels through one mask taken from the source; an earlier version reused the source lightness for the after phase and therefore measured the source twice.
 
 ## What this can and cannot support
 

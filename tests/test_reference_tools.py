@@ -473,28 +473,74 @@ class ReferenceModeTests(unittest.TestCase):
         commit = report["profiler_commit"]
         self.assertTrue(commit is None or re.fullmatch(r"[0-9a-f]{7,40}", commit), commit)
 
-    def test_scaled_grain_reuses_one_source_mask(self) -> None:
+    def test_scaled_grain_measures_each_phase_through_one_mask(self) -> None:
         rng = np.random.default_rng(3)
-        rgb = rng.integers(90, 130, size=(1800, 2400, 3), dtype=np.uint8)
-        probe = ccd_profile._scaled_probe(rgb)
+        smooth = np.linspace(80, 140, 1800 * 2400 * 3).reshape(1800, 2400, 3)
+        source = smooth.astype(np.uint8)
+        noisy = np.clip(smooth + rng.normal(0, 7.0, smooth.shape), 0, 255).astype(np.uint8)
+        probe = ccd_profile._scaled_probe(source)
         self.assertIsNotNone(probe)
-        _lightness, mask = probe
+        size, mask = probe
         self.assertGreater(int(mask.sum()), 0)
+        self.assertEqual(size, (1600, 1200))
         with mock.patch.object(
             ccd_profile,
             "_flat_mask",
             side_effect=AssertionError("scaled grain re-derived its mask per phase"),
         ):
-            before = ccd_profile.measure(rgb, None, None, probe)
-            after = ccd_profile.measure(rgb, None, None, probe)
+            before = ccd_profile.measure(source, None, None, probe)
+            after = ccd_profile.measure(noisy, None, None, probe)
         self.assertIsNotNone(before["flat_noise_scaled"])
-        self.assertEqual(before["flat_noise_scaled"], after["flat_noise_scaled"])
+        self.assertIsNotNone(after["flat_noise_scaled"])
+        # The after raster must be measured as itself: reusing the source lightness made
+        # the two phases identical no matter how much grain the pipeline added.
+        self.assertGreater(after["flat_noise_scaled"], before["flat_noise_scaled"] * 3)
+        self.assertGreater(after["flat_noise_scaled"] - before["flat_noise_scaled"], 1.0)
+
+    def test_report_records_whether_the_working_tree_was_dirty(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="ccd-ref-") as tmp:
+            path = Path(tmp) / "src.png"
+            Image.new("RGB", (40, 30), (100, 102, 104)).save(path)
+            report = ccd_profile.build_report(
+                [{"id": "d1", "path": path, "preset": None, "family": "daylight-clean", "strength": 50}],
+                7,
+                "m:test",
+                "manifest",
+                reference=True,
+                reference_tier="A",
+                reference_verified=True,
+            )
+        self.assertIn(report["working_tree_dirty"], (True, False, None))
 
     def test_reference_cli_refuses_a_folder_without_a_manifest(self) -> None:
         with tempfile.TemporaryDirectory(prefix="ccd-ref-") as tmp:
             with contextlib.redirect_stderr(io.StringIO()):
                 with self.assertRaises(SystemExit) as raised:
                     ccd_profile.main(["--reference", "--sources", tmp])
+        self.assertEqual(raised.exception.code, 2)
+
+    def test_reference_cli_rejects_a_manifest_that_fails_validation(self) -> None:
+        entries = [
+            _entry(
+                id=f"{family}-01",
+                family=family,
+                role="pilot",
+                evidence_tier="C",
+                local_path="",
+                source_sha256="0" * 64,
+            )
+            for family in FAMILIES
+        ]
+        coverage = {
+            family: {"pilot": 1, "holdout_preview": 0} for family in FAMILIES
+        }
+        manifest = _manifest("partial", entries) | {"coverage": coverage}
+        with tempfile.TemporaryDirectory(prefix="ccd-ref-") as tmp:
+            path = Path(tmp) / "manifest.json"
+            path.write_text(json.dumps(manifest), encoding="utf-8")
+            with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
+                with self.assertRaises(SystemExit) as raised:
+                    ccd_profile.main(["--reference", "--manifest", str(path)])
         self.assertEqual(raised.exception.code, 2)
 
     def test_reference_cli_refuses_the_template_manifest(self) -> None:

@@ -29,7 +29,8 @@ BUNDLE_SCRIPTS = REPO_ROOT / "skills" / "ccd-photo-enhancer" / "scripts"
 if str(BUNDLE_SCRIPTS) not in sys.path:
     sys.path.insert(0, str(BUNDLE_SCRIPTS))
 
-import apply_ccd  # noqa: E402  (path set above on purpose)
+import apply_ccd  # noqa: E402
+import verify_reference_set  # noqa: E402  (path set above on purpose)
 import ccd_ablate  # noqa: E402  (same directory)
 
 TITLE = "管线自检，非 CCD 基线"
@@ -80,6 +81,31 @@ def source_note(reference: bool, tier: str | None, verified: bool) -> str:
     if tier == "A":
         return "源图由清单声明为 Tier A 的 CCD 直出原图；版权归采集者，原图不入库、不转载。"
     return "源图由清单声明为 Tier B/C 样张，不构成 CCD 直出认证；版权归原站与摄影师，原图不入库、不转载。"
+
+
+def working_tree_dirty() -> bool | None:
+    """Whether tracked work outside the evidence directory is uncommitted.
+
+    Evidence files under `docs/samples/` are excluded because writing a report is what
+    changes them; including them would make every report claim it was produced from a
+    dirty tree. None means git was unavailable, which is not the same as clean.
+    """
+    try:
+        result = subprocess.run(
+            ["git", "-C", str(REPO_ROOT), "status", "--porcelain"],
+            capture_output=True,
+            text=True,
+            timeout=10,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return None
+    if result.returncode != 0:
+        return None
+    for line in result.stdout.splitlines():
+        path = line[3:].strip()
+        if path and not path.startswith("docs/samples/"):
+            return True
+    return False
 
 
 def profiler_commit() -> str | None:
@@ -234,34 +260,43 @@ def _round(value: float | None) -> float | None:
 
 def _scaled_probe(
     rgb: np.ndarray, long_edge: int = GRAIN_REFERENCE_LONG_EDGE
-) -> tuple[np.ndarray, np.ndarray] | None:
-    """Grain amplitude after area-resampling to a common long edge.
+) -> tuple[tuple[int, int], np.ndarray] | None:
+    """Fix the display size and the smooth-region mask for a scaled grain reading.
 
     Native-pixel MAD is not comparable between a 2 MP compact and a 24 MP phone: the
     same physical grain spans a different number of pixels. Resampling to one display
     size makes the number mean "what a viewer sees at the same size". Images already
     smaller than the reference edge return None, because upsampling would invent detail.
 
-    The probe is built from the source once and reused for both phases; recomputing it
-    per phase compared different regions, which is the defect the native metric already
-    had fixed.
+    Only the size and the mask come from the source. Each phase resamples its own pixels
+    through `_scaled_noise`, so the after reading measures the after image: returning the
+    source lightness here once made before and after identical by construction.
     """
     height, width = rgb.shape[:2]
     if max(width, height) <= long_edge:
         return None
     scale = long_edge / float(max(width, height))
     size = (max(1, int(round(width * scale))), max(1, int(round(height * scale))))
-    resized = np.asarray(Image.fromarray(rgb).resize(size, Image.BOX), dtype=np.uint8)
-    lightness = srgb_to_lab(resized)[..., 0]
-    mask = _flat_mask(lightness)
-    return None if mask is None else (lightness, mask)
+    mask = _flat_mask(srgb_to_lab(_resize_for_scale(rgb, size))[..., 0])
+    return None if mask is None else (size, mask)
+
+
+def _resize_for_scale(rgb: np.ndarray, size: tuple[int, int]) -> np.ndarray:
+    return np.asarray(Image.fromarray(rgb).resize(size, Image.BOX), dtype=np.uint8)
+
+
+def _scaled_noise(rgb: np.ndarray, probe: tuple[tuple[int, int], np.ndarray]) -> float | None:
+    """Grain of *this* raster at the probe's display size, through the probe's mask."""
+    size, mask = probe
+    lightness = srgb_to_lab(_resize_for_scale(rgb, size))[..., 0]
+    return _flat_noise(lightness, mask)
 
 
 def measure(
     rgb: np.ndarray,
     flat_mask: np.ndarray | None = None,
     lab: np.ndarray | None = None,
-    scaled_probe: tuple[np.ndarray, np.ndarray] | None = None,
+    scaled_probe: tuple[tuple[int, int], np.ndarray] | None = None,
 ) -> dict[str, float | None]:
     """Summarise one sRGB raster without reducing it to a single score."""
     if lab is None:
@@ -296,7 +331,7 @@ def measure(
         "centre_L": round(centre, 3),
         "corner_L": round(corner, 3),
         "flat_noise": _round(_flat_noise(lightness, flat_mask)) if flat_mask is not None else None,
-        "flat_noise_scaled": _round(_flat_noise(*scaled_probe)) if scaled_probe is not None else None,
+        "flat_noise_scaled": _round(_scaled_noise(rgb, scaled_probe)) if scaled_probe is not None else None,
     }
 
 
@@ -630,6 +665,7 @@ def build_report(
         "script_version": apply_ccd.SCRIPT_VERSION,
         "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "profiler_commit": profiler_commit(),
+        "working_tree_dirty": working_tree_dirty(),
         "reference_tier": reference_tier,
         "reference_verified": reference_verified,
         "seed": seed,
@@ -767,17 +803,24 @@ def main(argv: list[str] | None = None) -> int:
     if args.reference:
         if not args.manifest:
             parser.error("--reference 需要 --manifest：数字必须和来源声明一起留下")
-        manifest = json.loads(Path(args.manifest).read_text(encoding="utf-8"))
+        manifest_path = Path(args.manifest).resolve()
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
         if manifest.get("status") == "template":
             parser.error("--reference 拒绝模板清单：先填真实证据，或改用普通清单")
+        # Numbers must be tied to a manifest that actually validates: field presence is
+        # a claim, a passing check of hashes and EXIF is evidence.
+        verdict = verify_reference_set.validate(manifest, manifest_path.parent)
+        if verdict["result"] != "pass":
+            details = "; ".join(
+                f"{item.get('scope')}: {item.get('reason')}" for item in verdict["errors"][:5]
+            )
+            print(f"清单未通过校验，拒绝测量：{details}", file=sys.stderr)
+            raise SystemExit(2)
         coverage = manifest.get("coverage")
         entries = [item for item in manifest.get("entries", []) if isinstance(item, dict)]
         tiers = {item.get("evidence_tier") for item in entries}
         reference_tier = tiers.pop() if len(tiers) == 1 else None
-        reference_verified = bool(entries) and all(
-            item.get("local_path") and item.get("source_sha256") and item.get("evidence_tier")
-            for item in entries
-        )
+        reference_verified = True
 
     cases, label = _load_cases(args)
     origin = "manifest" if args.manifest else "folder"

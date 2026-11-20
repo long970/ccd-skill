@@ -2,7 +2,7 @@
   "schema_version": "1",
   "status": "partial",
   "title": "CCD reference set — web-sourced daylight subset (partial)",
-  "purpose": "真实 CCD 卡片机/桥式机的直出 JPEG，用于测量 CCD 自身的色调区间（daylight 两族）。indoor-flash 只有 1 张，night-flash 为 0，因此这不是四族完整基线。",
+  "purpose": "相机评测网页上的 CCD 样张（Tier C），用于测量这些样张自身的色调区间（daylight 两族）。直出链路未经认证：样张可能经过站点再压缩，也无从确认未经修图。indoor-flash 只有 1 张，night-flash 为 0，因此这不是四族完整基线。",
   "provenance": {
     "source_site": "https://www.cameralabs.com/ retro reviews",
     "retrieved_at": "2026-11-19",
