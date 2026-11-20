@@ -47,7 +47,8 @@
       "license": null,
       "source_sha256": null,
       "local_path": null,
-      "notes": "占位：需替换为 Tier A 直出原图，并保留 EXIF。"
+      "notes": "占位：需替换为 Tier A 直出原图，并保留 EXIF。",
+      "evidence_tier": null
     },
     {
       "id": "indoor-flash-02",
@@ -62,7 +63,8 @@
       "license": null,
       "source_sha256": null,
       "local_path": null,
-      "notes": "占位：多人场景用于观察直闪在前后景的衰减差异。"
+      "notes": "占位：多人场景用于观察直闪在前后景的衰减差异。",
+      "evidence_tier": null
     },
     {
       "id": "indoor-flash-03",
@@ -77,7 +79,8 @@
       "license": null,
       "source_sha256": null,
       "local_path": null,
-      "notes": "占位：低照度室内，用于观察阴影抬升与噪点。"
+      "notes": "占位：低照度室内，用于观察阴影抬升与噪点。",
+      "evidence_tier": null
     },
     {
       "id": "indoor-flash-04",
@@ -92,7 +95,8 @@
       "license": null,
       "source_sha256": null,
       "local_path": null,
-      "notes": "占位：holdout，不参与标定，只用于验收。"
+      "notes": "占位：holdout，不参与标定，只用于验收。",
+      "evidence_tier": null
     },
     {
       "id": "night-flash-01",
@@ -107,7 +111,8 @@
       "license": null,
       "source_sha256": null,
       "local_path": null,
-      "notes": "占位：观察闪光衰减与背景压暗的平衡。"
+      "notes": "占位：观察闪光衰减与背景压暗的平衡。",
+      "evidence_tier": null
     },
     {
       "id": "night-flash-02",
@@ -122,7 +127,8 @@
       "license": null,
       "source_sha256": null,
       "local_path": null,
-      "notes": "占位：高饱和霓虹，用于观察色彩溢色与剪切。"
+      "notes": "占位：高饱和霓虹，用于观察色彩溢色与剪切。",
+      "evidence_tier": null
     },
     {
       "id": "night-flash-03",
@@ -137,7 +143,8 @@
       "license": null,
       "source_sha256": null,
       "local_path": null,
-      "notes": "占位：湿地面反射，用于观察高光滚降。"
+      "notes": "占位：湿地面反射，用于观察高光滚降。",
+      "evidence_tier": null
     },
     {
       "id": "night-flash-04",
@@ -152,7 +159,8 @@
       "license": null,
       "source_sha256": null,
       "local_path": null,
-      "notes": "占位：holdout，暗背景曾用于检验暗角是否被误清零。"
+      "notes": "占位：holdout，暗背景曾用于检验暗角是否被误清零。",
+      "evidence_tier": null
     },
     {
       "id": "daylight-aged-01",
@@ -167,7 +175,8 @@
       "license": null,
       "source_sha256": null,
       "local_path": null,
-      "notes": "占位：逆光白天，用于观察高光与暗部同时保留。"
+      "notes": "占位：逆光白天，用于观察高光与暗部同时保留。",
+      "evidence_tier": null
     },
     {
       "id": "daylight-aged-02",
@@ -182,7 +191,8 @@
       "license": null,
       "source_sha256": null,
       "local_path": null,
-      "notes": "占位：阴天低对比，用于观察对比度是否被过度推高。"
+      "notes": "占位：阴天低对比，用于观察对比度是否被过度推高。",
+      "evidence_tier": null
     },
     {
       "id": "daylight-aged-03",
@@ -197,7 +207,8 @@
       "license": null,
       "source_sha256": null,
       "local_path": null,
-      "notes": "占位：高反差街景，用于观察剪切与黑位。"
+      "notes": "占位：高反差街景，用于观察剪切与黑位。",
+      "evidence_tier": null
     },
     {
       "id": "daylight-aged-04",
@@ -212,7 +223,8 @@
       "license": null,
       "source_sha256": null,
       "local_path": null,
-      "notes": "占位：holdout。"
+      "notes": "占位：holdout。",
+      "evidence_tier": null
     },
     {
       "id": "daylight-clean-01",
@@ -227,7 +239,8 @@
       "license": null,
       "source_sha256": null,
       "local_path": null,
-      "notes": "占位：高调棚拍，曾出现近白被整片压成平台的问题，必须纳入。"
+      "notes": "占位：高调棚拍，曾出现近白被整片压成平台的问题，必须纳入。",
+      "evidence_tier": null
     },
     {
       "id": "daylight-clean-02",
@@ -242,7 +255,8 @@
       "license": null,
       "source_sha256": null,
       "local_path": null,
-      "notes": "占位：窗光，用于观察中间调与肤色。"
+      "notes": "占位：窗光，用于观察中间调与肤色。",
+      "evidence_tier": null
     },
     {
       "id": "daylight-clean-03",
@@ -257,7 +271,8 @@
       "license": null,
       "source_sha256": null,
       "local_path": null,
-      "notes": "占位：低反差室内，用于观察对比度与颗粒。"
+      "notes": "占位：低反差室内，用于观察对比度与颗粒。",
+      "evidence_tier": null
     },
     {
       "id": "daylight-clean-04",
@@ -272,7 +287,9 @@
       "license": null,
       "source_sha256": null,
       "local_path": null,
-      "notes": "占位：holdout。"
+      "notes": "占位：holdout。",
+      "evidence_tier": null
     }
-  ]
+  ],
+  "tier_note": "role=calibration/holdout 只允许 evidence_tier=\"A\"；Tier B/C 只能用 pilot/holdout_preview。校验器会逐条比对 Make/Model/ISO/Flash，但只证明字段与文件一致，不证明 Tier A。"
 }

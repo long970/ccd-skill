@@ -18,7 +18,7 @@ Each side-by-side file is `BEFORE` on the left and `AFTER` on the right. The `BE
 
 ## Extended real-photo evaluation
 
-`real-evaluation-overview.jpg` contains 30 before/after runs across 15 photographs at default and recommended strengths, generated with the current 1.5.2 CLI. `real-evaluation.json` records source hashes, exact parameters, `script_version`, dependency versions, clipping and tonal metrics; rerunning `tests/real_photo_eval.py` refreshes all of them, so check those fields before citing a number. The source matrix and page URLs are in `tests/real-photo-manifest.json`; run `python tests/real_photo_eval.py` from the repository root after placing the licensed sources at the manifest paths. The evaluator itself is offline and always invokes the shipped CLI.
+`real-evaluation-overview.jpg` contains 30 before/after runs across 15 photographs at default and recommended strengths, generated with the 1.5.2 CLI (the pixel recipe is unchanged in 1.6.0). `real-evaluation.json` records source hashes, exact parameters, `script_version`, dependency versions, clipping and tonal metrics; rerunning `tests/real_photo_eval.py` refreshes all of them, so check those fields before citing a number. The source matrix and page URLs are in `tests/real-photo-manifest.json`; run `python tests/real_photo_eval.py` from the repository root after placing the licensed sources at the manifest paths. The evaluator itself is offline and always invokes the shipped CLI.
 
 ## Licensing
 

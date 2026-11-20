@@ -9,14 +9,18 @@ CCD reference.
 
 from __future__ import annotations
 
+import contextlib
 import hashlib
+import io
 import json
 import os
+import re
 import shutil
 import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 import numpy as np
 from PIL import Image
@@ -38,6 +42,7 @@ def _entry(**overrides) -> dict:
         "family": "indoor-flash",
         "scene": "close-up portrait",
         "role": "calibration",
+        "evidence_tier": "A",
         "camera_make": None,
         "camera_model": None,
         "iso": None,
@@ -414,6 +419,8 @@ class ReferenceModeTests(unittest.TestCase):
                 "manifest",
                 reference=True,
                 coverage=coverage,
+                reference_tier="C",
+                reference_verified=True,
             )
         self.assertEqual(report["title"], ccd_profile.reference_title("m:test"))
         self.assertTrue(report["title"].startswith("源图区间测量："))
@@ -427,7 +434,102 @@ class ReferenceModeTests(unittest.TestCase):
         self.assertEqual(absent["n"], 0)
         self.assertTrue(absent["absent"])
         self.assertTrue(absent["insufficient_n"])
-        self.assertIn("不是四族完整基线", report["note"])
+        self.assertIn("Tier C", report["note"])
+        self.assertIn("不进入标定区间", report["note"])
+        self.assertEqual(report["reference_tier"], "C")
+        self.assertTrue(report["reference_verified"])
+
+    def test_unverified_reference_input_never_claims_a_ccd_straight_out(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="ccd-ref-") as tmp:
+            path = Path(tmp) / "src.png"
+            Image.new("RGB", (40, 30), (110, 112, 115)).save(path)
+            report = ccd_profile.build_report(
+                [{"id": "u1", "path": path, "preset": None, "family": "daylight-clean", "strength": 50}],
+                7,
+                "folder:somewhere",
+                "folder",
+                reference=True,
+            )
+        self.assertFalse(report["reference_verified"])
+        self.assertIsNone(report["reference_tier"])
+        self.assertIn("未经校验", report["note"])
+        self.assertNotIn("Tier C 本身", report["note"])
+        self.assertIn("未经清单校验", report["sources"]["note"])
+
+    def test_report_records_when_and_by_which_commit_it_ran(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="ccd-ref-") as tmp:
+            path = Path(tmp) / "src.png"
+            Image.new("RGB", (40, 30), (110, 112, 115)).save(path)
+            report = ccd_profile.build_report(
+                [{"id": "g1", "path": path, "preset": None, "family": "daylight-clean", "strength": 50}],
+                7,
+                "m:test",
+                "manifest",
+                reference=True,
+                reference_tier="A",
+                reference_verified=True,
+            )
+        self.assertRegex(report["generated_at"], r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$")
+        commit = report["profiler_commit"]
+        self.assertTrue(commit is None or re.fullmatch(r"[0-9a-f]{7,40}", commit), commit)
+
+    def test_scaled_grain_reuses_one_source_mask(self) -> None:
+        rng = np.random.default_rng(3)
+        rgb = rng.integers(90, 130, size=(1800, 2400, 3), dtype=np.uint8)
+        probe = ccd_profile._scaled_probe(rgb)
+        self.assertIsNotNone(probe)
+        _lightness, mask = probe
+        self.assertGreater(int(mask.sum()), 0)
+        with mock.patch.object(
+            ccd_profile,
+            "_flat_mask",
+            side_effect=AssertionError("scaled grain re-derived its mask per phase"),
+        ):
+            before = ccd_profile.measure(rgb, None, None, probe)
+            after = ccd_profile.measure(rgb, None, None, probe)
+        self.assertIsNotNone(before["flat_noise_scaled"])
+        self.assertEqual(before["flat_noise_scaled"], after["flat_noise_scaled"])
+
+    def test_reference_cli_refuses_a_folder_without_a_manifest(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="ccd-ref-") as tmp:
+            with contextlib.redirect_stderr(io.StringIO()):
+                with self.assertRaises(SystemExit) as raised:
+                    ccd_profile.main(["--reference", "--sources", tmp])
+        self.assertEqual(raised.exception.code, 2)
+
+    def test_reference_cli_refuses_the_template_manifest(self) -> None:
+        template = ROOT / "reference_set" / "manifest.template.json"
+        with contextlib.redirect_stderr(io.StringIO()):
+            with self.assertRaises(SystemExit) as raised:
+                ccd_profile.main(["--reference", "--manifest", str(template)])
+        self.assertEqual(raised.exception.code, 2)
+
+
+class TierRoleTests(unittest.TestCase):
+    """A role is a data split; only Tier A may call itself calibration."""
+
+    def test_calibration_cannot_be_tier_c(self) -> None:
+        report = verify_reference_set.validate(_manifest("template", [_entry(evidence_tier="C")]), ROOT)
+        reasons = " ".join(item["reason"] for item in report["errors"])
+        self.assertIn("requires evidence_tier 'A'", reasons)
+
+    def test_pilot_cannot_be_tier_a(self) -> None:
+        report = verify_reference_set.validate(
+            _manifest("template", [_entry(role="pilot", evidence_tier="A")]), ROOT
+        )
+        reasons = " ".join(item["reason"] for item in report["errors"])
+        self.assertIn("is for non-Tier-A frames", reasons)
+
+    def test_partial_manifest_must_declare_a_tier(self) -> None:
+        report = verify_reference_set.validate(_manifest("partial", [_entry(evidence_tier=None)]), ROOT)
+        reasons = " ".join(item["reason"] for item in report["errors"])
+        self.assertIn("evidence_tier is required", reasons)
+
+    def test_validation_reports_consistency_not_a_tier_a_claim(self) -> None:
+        report = verify_reference_set.validate(_manifest("template", [_entry()]), ROOT)
+        self.assertFalse(report["tier_a_claim"])
+        self.assertIn("Tier A", report["claim_note"])
+        self.assertEqual(report["provenance_consistent"], not report["errors"])
 
 
 class PartialManifestTests(unittest.TestCase):

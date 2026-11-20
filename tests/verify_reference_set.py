@@ -27,12 +27,16 @@ from typing import Any
 from PIL import Image
 
 FAMILIES = ("indoor-flash", "night-flash", "daylight-aged", "daylight-clean")
-ROLES = ("calibration", "holdout")
+ROLES = ("calibration", "holdout", "pilot", "holdout_preview")
+TIER_ROLES = ("calibration", "holdout")
+PILOT_ROLES = ("pilot", "holdout_preview")
+EVIDENCE_TIERS = ("A", "B", "C")
 REQUIRED_ENTRY_KEYS = (
     "id",
     "family",
     "scene",
     "role",
+    "evidence_tier",
     "camera_make",
     "camera_model",
     "iso",
@@ -132,6 +136,19 @@ def validate(manifest: dict[str, Any], root: Path) -> dict[str, Any]:
             entry_errors.append(f"family must be one of {list(FAMILIES)}")
         if entry.get("role") not in ROLES:
             entry_errors.append(f"role must be one of {list(ROLES)}")
+        # A role is a data split, not a calibration licence: only Tier A frames may be
+        # called calibration, and a Tier C web sample may never be one.
+        tier = entry.get("evidence_tier")
+        if tier in (None, ""):
+            # A placeholder may leave the tier open; real evidence may not.
+            if status != "template":
+                entry_errors.append("evidence_tier is required for a filled or partial manifest")
+        elif tier not in EVIDENCE_TIERS:
+            entry_errors.append(f"evidence_tier must be one of {list(EVIDENCE_TIERS)}")
+        elif entry.get("role") in TIER_ROLES and tier != "A":
+            entry_errors.append(f"role {entry.get('role')!r} requires evidence_tier 'A'")
+        elif entry.get("role") in PILOT_ROLES and tier == "A":
+            entry_errors.append(f"role {entry.get('role')!r} is for non-Tier-A frames")
         if not isinstance(entry.get("scene"), str) or not entry.get("scene", "").strip():
             entry_errors.append("scene must be a non-empty string")
 
@@ -204,7 +221,7 @@ def validate(manifest: dict[str, Any], root: Path) -> dict[str, Any]:
         )
 
     counts = {"entries": len(results), "verified": 0, "unverified": 0, "error": 0}
-    per_family = {family: {"entries": 0, "calibration": 0, "holdout": 0} for family in FAMILIES}
+    per_family = {family: {"entries": 0, **{role: 0 for role in ROLES}} for family in FAMILIES}
     for item in results:
         counts[item["status"]] = counts.get(item["status"], 0) + 1
         family = item["family"]
@@ -218,6 +235,10 @@ def validate(manifest: dict[str, Any], root: Path) -> dict[str, Any]:
             if plan["entries"] < MIN_PER_FAMILY:
                 errors.append(
                     {"scope": family, "reason": f"needs at least {MIN_PER_FAMILY} entries, has {plan['entries']}"}
+                )
+            if plan["calibration"] < MIN_PER_FAMILY:
+                errors.append(
+                    {"scope": family, "reason": f"needs at least {MIN_PER_FAMILY} calibration entries, has {plan['calibration']}"}
                 )
             if plan["holdout"] < REQUIRED_PER_FAMILY_HOLDOUT:
                 errors.append(
@@ -252,7 +273,11 @@ def validate(manifest: dict[str, Any], root: Path) -> dict[str, Any]:
                     )
                     continue
                 actual = per_family[family]
-                for key in ("calibration", "holdout"):
+                for key in ROLES:
+                    # A Tier C pilot declares pilot/holdout_preview only; an absent key
+                    # means "no frames in this role", not a coverage contradiction.
+                    if key not in plan:
+                        continue
                     if plan.get(key) != actual[key]:
                         errors.append(
                             {
@@ -272,6 +297,13 @@ def validate(manifest: dict[str, Any], root: Path) -> dict[str, Any]:
         "manifest_status": status,
         "partial": status == "partial",
         "result": "fail" if errors else "pass",
+        "provenance_consistent": not errors,
+        "tier_a_claim": False,
+        "claim_note": (
+            "Validation proves only that the manifest fields match the files' EXIF and SHA-256. "
+            "Tier A still needs the collector's confirmation that the frames are straight out of a CCD "
+            "camera, unedited, and shot alongside a comparison device."
+        ),
         "counts": counts,
         "per_family": per_family,
         "coverage": manifest.get("coverage"),

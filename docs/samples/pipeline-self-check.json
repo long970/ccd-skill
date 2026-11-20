@@ -4,7 +4,11 @@
   "reference": false,
   "note": "这些数字描述本仓库像素管线在同一批图库照片上的行为；样本不是已验证的 CCD 直出原图，没有与真实机型对照，也没有盲测。任何结论都不能当作“CCD 基线”。",
   "generated_by": "tests/ccd_profile.py",
-  "script_version": "1.5.2",
+  "script_version": "1.6.0",
+  "generated_at": "2026-11-20T03:19:13Z",
+  "profiler_commit": "af05ccc",
+  "reference_tier": null,
+  "reference_verified": false,
   "seed": 7,
   "ablation": null,
   "source_label": "manifest:real-photo-manifest.json",
@@ -25,8 +29,8 @@
     "corner_drop_ratio": "(处理前四角均值 − 处理后四角均值) / 处理前四角均值",
     "centre_delta_ratio": "(处理后中心均值 − 处理前中心均值) / 处理前中心均值",
     "flat_noise": "在源图最平滑四分位区域上测得的 L* 残差稳健标准差（1.4826×MAD）；前后两相使用同一掩膜",
-    "flat_noise_scaled": "同上，但先把两相按面积平均重采样到长边 1600 像素，用于跨分辨率比较；小于该长边的图不计算（上采样会凭空造细节）",
-    "roles": "calibration 可参与调参，holdout 只作验收；两者分开聚合，不合并",
+    "flat_noise_scaled": "同上，但先把两相按面积平均重采样到长边 1600 像素，在同一显示尺度上复用源图掩膜比较，用于跨分辨率对照；小于该长边的图不计算",
+    "roles": "calibration/holdout 只允许 Tier A（可参与调参 / 只作验收）；pilot/holdout_preview 是 Tier B/C 的描述性分区，不进入标定；一律按 family × role 分开聚合",
     "flat_probe_fraction": "颗粒探针覆盖的像素比例；为 null 表示画面太平滑区域不足，未测颗粒"
   },
   "guardrails": {
@@ -95,7 +99,7 @@
         "centre_L": 45.71,
         "corner_L": 68.116,
         "flat_noise": 2.632,
-        "flat_noise_scaled": 1.65
+        "flat_noise_scaled": 0.345
       },
       "delta": {
         "L_p5": -1.437,
@@ -115,7 +119,7 @@
         "centre_L": -0.034,
         "corner_L": -5.335,
         "flat_noise": 2.337,
-        "flat_noise_scaled": 1.305,
+        "flat_noise_scaled": 0.0,
         "corner_drop_ratio": 0.07263,
         "centre_delta_ratio": -0.00074
       },
@@ -177,7 +181,7 @@
         "centre_L": 10.54,
         "corner_L": 15.241,
         "flat_noise": 1.982,
-        "flat_noise_scaled": 1.603
+        "flat_noise_scaled": 0.181
       },
       "delta": {
         "L_p5": -0.274,
@@ -197,7 +201,7 @@
         "centre_L": -0.191,
         "corner_L": -3.369,
         "flat_noise": 1.819,
-        "flat_noise_scaled": 1.422,
+        "flat_noise_scaled": 0.0,
         "corner_drop_ratio": 0.18103,
         "centre_delta_ratio": -0.0178
       },
@@ -259,7 +263,7 @@
         "centre_L": 53.73,
         "corner_L": 90.566,
         "flat_noise": 0.879,
-        "flat_noise_scaled": 0.519
+        "flat_noise_scaled": 0.0
       },
       "delta": {
         "L_p5": -1.861,
@@ -279,7 +283,7 @@
         "centre_L": -0.201,
         "corner_L": -1.123,
         "flat_noise": 0.879,
-        "flat_noise_scaled": 0.519,
+        "flat_noise_scaled": 0.0,
         "corner_drop_ratio": 0.01225,
         "centre_delta_ratio": -0.00373
       },
@@ -341,7 +345,7 @@
         "centre_L": 32.618,
         "corner_L": 34.142,
         "flat_noise": 3.286,
-        "flat_noise_scaled": 1.648
+        "flat_noise_scaled": 0.343
       },
       "delta": {
         "L_p5": -3.569,
@@ -361,7 +365,7 @@
         "centre_L": -1.758,
         "corner_L": -3.534,
         "flat_noise": 3.011,
-        "flat_noise_scaled": 1.305,
+        "flat_noise_scaled": 0.0,
         "corner_drop_ratio": 0.0938,
         "centre_delta_ratio": -0.05114
       },
@@ -505,7 +509,7 @@
         "centre_L": 28.589,
         "corner_L": 60.238,
         "flat_noise": 2.646,
-        "flat_noise_scaled": 1.563
+        "flat_noise_scaled": 0.0
       },
       "delta": {
         "L_p5": -0.474,
@@ -525,7 +529,7 @@
         "centre_L": -0.112,
         "corner_L": -5.282,
         "flat_noise": 2.646,
-        "flat_noise_scaled": 1.563,
+        "flat_noise_scaled": 0.0,
         "corner_drop_ratio": 0.08062,
         "centre_delta_ratio": -0.0039
       },
@@ -587,7 +591,7 @@
         "centre_L": 42.879,
         "corner_L": 35.66,
         "flat_noise": 3.166,
-        "flat_noise_scaled": 1.722
+        "flat_noise_scaled": 0.822
       },
       "delta": {
         "L_p5": -4.239,
@@ -607,7 +611,7 @@
         "centre_L": -0.471,
         "corner_L": -5.516,
         "flat_noise": 2.386,
-        "flat_noise_scaled": 0.9,
+        "flat_noise_scaled": 0.0,
         "corner_drop_ratio": 0.13396,
         "centre_delta_ratio": -0.01087
       },
@@ -751,7 +755,7 @@
         "centre_L": 44.795,
         "corner_L": 65.037,
         "flat_noise": 2.603,
-        "flat_noise_scaled": 1.605
+        "flat_noise_scaled": 0.0
       },
       "delta": {
         "L_p5": -0.744,
@@ -771,7 +775,7 @@
         "centre_L": 0.578,
         "corner_L": -5.686,
         "flat_noise": 2.603,
-        "flat_noise_scaled": 1.605,
+        "flat_noise_scaled": 0.0,
         "corner_drop_ratio": 0.0804,
         "centre_delta_ratio": 0.01307
       },
@@ -833,7 +837,7 @@
         "centre_L": 59.988,
         "corner_L": 59.907,
         "flat_noise": 0.893,
-        "flat_noise_scaled": 0.683
+        "flat_noise_scaled": 0.031
       },
       "delta": {
         "L_p5": -1.863,
@@ -853,7 +857,7 @@
         "centre_L": -0.152,
         "corner_L": -1.171,
         "flat_noise": 0.875,
-        "flat_noise_scaled": 0.652,
+        "flat_noise_scaled": 0.0,
         "corner_drop_ratio": 0.01917,
         "centre_delta_ratio": -0.00253
       },
@@ -915,7 +919,7 @@
         "centre_L": 40.431,
         "corner_L": 55.363,
         "flat_noise": 2.838,
-        "flat_noise_scaled": 1.679
+        "flat_noise_scaled": 0.131
       },
       "delta": {
         "L_p5": -4.395,
@@ -935,7 +939,7 @@
         "centre_L": -2.033,
         "corner_L": -4.305,
         "flat_noise": 2.729,
-        "flat_noise_scaled": 1.548,
+        "flat_noise_scaled": 0.0,
         "corner_drop_ratio": 0.07215,
         "centre_delta_ratio": -0.04788
       },
@@ -1079,7 +1083,7 @@
         "centre_L": 19.461,
         "corner_L": 20.045,
         "flat_noise": 4.974,
-        "flat_noise_scaled": null
+        "flat_noise_scaled": 0.555
       },
       "delta": {
         "L_p5": -7.161,
@@ -1099,7 +1103,7 @@
         "centre_L": -2.457,
         "corner_L": -6.281,
         "flat_noise": 4.515,
-        "flat_noise_scaled": null,
+        "flat_noise_scaled": 0.0,
         "corner_drop_ratio": 0.23859,
         "centre_delta_ratio": -0.1121
       },
@@ -1161,7 +1165,7 @@
         "centre_L": 51.383,
         "corner_L": 13.703,
         "flat_noise": 3.618,
-        "flat_noise_scaled": null
+        "flat_noise_scaled": 0.032
       },
       "delta": {
         "L_p5": -3.147,
@@ -1181,7 +1185,7 @@
         "centre_L": -0.683,
         "corner_L": -2.837,
         "flat_noise": 3.606,
-        "flat_noise_scaled": null,
+        "flat_noise_scaled": 0.0,
         "corner_drop_ratio": 0.17152,
         "centre_delta_ratio": -0.01312
       },
@@ -1243,7 +1247,7 @@
         "centre_L": 22.561,
         "corner_L": 8.562,
         "flat_noise": 3.993,
-        "flat_noise_scaled": 1.816
+        "flat_noise_scaled": 0.046
       },
       "delta": {
         "L_p5": -4.156,
@@ -1263,7 +1267,7 @@
         "centre_L": -1.502,
         "corner_L": -2.525,
         "flat_noise": 3.993,
-        "flat_noise_scaled": 1.77,
+        "flat_noise_scaled": 0.0,
         "corner_drop_ratio": 0.22774,
         "centre_delta_ratio": -0.06242
       },
@@ -1354,11 +1358,11 @@
             },
             "flat_noise_scaled": {
               "n": 2,
-              "min": 1.648,
-              "p25": 1.6557,
-              "median": 1.6635,
-              "p75": 1.6713,
-              "max": 1.679
+              "min": 0.131,
+              "p25": 0.184,
+              "median": 0.237,
+              "p75": 0.29,
+              "max": 0.343
             },
             "highlight_a": {
               "n": 4,
@@ -1516,11 +1520,11 @@
             },
             "flat_noise_scaled": {
               "n": 2,
-              "min": 1.305,
-              "p25": 1.3658,
-              "median": 1.4265,
-              "p75": 1.4872,
-              "max": 1.548
+              "min": 0.0,
+              "p25": 0.0,
+              "median": 0.0,
+              "p75": 0.0,
+              "max": 0.0
             },
             "highlight_a": {
               "n": 4,
@@ -1672,11 +1676,11 @@
             },
             "flat_noise_scaled": {
               "n": 2,
-              "min": 0.519,
-              "p25": 0.56,
-              "median": 0.601,
-              "p75": 0.642,
-              "max": 0.683
+              "min": 0.0,
+              "p25": 0.0077,
+              "median": 0.0155,
+              "p75": 0.0232,
+              "max": 0.031
             },
             "highlight_a": {
               "n": 2,
@@ -1834,11 +1838,11 @@
             },
             "flat_noise_scaled": {
               "n": 2,
-              "min": 0.519,
-              "p25": 0.5523,
-              "median": 0.5855,
-              "p75": 0.6188,
-              "max": 0.652
+              "min": 0.0,
+              "p25": 0.0,
+              "median": 0.0,
+              "p75": 0.0,
+              "max": 0.0
             },
             "highlight_a": {
               "n": 2,
@@ -1990,11 +1994,11 @@
             },
             "flat_noise_scaled": {
               "n": 5,
-              "min": 1.563,
-              "p25": 1.603,
-              "median": 1.605,
-              "p75": 1.65,
-              "max": 1.722
+              "min": 0.0,
+              "p25": 0.0,
+              "median": 0.181,
+              "p75": 0.345,
+              "max": 0.822
             },
             "highlight_a": {
               "n": 6,
@@ -2152,11 +2156,11 @@
             },
             "flat_noise_scaled": {
               "n": 5,
-              "min": 0.9,
-              "p25": 1.305,
-              "median": 1.422,
-              "p75": 1.563,
-              "max": 1.605
+              "min": 0.0,
+              "p25": 0.0,
+              "median": 0.0,
+              "p75": 0.0,
+              "max": 0.0
             },
             "highlight_a": {
               "n": 6,
@@ -2307,12 +2311,12 @@
               "max": 4.974
             },
             "flat_noise_scaled": {
-              "n": 1,
-              "min": 1.816,
-              "p25": 1.816,
-              "median": 1.816,
-              "p75": 1.816,
-              "max": 1.816
+              "n": 3,
+              "min": 0.032,
+              "p25": 0.039,
+              "median": 0.046,
+              "p75": 0.3005,
+              "max": 0.555
             },
             "highlight_a": {
               "n": 3,
@@ -2469,12 +2473,12 @@
               "max": 4.515
             },
             "flat_noise_scaled": {
-              "n": 1,
-              "min": 1.77,
-              "p25": 1.77,
-              "median": 1.77,
-              "p75": 1.77,
-              "max": 1.77
+              "n": 3,
+              "min": 0.0,
+              "p25": 0.0,
+              "median": 0.0,
+              "p75": 0.0,
+              "max": 0.0
             },
             "highlight_a": {
               "n": 3,

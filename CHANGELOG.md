@@ -2,6 +2,19 @@
 
 This project follows Semantic Versioning.
 
+## Unreleased — evidence semantics and reference wording
+
+Tooling and documentation only: no pixel recipe change, one CLI constraint, and no `VERSION` bump, so the shipped bundle stays 1.6.0 until the next release.
+
+- Reference reports choose their wording from the manifest's declared tier, and an input that failed validation can no longer borrow Tier A's language. `reference_note(tier, verified)` returns one of four texts, and the unverified one calls the numbers a descriptive measurement of unverified images. `--reference` now also requires `--manifest` and refuses a `status: "template"` manifest, so an arbitrary folder can no longer be reported as a CCD reference.
+- Split evidence roles from evidence tiers. `calibration` and `holdout` are reserved for `evidence_tier: "A"`; Tier C web samples use `pilot` / `holdout_preview`. The validator rejects a Tier C calibration entry, a Tier A pilot entry, and any non-template entry without a tier. `reference_set/manifest.daylight.json` was migrated to `pilot` / `holdout_preview` with `evidence_tier: "C"`, and the template carries `evidence_tier: null` until a real frame replaces it.
+- The validator reports `provenance_consistent` and explicitly `tier_a_claim: false`, with a note that matching fields, EXIF and hashes cannot prove a CCD sensor, an unedited frame or a same-scene comparison.
+- Fix the display-size grain probe, which derived a fresh smooth-region mask for each phase and therefore compared different regions. `_scaled_probe()` builds one mask from the source at the 1600 px long edge and both phases reuse it.
+- Correct the grain comparison published in 1.6.0. That bullet compared a native-pixel MAD with a resampled MAD and concluded the pipeline was 3.5–4.5× noisier. At the same 1600 px scale the ordering reverses: the reference pilot measures 0.393 / 0.426 / 0.494 L\* (medians for `daylight-clean`, `daylight-aged`, and the single `indoor-flash` frame) while the pipeline lands at 0.0155 / 0.237 / 0.181 / 0.046 (including `night-flash`). The pipeline is lighter, not heavier — and because the frames depict different content, neither figure calibrates the other.
+- Reports now record `generated_at` (UTC) and `profiler_commit`, so a number can be traced to the instrument that produced it rather than to the version string it mentions.
+- Documentation: the Tier C model list now matches the manifest (Nikon E990, Sony CYBERSHOT, Sony DSC-F828; the Canon samples kept no `Make`/`Model` and the DSC-F717 frames were excluded as in-camera ND/mono experiments), the presets are described as hand-tuned rather than calibrated, and 1.6.0 is stated to be a tooling release rather than the tone work that the four open defects still block.
+- Tests grow from 81 to 90.
+
 ## 1.6.0 — 2026-11-20
 
 Tooling, evidence and wording only. The pixel recipe, the CLI surface and the report schema are unchanged from 1.5.2, so images produced by 1.5.2 and 1.6.0 are identical.

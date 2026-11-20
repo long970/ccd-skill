@@ -20,7 +20,7 @@ Tier A is the hard requirement. A web image that "looks CCD" is Tier C no matter
 
 `manifest.daylight.json` holds 15 entries measured from web samples. It exists to prove the tooling end to end and to record what daylight CCD frames measure like — it is not a baseline and it must not steer the presets.
 
-Where the frames come from: the retro reviews on cameralabs.com of CCD-era compacts (Canon PowerShot G2 and Pro1, Nikon COOLPIX 990, Sony Cyber-shot DSC-F828). Every sample image in those reviews was downloaded (115 files); only 25 kept `Make`/`Model`, and of those 15 were native-resolution, non-duplicate frames usable here. Coverage is unresolved by construction:
+Where the frames come from: the retro reviews on cameralabs.com of CCD-era compacts. What survived the EXIF filter is Nikon E990 (8 frames), Sony CYBERSHOT (5) and Sony DSC-F828 (2); the Canon PowerShot samples kept no `Make`/`Model` and the DSC-F717 frames were in-camera ND/mono experiments, so neither entered the pilot. Every sample image in those reviews was downloaded (115 files); only 25 kept `Make`/`Model`, and of those 15 were native-resolution, non-duplicate frames usable here. Coverage is unresolved by construction:
 
 | Family | Calibration | Holdout | Status |
 | --- | --- | --- | --- |
@@ -54,7 +54,7 @@ What disqualifies an otherwise usable file:
 
 ## The 16-entry pilot
 
-Four families, four entries each: three `calibration` plus one `holdout`. The holdout frame is never used while tuning; it exists to catch a change that fits the calibration frames and nothing else.
+Four families, four entries each: three `calibration` plus one `holdout`. These two roles are Tier A only; a Tier C pilot must use `pilot` and `holdout_preview` (see `manifest.daylight.json`), which the validator enforces so a web sample can never be called calibration. The holdout frame is never used while tuning; it exists to catch a change that fits the calibration frames and nothing else.
 
 | Family | Scenes |
 | --- | --- |
@@ -90,7 +90,7 @@ When expanding to 30–40 entries, keep whole camera models out of calibration s
 
 4. Only then measure: `python tests/ccd_profile.py --manifest reference_set/manifest.json`.
 
-Intervals are aggregated per family **and per role**: `calibration` frames are the only ones a change may be justified against, and `holdout` frames are acceptance evidence. The report never pools them, so a preset cannot be tuned on the frames that then certify it. Grain is reported both at native pixels and after area-resampling to a 1600 px long edge, because native-pixel noise is not comparable between a 2 MP compact and a 24 MP phone.
+Intervals are aggregated per family **and per role**: `calibration` frames (Tier A only) are the only ones a change may be justified against, `holdout` frames are acceptance evidence, and Tier C `pilot`/`holdout_preview` frames are descriptive only. The report never pools them, so a preset cannot be tuned on the frames that then certify it. Grain is reported both at native pixels and after area-resampling to a 1600 px long edge, because native-pixel noise is not comparable between a 2 MP compact and a 24 MP phone.
 
 ## What this can and cannot support
 

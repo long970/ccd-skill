@@ -15,14 +15,17 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import subprocess
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
 import numpy as np
 from PIL import Image, ImageOps
 
-BUNDLE_SCRIPTS = Path(__file__).resolve().parents[1] / "skills" / "ccd-photo-enhancer" / "scripts"
+REPO_ROOT = Path(__file__).resolve().parents[1]
+BUNDLE_SCRIPTS = REPO_ROOT / "skills" / "ccd-photo-enhancer" / "scripts"
 if str(BUNDLE_SCRIPTS) not in sys.path:
     sys.path.insert(0, str(BUNDLE_SCRIPTS))
 
@@ -36,11 +39,62 @@ NOTE = (
 )
 
 GRAIN_REFERENCE_LONG_EDGE = 1600
-REFERENCE_NOTE = (
-    "这些数字量的是真实 CCD 相机的直出 JPEG 本身，不经过本仓库的像素管线。"
-    "样本来自公开的相机评测样张，只覆盖 daylight 两族；indoor-flash 只有 1 张、night-flash 为 0，"
-    "所以它是“分区间的第一步”，不是四族完整基线，也没有与手机同期对照或盲测。"
+REFERENCE_NOTE_TIER_A = (
+    "这些数字量的是清单声明为 Tier A 的 CCD 直出原图本身，不经过本仓库的像素管线。"
+    "校验只证明清单字段与文件 EXIF 一致，不证明传感器类型、未经修图，也不证明存在同场景对照或盲测。"
 )
+REFERENCE_NOTE_TIER_B = (
+    "这些数字量的是清单声明为 Tier B 的对照样张本身，不经过本仓库的像素管线。"
+    "Tier B 只作场景对照，不进入标定区间，也不能当作某机型的直出特征。"
+)
+REFERENCE_NOTE_TIER_C = (
+    "这些数字量的是公开网页样张（Tier C）本身，不经过本仓库的像素管线。"
+    "Tier C 不进入标定区间，也不构成 CCD 直出认证；只覆盖 daylight 两族，indoor-flash 只有 1 张、"
+    "night-flash 为 0，没有手机同期对照，也没有盲测。"
+)
+REFERENCE_NOTE_UNVERIFIED = (
+    "这些数字来自未经校验的图片，只是源图描述性测量，不经过本仓库的像素管线。"
+    "不得据此声称任何 CCD 直出特征；要成为参考区间，输入必须先通过清单校验并声明 Tier A。"
+)
+def reference_note(tier: str | None, verified: bool) -> str:
+    """Describe the source that was actually measured.
+
+    A fixed sentence claimed every ``--reference`` run measured real CCD straight-out
+    JPEGs, including runs over an arbitrary folder. The note now follows the tier the
+    manifest declares, and unverified input gets no CCD claim at all.
+    """
+    if not verified:
+        return REFERENCE_NOTE_UNVERIFIED
+    return {
+        "A": REFERENCE_NOTE_TIER_A,
+        "B": REFERENCE_NOTE_TIER_B,
+        "C": REFERENCE_NOTE_TIER_C,
+    }.get(tier or "", REFERENCE_NOTE_UNVERIFIED)
+
+
+def source_note(reference: bool, tier: str | None, verified: bool) -> str:
+    if not reference:
+        return "源图来自图库（Pexels License），不随仓库分发；只保留文件名与 SHA-256。"
+    if not verified:
+        return "来源未经清单校验，只能当作描述性测量；版权归原站与摄影师，原图不入库、不转载。"
+    if tier == "A":
+        return "源图由清单声明为 Tier A 的 CCD 直出原图；版权归采集者，原图不入库、不转载。"
+    return "源图由清单声明为 Tier B/C 样张，不构成 CCD 直出认证；版权归原站与摄影师，原图不入库、不转载。"
+
+
+def profiler_commit() -> str | None:
+    """Short hash of the commit that produced the numbers, when this is a git checkout."""
+    try:
+        result = subprocess.run(
+            ["git", "-C", str(REPO_ROOT), "rev-parse", "--short", "HEAD"],
+            capture_output=True,
+            text=True,
+            timeout=10,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return None
+    value = result.stdout.strip()
+    return value if result.returncode == 0 and value else None
 
 
 def reference_title(source_label: str) -> str:
@@ -178,13 +232,19 @@ def _round(value: float | None) -> float | None:
     return None if value is None else round(float(value), 3)
 
 
-def _display_scale_noise(rgb: np.ndarray, long_edge: int = GRAIN_REFERENCE_LONG_EDGE) -> float | None:
+def _scaled_probe(
+    rgb: np.ndarray, long_edge: int = GRAIN_REFERENCE_LONG_EDGE
+) -> tuple[np.ndarray, np.ndarray] | None:
     """Grain amplitude after area-resampling to a common long edge.
 
     Native-pixel MAD is not comparable between a 2 MP compact and a 24 MP phone: the
     same physical grain spans a different number of pixels. Resampling to one display
     size makes the number mean "what a viewer sees at the same size". Images already
     smaller than the reference edge return None, because upsampling would invent detail.
+
+    The probe is built from the source once and reused for both phases; recomputing it
+    per phase compared different regions, which is the defect the native metric already
+    had fixed.
     """
     height, width = rgb.shape[:2]
     if max(width, height) <= long_edge:
@@ -194,12 +254,15 @@ def _display_scale_noise(rgb: np.ndarray, long_edge: int = GRAIN_REFERENCE_LONG_
     resized = np.asarray(Image.fromarray(rgb).resize(size, Image.BOX), dtype=np.uint8)
     lightness = srgb_to_lab(resized)[..., 0]
     mask = _flat_mask(lightness)
-    if mask is None:
-        return None
-    return _flat_noise(lightness, mask)
+    return None if mask is None else (lightness, mask)
 
 
-def measure(rgb: np.ndarray, flat_mask: np.ndarray | None = None, lab: np.ndarray | None = None) -> dict[str, float | None]:
+def measure(
+    rgb: np.ndarray,
+    flat_mask: np.ndarray | None = None,
+    lab: np.ndarray | None = None,
+    scaled_probe: tuple[np.ndarray, np.ndarray] | None = None,
+) -> dict[str, float | None]:
     """Summarise one sRGB raster without reducing it to a single score."""
     if lab is None:
         lab = srgb_to_lab(rgb)
@@ -233,7 +296,7 @@ def measure(rgb: np.ndarray, flat_mask: np.ndarray | None = None, lab: np.ndarra
         "centre_L": round(centre, 3),
         "corner_L": round(corner, 3),
         "flat_noise": _round(_flat_noise(lightness, flat_mask)) if flat_mask is not None else None,
-        "flat_noise_scaled": _round(_display_scale_noise(rgb)),
+        "flat_noise_scaled": _round(_flat_noise(*scaled_probe)) if scaled_probe is not None else None,
     }
 
 
@@ -291,8 +354,9 @@ def profile_image(
     lab_before = srgb_to_lab(before)
     mask = _flat_mask(lab_before[..., 0])
     probe = None if mask is None else round(float(mask.mean()), 4)
+    scaled_probe = _scaled_probe(before)
     if reference:
-        measured = measure(before, mask, lab_before)
+        measured = measure(before, mask, lab_before, scaled_probe)
         return {
             "file": path.name,
             "sha256": digest,
@@ -323,8 +387,8 @@ def profile_image(
     # The file pipeline unsharp-masks after the recipe. Measuring only the recipe
     # described a pipeline that never ships, and made `--ablate sharpness` a no-op.
     after = apply_ccd.apply_sharpness(after, recipe, strength, None)
-    measured_before = measure(before, mask, lab_before)
-    measured_after = measure(after, mask)
+    measured_before = measure(before, mask, lab_before, scaled_probe)
+    measured_after = measure(after, mask, scaled_probe=scaled_probe)
     return {
         "file": path.name,
         "sha256": digest,
@@ -502,6 +566,8 @@ def build_report(
     ablation_stage: str | None = None,
     reference: bool = False,
     coverage: dict[str, Any] | None = None,
+    reference_tier: str | None = None,
+    reference_verified: bool = False,
 ) -> dict[str, Any]:
     ablation_records: dict[str, Any] = {}
     records: list[dict[str, Any]] = []
@@ -559,9 +625,13 @@ def build_report(
         "title": reference_title(source_label) if reference else TITLE,
         "baseline": False,
         "reference": reference,
-        "note": REFERENCE_NOTE if reference else NOTE,
+        "note": reference_note(reference_tier, reference_verified) if reference else NOTE,
         "generated_by": "tests/ccd_profile.py",
         "script_version": apply_ccd.SCRIPT_VERSION,
+        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "profiler_commit": profiler_commit(),
+        "reference_tier": reference_tier,
+        "reference_verified": reference_verified,
         "seed": seed,
         "ablation": None
         if not ablation_stage or reference
@@ -576,11 +646,7 @@ def build_report(
             "count": len(records),
             "measured": len(measured),
             "redistributed": False,
-            "note": (
-                "真实 CCD 直出样张，版权归原站与摄影师；原图不入库、不转载，只保留文件名与 SHA-256。"
-                if reference
-                else "源图来自图库（Pexels License），不随仓库分发；只保留文件名与 SHA-256。"
-            ),
+            "note": source_note(reference, reference_tier, reference_verified),
         },
         "metric_definitions": {
             "L_p*": "CIELAB L* 的百分位（D65，按 sRGB 解释；已由脚本转成 sRGB）",
@@ -594,9 +660,12 @@ def build_report(
             "flat_noise": "在源图最平滑四分位区域上测得的 L* 残差稳健标准差（1.4826×MAD）；前后两相使用同一掩膜",
             "flat_noise_scaled": (
                 f"同上，但先把两相按面积平均重采样到长边 {GRAIN_REFERENCE_LONG_EDGE} 像素，"
-                "用于跨分辨率比较；小于该长边的图不计算（上采样会凭空造细节）"
+                "在同一显示尺度上复用源图掩膜比较，用于跨分辨率对照；小于该长边的图不计算"
             ),
-            "roles": "calibration 可参与调参，holdout 只作验收；两者分开聚合，不合并",
+            "roles": (
+                "calibration/holdout 只允许 Tier A（可参与调参 / 只作验收）；pilot/holdout_preview 是 "
+                "Tier B/C 的描述性分区，不进入标定；一律按 family × role 分开聚合"
+            ),
             "flat_probe_fraction": "颗粒探针覆盖的像素比例；为 null 表示画面太平滑区域不足，未测颗粒",
         },
         "guardrails": None
@@ -651,7 +720,7 @@ def _print_summary(report: dict[str, Any]) -> None:
         coverage = report.get("coverage") or {}
         for family, plan in coverage.items():
             print(f"  coverage {family}: {plan}", file=sys.stderr)
-        print("  这是 CCD 自身的区间，不是本仓库管线的输出，也不是四族完整基线。", file=sys.stderr)
+        print("  这是清单声明来源的自身区间，不是本仓库管线的输出，也不是四族完整基线。", file=sys.stderr)
         return
     print(f"  guardrail violations: {len(report['guardrails']['violations'])}", file=sys.stderr)
     print("  不做单一总分；这些区间不是 CCD 基线。", file=sys.stderr)
@@ -693,8 +762,22 @@ def main(argv: list[str] | None = None) -> int:
         parser.error("--reference 只测源图，不能与 --ablate 同时使用")
 
     coverage = None
-    if args.reference and args.manifest:
-        coverage = json.loads(Path(args.manifest).read_text(encoding="utf-8")).get("coverage")
+    reference_tier = None
+    reference_verified = False
+    if args.reference:
+        if not args.manifest:
+            parser.error("--reference 需要 --manifest：数字必须和来源声明一起留下")
+        manifest = json.loads(Path(args.manifest).read_text(encoding="utf-8"))
+        if manifest.get("status") == "template":
+            parser.error("--reference 拒绝模板清单：先填真实证据，或改用普通清单")
+        coverage = manifest.get("coverage")
+        entries = [item for item in manifest.get("entries", []) if isinstance(item, dict)]
+        tiers = {item.get("evidence_tier") for item in entries}
+        reference_tier = tiers.pop() if len(tiers) == 1 else None
+        reference_verified = bool(entries) and all(
+            item.get("local_path") and item.get("source_sha256") and item.get("evidence_tier")
+            for item in entries
+        )
 
     cases, label = _load_cases(args)
     origin = "manifest" if args.manifest else "folder"
@@ -707,6 +790,8 @@ def main(argv: list[str] | None = None) -> int:
         args.ablate,
         reference=args.reference,
         coverage=coverage,
+        reference_tier=reference_tier,
+        reference_verified=reference_verified,
     )
     if not args.quiet:
         _print_summary(report)
